@@ -1,17 +1,15 @@
 package com.jddev.simplealarm.presentation.screens.alarm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jddev.simplealarm.domain.model.Alarm
-import com.jddev.simplealarm.domain.usecase.AddAlarmUseCase
-import com.jddev.simplealarm.domain.usecase.DeleteAlarmUseCase
-import com.jddev.simplealarm.domain.usecase.GetAlarmByIdUseCase
-import com.jddev.simplealarm.domain.usecase.GetAllAlarmsUseCase
-import com.jddev.simplealarm.domain.usecase.UpdateAlarmUseCase
+import com.jddev.simplealarm.domain.usecase.alarm.AddAlarmUseCase
+import com.jddev.simplealarm.domain.usecase.alarm.DeleteAlarmUseCase
+import com.jddev.simplealarm.domain.usecase.alarm.GetAlarmByIdUseCase
+import com.jddev.simplealarm.domain.usecase.alarm.GetAllAlarmsUseCase
+import com.jddev.simplealarm.domain.usecase.alarm.UpdateAlarmUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -35,7 +33,7 @@ class AlarmViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getAlarms().collect {alarmList ->
+            getAlarms(Unit).collect {alarmList ->
                 _alarms.value = alarmList
                     .sortedWith(
                         compareByDescending<Alarm> { it.isEnabled }  // 1. Enabled alarms first
@@ -45,8 +43,8 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
-    fun getAlarm(id: Int) {
-        if (id == -1) {
+    fun getAlarm(id: Long) {
+        if (id.toInt() == -1) {
             _editingAlarm.value = null
             return
         }

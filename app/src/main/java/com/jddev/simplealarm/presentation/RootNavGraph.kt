@@ -39,12 +39,12 @@ fun RootNavGraph(
         composable(
             "nav_alarm_edit/{alarmId}",
             arguments = listOf(navArgument("alarmId") {
-                type = NavType.IntType
+                type = NavType.LongType
                 defaultValue = -1
             })
         ) {
-            val alarmId = it.arguments?.getInt("alarmId") ?: -1
-            if (alarmId == -1) {
+            val alarmId = it.arguments?.getLong("alarmId") ?: -1
+            if (alarmId.toInt() == -1) {
                 AddNewAlarmRoute(onBack = { rootNavController.navigateUp() })
             } else {
                 EditAlarmRoute(

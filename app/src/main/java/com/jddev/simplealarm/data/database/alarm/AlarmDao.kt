@@ -1,4 +1,4 @@
-package com.jddev.simplealarm.data
+package com.jddev.simplealarm.data.database.alarm
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -23,5 +23,5 @@ interface AlarmDao {
     suspend fun update(alarm: AlarmEntity)
 
     @Query("SELECT * FROM alarms WHERE id = :id")
-    suspend fun getById(id: Int): AlarmEntity?
+    suspend fun getById(id: Long): AlarmEntity?
 }

@@ -2,7 +2,6 @@ package com.jddev.simplealarm.presentation.screens.alarm
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,8 +22,6 @@ import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBeh
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
 import java.time.DayOfWeek
-
-private var id = 0
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

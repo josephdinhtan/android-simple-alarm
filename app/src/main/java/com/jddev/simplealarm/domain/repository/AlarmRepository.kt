@@ -8,5 +8,5 @@ interface AlarmRepository {
     suspend fun insertAlarm(alarm: Alarm): Long
     suspend fun updateAlarm(alarm: Alarm)
     suspend fun deleteAlarm(alarm: Alarm)
-    suspend fun getAlarmById(id: Int): Alarm?
+    suspend fun getAlarmById(id: Long): Alarm?
 }

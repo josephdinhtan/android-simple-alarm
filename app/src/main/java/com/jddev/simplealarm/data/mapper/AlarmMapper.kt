@@ -1,6 +1,6 @@
 package com.jddev.simplealarm.data.mapper
 
-import com.jddev.simplealarm.data.AlarmEntity
+import com.jddev.simplealarm.data.database.alarm.AlarmEntity
 import com.jddev.simplealarm.domain.model.Alarm
 import java.time.DayOfWeek
 

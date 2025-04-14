@@ -2,7 +2,7 @@ package com.jddev.simplealarm.presentation.screens
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -27,14 +27,14 @@ import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBeh
 @Composable
 fun HomeScreen(
     homeNavController: NavHostController = rememberNavController(),
-    navigateToAlarmEdit: (alarmId: Int) -> Unit,
+    navigateToAlarmEdit: (alarmId: Long) -> Unit,
     navigateToSettings: () -> Unit
 ) {
     val scrollBehavior = stUiLargeTopAppbarScrollBehavior()
     val navBackStackEntry by homeNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     Scaffold(
-        contentWindowInsets = WindowInsets.safeContent,
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             when(currentRoute) {
                 ClockNavItem.AlarmNav.route -> AlarmTopAppBar(

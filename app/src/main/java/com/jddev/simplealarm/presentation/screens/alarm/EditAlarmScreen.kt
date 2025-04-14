@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Label
@@ -81,7 +82,7 @@ fun AddNewAlarmRoute(
 @Composable
 fun EditAlarmRoute(
     alarmViewModel: AlarmViewModel = hiltViewModel(),
-    alarmId: Int,
+    alarmId: Long,
     onBack: () -> Unit,
 ) {
     val editingAlarm by alarmViewModel.editingAlarm.collectAsState()
@@ -190,7 +191,7 @@ fun EditAlarmScreen(
                 shape = CircleShape,
                 singleLine = true,
                 leadingIcon = {
-                    Icon(Icons.Default.Label, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null)
                 })
 
             // Repeat days

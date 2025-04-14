@@ -3,7 +3,7 @@ package com.jddev.simplealarm.domain.model
 import java.time.DayOfWeek
 
 data class Alarm(
-    val id: Int = 0,
+    val id: Long = 0L,
     val hour: Int,
     val minute: Int,
     val label: String = "",

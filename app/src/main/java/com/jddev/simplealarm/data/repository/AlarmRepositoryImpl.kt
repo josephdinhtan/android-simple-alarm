@@ -1,6 +1,6 @@
 package com.jddev.simplealarm.data.repository
 
-import com.jddev.simplealarm.data.AlarmDao
+import com.jddev.simplealarm.data.database.alarm.AlarmDao
 import com.jddev.simplealarm.data.mapper.toDomain
 import com.jddev.simplealarm.data.mapper.toEntity
 import com.jddev.simplealarm.domain.model.Alarm
@@ -31,7 +31,7 @@ class AlarmRepositoryImpl @Inject constructor (
         alarmDao.delete(alarm.toEntity())
     }
 
-    override suspend fun getAlarmById(id: Int): Alarm? {
+    override suspend fun getAlarmById(id: Long): Alarm? {
         return alarmDao.getById(id)?.toDomain()
     }
 }

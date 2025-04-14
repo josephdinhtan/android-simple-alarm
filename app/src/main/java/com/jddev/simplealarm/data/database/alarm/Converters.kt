@@ -1,4 +1,4 @@
-package com.jddev.simplealarm.data
+package com.jddev.simplealarm.data.database.alarm
 
 import androidx.room.TypeConverter
 
