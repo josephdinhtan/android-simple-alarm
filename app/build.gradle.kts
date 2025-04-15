@@ -47,7 +47,8 @@ android {
 }
 
 dependencies {
-    implementation("com.github.josephdinhtan.android-simple-touch:simpletouch-ui:1.0.0")
+//    implementation("com.github.josephdinhtan.android-simple-touch:simpletouch-ui:1.0.0")
+    implementation(files("libs/simpletouch-ui-release.aar"))
     implementation("com.github.josephdinhtan.android-simple-touch:simpletouch-utils:1.0.0")
 
     // ui module
@@ -61,7 +62,8 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     kapt(libs.hilt.android.compiler)
 
-    // room
+    // database
+    implementation(libs.datastore.preferences)
     implementation(libs.androidx.room.common)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)

@@ -9,9 +9,15 @@ import com.jddev.simplealarm.data.database.alarm.Converters
 import com.jddev.simplealarm.data.database.settings.SettingsDao
 import com.jddev.simplealarm.data.database.settings.SettingsEntity
 
-@Database(entities = [AlarmEntity::class, SettingsEntity::class], version = 1)
+//@Database(entities = [AlarmEntity::class, SettingsEntity::class], version = 1)
+//@TypeConverters(Converters::class)
+//abstract class AlarmDatabase : RoomDatabase() {
+//    abstract fun alarmDao(): AlarmDao
+//    abstract fun settingsDao(): SettingsDao
+//}
+
+@Database(entities = [AlarmEntity::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AlarmDatabase : RoomDatabase() {
     abstract fun alarmDao(): AlarmDao
-    abstract fun settingsDao(): SettingsDao
 }

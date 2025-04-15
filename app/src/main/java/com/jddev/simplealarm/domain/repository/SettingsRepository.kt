@@ -1,37 +1,32 @@
 package com.jddev.simplealarm.domain.repository
 
 import android.net.Uri
-import com.jddev.simplealarm.domain.model.ThemeMode
+import com.jddev.simplealarm.domain.model.settings.ThemeMode
+import kotlinx.coroutines.flow.Flow
 import java.time.Duration
 
 interface SettingsRepository {
 
-    suspend fun is24HourFormat(): Boolean
+    val is24HourFormat: Flow<Boolean>
+    val defaultRingtoneUri: Flow<Uri>
+    val alarmVolume: Flow<Int>
+    val isVibrationEnabled: Flow<Boolean>
+    val snoozeDuration: Flow<Duration>
+    val defaultLabel: Flow<String>
+    val autoDismissTime: Flow<Duration>
+    val gradualIncreaseVolume: Flow<Duration>
+    val themeSetting: Flow<ThemeMode>
+    val isUseDynamicColors: Flow<Boolean>
+    val isFirstTime: Flow<Boolean>
+
     suspend fun set24HourFormat(enabled: Boolean)
-
-    suspend fun getDefaultRingtoneUri(): Uri
     suspend fun setDefaultRingtoneUri(uri: Uri)
-
-    suspend fun getAlarmVolume(): Int
     suspend fun setAlarmVolume(volume: Int)
-
-    suspend fun isVibrationEnabled(): Boolean
     suspend fun setVibrationEnabled(enabled: Boolean)
-
-    suspend fun getSnoozeDuration(): Duration
     suspend fun setSnoozeDuration(duration: Duration)
-
-    suspend fun getDefaultLabel(): String
     suspend fun setDefaultLabel(label: String)
-
-    suspend fun getAutoDismissTime(): Duration
     suspend fun setAutoDismissTime(duration: Duration)
-
-    suspend fun isGradualVolumeEnabled(): Boolean
-    suspend fun setGradualVolumeEnabled(enabled: Boolean)
-
-    suspend fun getThemeSetting(): ThemeMode
+    suspend fun setGradualIncreaseVolume(duration: Duration)
     suspend fun setThemeSetting(themeMode: ThemeMode)
-
-    suspend fun isFirstTime(): Boolean
+    suspend fun setUseDynamicColors(enabled: Boolean)
 }

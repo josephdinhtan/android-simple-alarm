@@ -2,10 +2,8 @@ package com.jddev.simplealarm.data.di
 
 import com.jddev.simplealarm.data.repository.AlarmRepositoryImpl
 import com.jddev.simplealarm.data.repository.SettingsRepositoryImpl
-import com.jddev.simplealarm.data.scheduler.AlarmSchedulerImpl
 import com.jddev.simplealarm.domain.repository.AlarmRepository
 import com.jddev.simplealarm.domain.repository.SettingsRepository
-import com.jddev.simplealarm.domain.scheduler.AlarmScheduler
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -18,19 +16,13 @@ abstract class RepositoryModule {
 
     @Singleton
     @Binds
-    abstract fun provideAlarmRepository(
-        impl: AlarmRepositoryImpl
+    abstract fun bindsAlarmRepository(
+        impl: AlarmRepositoryImpl,
     ): AlarmRepository
 
     @Singleton
     @Binds
-    abstract fun provideSettingsRepository(
-        impl: SettingsRepositoryImpl
+    abstract fun bindsSettingsRepository(
+        impl: SettingsRepositoryImpl,
     ): SettingsRepository
-
-    @Singleton
-    @Binds
-    abstract fun provideAlarmScheduler(
-        impl: AlarmSchedulerImpl
-    ): AlarmScheduler
 }

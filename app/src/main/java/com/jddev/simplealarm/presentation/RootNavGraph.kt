@@ -17,7 +17,6 @@ import com.jddev.simpletouch.ui.navigation.StUiNavHost
 
 @Composable
 fun RootNavGraph(
-    modifier: Modifier = Modifier,
     rootNavController: NavHostController = rememberNavController(),
 ) {
 
@@ -28,7 +27,6 @@ fun RootNavGraph(
     StUiNavHost (
         navController = rootNavController,
         startDestination = "nav_home",
-        modifier = modifier,
     ) {
         composable("nav_home") {
             HomeScreen(

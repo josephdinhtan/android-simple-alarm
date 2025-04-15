@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
     <application
         android:name=".SimpleAlarmApplication"
@@ -26,7 +27,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".data.scheduler.AlarmReceiver" />
+        <receiver android:name=".data.system.AlarmReceiver" />
     </application>
 
 </manifest>

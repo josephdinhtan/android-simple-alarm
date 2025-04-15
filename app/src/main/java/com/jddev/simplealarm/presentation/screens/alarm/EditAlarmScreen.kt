@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Label
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Keyboard
@@ -34,13 +33,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.rememberTopAppBarState
@@ -61,7 +58,6 @@ import com.jddev.simpletouch.ui.customization.settingsui.StSettingsUi
 import com.jddev.simpletouch.ui.customization.settingsui.group.StSettingsGroup
 import com.jddev.simpletouch.ui.customization.settingsui.switch.StSettingsSwitchItem
 import com.jddev.simpletouch.ui.foundation.dialog.StUiEmptyDialog
-import com.jddev.simpletouch.ui.foundation.topappbar.StUiCenterAlignedTopAppBar
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
 import java.time.DayOfWeek
@@ -113,7 +109,7 @@ fun EditAlarmScreen(
     alarm: Alarm?,
     onSave: (Alarm) -> Unit,
     onDelete: ((Alarm?) -> Unit)? = null,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
 ) {
     var showTimePicker by remember { mutableStateOf(false) }
     var timeHour by remember { mutableIntStateOf(alarm?.hour ?: LocalTime.now().hour) }
@@ -165,34 +161,37 @@ fun EditAlarmScreen(
         StSettingsUi(
             modifier = Modifier.padding(padding), scrollBehavior = scrollBehavior
         ) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
-                    .clickable {
-                        showTimePicker = true
-                    },
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "${timeHour.toString().padStart(2, '0')}:${
-                        timeMinute.toString().padStart(2, '0')
-                    }", style = MaterialTheme.typography.displayLarge
-                )
+            item {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp)
+                        .clickable {
+                            showTimePicker = true
+                        },
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${timeHour.toString().padStart(2, '0')}:${
+                            timeMinute.toString().padStart(2, '0')
+                        }", style = MaterialTheme.typography.displayLarge
+                    )
+                }
             }
-
-            OutlinedTextField(modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth(),
-                value = label,
-                onValueChange = { label = it },
-                label = { Text("Label") },
-                shape = CircleShape,
-                singleLine = true,
-                leadingIcon = {
-                    Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null)
-                })
+            item {
+                OutlinedTextField(modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                    value = label,
+                    onValueChange = { label = it },
+                    label = { Text("Label") },
+                    shape = CircleShape,
+                    singleLine = true,
+                    leadingIcon = {
+                        Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null)
+                    })
+            }
 
             // Repeat days
             StSettingsGroup(
@@ -205,8 +204,7 @@ fun EditAlarmScreen(
                     DayOfWeek.entries.forEach { day ->
                         FilterChip(selected = repeatDays.contains(day),
                             shape = CircleShape,
-                            colors = FilterChipDefaults.filterChipColors()
-                                .copy(
+                            colors = FilterChipDefaults.filterChipColors().copy(
                                     selectedContainerColor = MaterialTheme.colorScheme.tertiary,
                                     selectedLabelColor = MaterialTheme.colorScheme.onTertiary,
                                 ),
@@ -220,11 +218,12 @@ fun EditAlarmScreen(
                 }
             }
 
-            StSettingsUi {
+            StSettingsGroup {
                 StSettingsSwitchItem(title = "Vibrate", checked = isVibration, onCheckedChange = {
                     isVibration = it
                 })
-                StSettingsSwitchItem(title = "Alarm sound",
+                StSettingsSwitchItem(
+                    title = "Alarm sound",
                     checked = isVibration,
                     onCheckedChange = {
                         isVibration = it
