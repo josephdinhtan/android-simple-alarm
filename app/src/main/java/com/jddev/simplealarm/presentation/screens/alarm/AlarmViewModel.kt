@@ -2,7 +2,9 @@ package com.jddev.simplealarm.presentation.screens.alarm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jddev.simplealarm.domain.model.Alarm
+import com.jddev.simplealarm.domain.model.alarm.Alarm
+import com.jddev.simplealarm.domain.model.alarm.AlarmTone
+import com.jddev.simplealarm.domain.repository.SettingsRepository
 import com.jddev.simplealarm.domain.usecase.alarm.AddAlarmUseCase
 import com.jddev.simplealarm.domain.usecase.alarm.DeleteAlarmUseCase
 import com.jddev.simplealarm.domain.usecase.alarm.GetAlarmByIdUseCase
@@ -10,7 +12,9 @@ import com.jddev.simplealarm.domain.usecase.alarm.GetAllAlarmsUseCase
 import com.jddev.simplealarm.domain.usecase.alarm.UpdateAlarmUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -22,8 +26,12 @@ class AlarmViewModel @Inject constructor(
     private val addAlarm: AddAlarmUseCase,
     private val getAlarmById: GetAlarmByIdUseCase,
     private val updateAlarm: UpdateAlarmUseCase,
-    private val deleteAlarm: DeleteAlarmUseCase
+    private val deleteAlarm: DeleteAlarmUseCase,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
+
+    val defaultAlarmTone = settingsRepository.defaultRingtone
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AlarmTone.Silent)
 
     private val _alarms = MutableStateFlow<List<Alarm>>(emptyList())
     val alarms = _alarms.asStateFlow()
@@ -33,7 +41,7 @@ class AlarmViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getAlarms(Unit).collect {alarmList ->
+            getAlarms(Unit).collect { alarmList ->
                 _alarms.value = alarmList
                     .sortedWith(
                         compareByDescending<Alarm> { it.isEnabled }  // 1. Enabled alarms first

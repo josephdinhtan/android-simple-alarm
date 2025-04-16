@@ -14,7 +14,7 @@ class GetDefaultAlarmVolumeUseCase @Inject constructor(
 
     override suspend fun invoke(params: Unit): Int {
         val volumeInSystem = systemSettingsManager.getAlarmVolume()
-        settingsRepository.setAlarmVolume(volumeInSystem)
+//        settingsRepository.setAlarmVolume(volumeInSystem)
         return volumeInSystem
     }
 }

@@ -14,7 +14,7 @@ class SetDefaultAlarmVolumeUseCase @Inject constructor(
 
     override suspend fun invoke(params: Int) {
         if(params in 0..systemSettingsManager.getMaxAlarmVolume()) {
-            settingsRepository.setAlarmVolume(params)
+//            settingsRepository.setAlarmVolume(params)
             systemSettingsManager.setAlarmVolume(params)
         }
     }

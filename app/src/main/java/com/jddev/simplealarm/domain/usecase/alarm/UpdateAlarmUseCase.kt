@@ -1,6 +1,6 @@
 package com.jddev.simplealarm.domain.usecase.alarm
 
-import com.jddev.simplealarm.domain.model.Alarm
+import com.jddev.simplealarm.domain.model.alarm.Alarm
 import com.jddev.simplealarm.domain.repository.AlarmRepository
 import com.jddev.simplealarm.domain.system.AlarmScheduler
 import com.jddev.simplealarm.domain.system.NotificationController

@@ -3,7 +3,7 @@ package com.jddev.simplealarm.data.repository
 import com.jddev.simplealarm.data.database.alarm.AlarmDao
 import com.jddev.simplealarm.data.mapper.toDomain
 import com.jddev.simplealarm.data.mapper.toEntity
-import com.jddev.simplealarm.domain.model.Alarm
+import com.jddev.simplealarm.domain.model.alarm.Alarm
 import com.jddev.simplealarm.domain.repository.AlarmRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

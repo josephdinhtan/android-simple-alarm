@@ -5,15 +5,19 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.jddev.simplealarm.domain.model.alarm.AlarmTone
 import com.jddev.simplealarm.domain.model.settings.ThemeMode
 import com.jddev.simplealarm.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.time.Duration
 import javax.inject.Inject
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class SettingsRepositoryImpl @Inject constructor(
     private val dataStorePreferences: DataStore<Preferences>,
@@ -21,37 +25,42 @@ class SettingsRepositoryImpl @Inject constructor(
     override val is24HourFormat: Flow<Boolean> = dataStorePreferences.data.map { preferences ->
         preferences[SettingsPreferencesKeys.is24HourFormat] ?: true
     }
-    override val defaultRingtoneUri: Flow<Uri> = dataStorePreferences.data.map { preferences ->
-        val uriString = preferences[SettingsPreferencesKeys.defaultRingtoneUri]
-        uriString?.let { Uri.parse(it) } ?: Uri.EMPTY
+    override val defaultRingtone: Flow<AlarmTone> = dataStorePreferences.data.map { preferences ->
+        val defaultRingtoneUriStr = preferences[SettingsPreferencesKeys.defaultRingtoneUri]
+        val defaultRingtoneTitle = preferences[SettingsPreferencesKeys.defaultRingtoneTitle]
+        if (defaultRingtoneUriStr != null && defaultRingtoneTitle != null) {
+            AlarmTone(defaultRingtoneTitle, Uri.parse(defaultRingtoneUriStr))
+        } else {
+            AlarmTone.Silent
+        }
     }
     override val defaultPreAlarmNotificationDuration: Flow<Duration> =
         dataStorePreferences.data.map { preferences ->
             val durationMinutes =
                 preferences[SettingsPreferencesKeys.defaultPreAlarmNotificationMin] ?: 5
-            Duration.ofMinutes(durationMinutes.toLong())
+            durationMinutes.minutes
         }
-    override val alarmVolume: Flow<Int> = dataStorePreferences.data.map { preferences ->
-        preferences[SettingsPreferencesKeys.alarmVolume] ?: 50
+    override val alarmVolume: Flow<Float> = dataStorePreferences.data.map { preferences ->
+        preferences[SettingsPreferencesKeys.alarmVolume] ?: 1f
     }
     override val isVibrationEnabled: Flow<Boolean> = dataStorePreferences.data.map { preferences ->
         preferences[SettingsPreferencesKeys.isVibrationEnabled] ?: true
     }
     override val snoozeDuration: Flow<Duration> = dataStorePreferences.data.map { preferences ->
         val durationMinutes = preferences[SettingsPreferencesKeys.snoozeDuration] ?: 10
-        Duration.ofMinutes(durationMinutes.toLong())
+        durationMinutes.minutes
     }
     override val defaultLabel: Flow<String> = dataStorePreferences.data.map { preferences ->
         preferences[SettingsPreferencesKeys.defaultLabel] ?: "Alarm"
     }
     override val autoDismissTime: Flow<Duration> = dataStorePreferences.data.map { preferences ->
         val durationMinutes = preferences[SettingsPreferencesKeys.autoDismissTime] ?: 5
-        Duration.ofMinutes(durationMinutes.toLong())
+        durationMinutes.minutes
     }
-    override val gradualIncreaseVolume: Flow<Duration> =
+    override val volumeFadeDuration: Flow<Duration> =
         dataStorePreferences.data.map { preferences ->
-            val durationSeconds = preferences[SettingsPreferencesKeys.gradualVolumeIncrease] ?: 10
-            Duration.ofSeconds(durationSeconds.toLong())
+            val durationSeconds = preferences[SettingsPreferencesKeys.volumeFadeDuration] ?: 10
+            durationSeconds.seconds
         }
 
     override val themeSetting: Flow<ThemeMode> = dataStorePreferences.data.map { preferences ->
@@ -71,23 +80,28 @@ class SettingsRepositoryImpl @Inject constructor(
         val durationMinutes =
             dataStorePreferences.data.first()[SettingsPreferencesKeys.defaultPreAlarmNotificationMin]
                 ?: 5
-        return Duration.ofMinutes(durationMinutes.toLong())
+        return durationMinutes.minutes
     }
 
     override suspend fun getSnoozeDuration(): Duration {
         val durationMinutes =
             dataStorePreferences.data.first()[SettingsPreferencesKeys.snoozeDuration] ?: 5
-        return Duration.ofMinutes(durationMinutes.toLong())
+        return durationMinutes.minutes
     }
 
     override suspend fun getAutoDismissTime(): Duration {
         val durationMinutes =
             dataStorePreferences.data.first()[SettingsPreferencesKeys.autoDismissTime] ?: 5
-        return Duration.ofMinutes(durationMinutes.toLong())
+        return durationMinutes.minutes
     }
 
-    override suspend fun getAlarmVolume(): Int {
-        return dataStorePreferences.data.first()[SettingsPreferencesKeys.alarmVolume] ?: 50
+    override suspend fun getAlarmVolume(): Float {
+        return dataStorePreferences.data.first()[SettingsPreferencesKeys.alarmVolume] ?: 1f
+    }
+
+    override suspend fun getVolumeFadeDuration(): Duration {
+        val durationSeconds = dataStorePreferences.data.first()[SettingsPreferencesKeys.volumeFadeDuration] ?: 0
+        return durationSeconds.seconds
     }
 
     override suspend fun set24HourFormat(enabled: Boolean) {
@@ -105,11 +119,11 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setDefaultPreAlarmNotificationDuration(duration: Duration) {
         dataStorePreferences.edit { preferences ->
             preferences[SettingsPreferencesKeys.defaultPreAlarmNotificationMin] =
-                duration.toMinutes().toInt()
+                duration.inWholeMinutes.toInt()
         }
     }
 
-    override suspend fun setAlarmVolume(volume: Int) {
+    override suspend fun setAlarmVolume(volume: Float) {
         dataStorePreferences.edit { preferences ->
             preferences[SettingsPreferencesKeys.alarmVolume] = volume
         }
@@ -123,7 +137,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setSnoozeDuration(duration: Duration) {
         dataStorePreferences.edit { preferences ->
-            preferences[SettingsPreferencesKeys.snoozeDuration] = duration.toMinutes().toInt()
+            preferences[SettingsPreferencesKeys.snoozeDuration] = duration.inWholeMinutes.toInt()
         }
     }
 
@@ -135,13 +149,13 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setAutoDismissTime(duration: Duration) {
         dataStorePreferences.edit { preferences ->
-            preferences[SettingsPreferencesKeys.autoDismissTime] = duration.toMinutes().toInt()
+            preferences[SettingsPreferencesKeys.autoDismissTime] = duration.inWholeMinutes.toInt()
         }
     }
 
-    override suspend fun setGradualIncreaseVolume(duration: Duration) {
+    override suspend fun setVolumeFadeDuration(duration: Duration) {
         dataStorePreferences.edit { preferences ->
-            preferences[SettingsPreferencesKeys.gradualVolumeIncrease] = duration.seconds.toInt()
+            preferences[SettingsPreferencesKeys.volumeFadeDuration] = duration.inWholeSeconds.toInt()
         }
     }
 
@@ -161,14 +175,15 @@ class SettingsRepositoryImpl @Inject constructor(
 private object SettingsPreferencesKeys {
     val useDynamicColors = booleanPreferencesKey(name = "use_dynamic_colors")
     val is24HourFormat = booleanPreferencesKey("is_24_hour_format")
+    val defaultRingtoneTitle = stringPreferencesKey("default_ringtone_title")
     val defaultRingtoneUri = stringPreferencesKey("default_ringtone_uri")
     val defaultPreAlarmNotificationMin = intPreferencesKey("default_pre_alarm_notification_min")
-    val alarmVolume = intPreferencesKey("alarm_volume")
+    val alarmVolume = floatPreferencesKey("alarm_volume")
     val isVibrationEnabled = booleanPreferencesKey("vibration_enabled")
     val snoozeDuration = intPreferencesKey("snooze_duration") // store in minutes or seconds
     val defaultLabel = stringPreferencesKey("default_label")
     val autoDismissTime = intPreferencesKey("auto_dismiss_time") // in seconds
-    val gradualVolumeIncrease = intPreferencesKey("gradual_volume_increase") // in seconds
+    val volumeFadeDuration = intPreferencesKey("volume_fade_duration") // in seconds
     val themeStyle = stringPreferencesKey("theme_style")
     val isFirstTime = booleanPreferencesKey("is_first_time")
 }

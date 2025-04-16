@@ -1,4 +1,4 @@
-package com.jddev.simplealarm.domain.model
+package com.jddev.simplealarm.domain.model.alarm
 
 import java.time.DayOfWeek
 import java.time.Duration
@@ -8,6 +8,7 @@ data class Alarm(
     val hour: Int,
     val minute: Int,
     val label: String = "",
+    val tone: AlarmTone = AlarmTone.Silent, // silent by default
     val repeatDays: List<DayOfWeek> = emptyList(),
     val isEnabled: Boolean = true,
     val preAlarmNotificationDuration: Duration = Duration.ZERO,

@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.jddev.simplealarm.domain.model.Alarm
+import com.jddev.simplealarm.domain.model.alarm.Alarm
 import com.jddev.simpletouch.ui.foundation.StUiSwitch
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
@@ -135,12 +135,12 @@ private fun Preview() {
             12,
             0,
             "Test overflow line, Test overflow line, Test overflow line",
-            repeatDayOfWeeK,
+            repeatDays = repeatDayOfWeeK,
 
         ), onToggle = {}, onClick = {})
         Spacer(Modifier.height(16.dp))
         AlarmItem(alarm = Alarm(
-            1, 12, 0, "Test", repeatDayOfWeeK, isEnabled = false
+            1, 12, 0, "Test", repeatDays = repeatDayOfWeeK, isEnabled = false
         ), onToggle = {}, onClick = {})
     }
 }

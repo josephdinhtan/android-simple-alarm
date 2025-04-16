@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.jddev.simplealarm.domain.model.Alarm
+import com.jddev.simplealarm.domain.model.alarm.Alarm
 import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBehavior
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
@@ -88,8 +88,8 @@ private fun Preview() {
     )
     StUiPreviewWrapper {
         AlarmScreenContent(alarms = listOf(
-            Alarm(1, 12, 0, "Test", repeatDayOfWeeK, isEnabled = true),
-            Alarm(1, 12, 0, "Test", repeatDayOfWeeK, isEnabled = false),
+            Alarm(1, 12, 0, "Test", repeatDays = repeatDayOfWeeK, isEnabled = true),
+            Alarm(1, 12, 0, "Test", repeatDays = repeatDayOfWeeK, isEnabled = false),
         ), scrollBehavior = stUiLargeTopAppbarScrollBehavior(), {}, {})
     }
 }

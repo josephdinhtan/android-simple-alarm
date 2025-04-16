@@ -13,5 +13,8 @@ data class AlarmEntity(
     val repeatDaysInt: List<Int>,
     val isEnabled: Boolean = true,
     val preAlarmNotificationMin: Int = 0,
+    val toneUriStr: String = "",
+    val toneTitle: String = "",
     val createdAt: Long = System.currentTimeMillis(),
 )
+

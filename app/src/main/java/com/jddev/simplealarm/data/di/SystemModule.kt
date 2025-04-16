@@ -4,6 +4,8 @@ import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
 import android.media.AudioManager
+import android.media.MediaPlayer
+import android.media.RingtoneManager
 import com.jddev.simplealarm.data.system.AlarmSchedulerImpl
 import com.jddev.simplealarm.data.system.NotificationControllerImpl
 import com.jddev.simplealarm.data.system.SystemSettingsManagerImpl
@@ -41,6 +43,17 @@ object AndroidSystemModule {
     @Singleton
     fun provideNotificationManager(@ApplicationContext context: Context): NotificationManager {
         return context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    }
+
+    @Provides
+    @Singleton
+    fun provideRingToneManager(@ApplicationContext context: Context): RingtoneManager {
+        return RingtoneManager(context)
+    }
+
+    @Provides
+    fun provideMediaPlayer(): MediaPlayer {
+        return MediaPlayer()
     }
 }
 

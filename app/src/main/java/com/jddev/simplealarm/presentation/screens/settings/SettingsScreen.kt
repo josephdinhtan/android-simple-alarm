@@ -85,16 +85,16 @@ private fun SettingsScreen(
                     onClick = navigateToThemeMode
                 )
                 StSettingsSwitchItem(
-                    leadingImageVector = Icons.Outlined.AccessTime,
-                    title = "24h format",
-                    checked = is24hFormat,
-                    onCheckedChange = on24hFormatChange,
-                )
-                StSettingsSwitchItem(
                     leadingImageVector = Icons.Outlined.ColorLens,
                     title = "Use system colors",
                     checked = isUseDynamicColors,
                     onCheckedChange = onUseDynamicColorsChange,
+                )
+                StSettingsSwitchItem(
+                    leadingImageVector = Icons.Outlined.AccessTime,
+                    title = "24h format",
+                    checked = is24hFormat,
+                    onCheckedChange = on24hFormatChange,
                 )
             }
             StSettingsGroup(
