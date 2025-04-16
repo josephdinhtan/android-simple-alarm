@@ -12,5 +12,7 @@ class AlarmReceiver : BroadcastReceiver() {
         // Show full-screen activity or notification here
         Timber.d("Alarm ringing! ID: $alarmId")
         Toast.makeText(context, "Alarm ringing! ID: $alarmId", Toast.LENGTH_LONG).show()
+
+        // fake case show notification here.
     }
 }

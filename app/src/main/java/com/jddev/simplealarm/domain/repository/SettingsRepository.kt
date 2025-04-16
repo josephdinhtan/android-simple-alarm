@@ -7,8 +7,10 @@ import java.time.Duration
 
 interface SettingsRepository {
 
+    // Reactive streams
     val is24HourFormat: Flow<Boolean>
     val defaultRingtoneUri: Flow<Uri>
+    val defaultPreAlarmNotificationDuration: Flow<Duration>
     val alarmVolume: Flow<Int>
     val isVibrationEnabled: Flow<Boolean>
     val snoozeDuration: Flow<Duration>
@@ -19,8 +21,16 @@ interface SettingsRepository {
     val isUseDynamicColors: Flow<Boolean>
     val isFirstTime: Flow<Boolean>
 
+    // One-time reads for domain use cases
+    suspend fun getDefaultPreAlarmNotificationDuration(): Duration
+    suspend fun getSnoozeDuration(): Duration
+    suspend fun getAutoDismissTime(): Duration
+    suspend fun getAlarmVolume(): Int
+
+    // Setters
     suspend fun set24HourFormat(enabled: Boolean)
     suspend fun setDefaultRingtoneUri(uri: Uri)
+    suspend fun setDefaultPreAlarmNotificationDuration(duration: Duration)
     suspend fun setAlarmVolume(volume: Int)
     suspend fun setVibrationEnabled(enabled: Boolean)
     suspend fun setSnoozeDuration(duration: Duration)

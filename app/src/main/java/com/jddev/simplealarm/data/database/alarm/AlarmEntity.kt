@@ -2,6 +2,7 @@ package com.jddev.simplealarm.data.database.alarm
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.Duration
 
 @Entity(tableName = "alarms")
 data class AlarmEntity(
@@ -9,7 +10,8 @@ data class AlarmEntity(
     val hour: Int,
     val minute: Int,
     val label: String = "",
-    val repeatDaysInt: List<Int>, // 0=Sunday, ..., 6=Saturday
+    val repeatDaysInt: List<Int>,
     val isEnabled: Boolean = true,
-    val createdAt: Long = System.currentTimeMillis()
+    val preAlarmNotificationMin: Int = 0,
+    val createdAt: Long = System.currentTimeMillis(),
 )
