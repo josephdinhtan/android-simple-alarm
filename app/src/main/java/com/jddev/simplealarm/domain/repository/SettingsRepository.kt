@@ -1,7 +1,6 @@
 package com.jddev.simplealarm.domain.repository
 
-import android.net.Uri
-import com.jddev.simplealarm.domain.model.alarm.AlarmTone
+import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simplealarm.domain.model.settings.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
@@ -10,7 +9,7 @@ interface SettingsRepository {
 
     // Reactive streams
     val is24HourFormat: Flow<Boolean>
-    val defaultRingtone: Flow<AlarmTone>
+    val defaultRingtone: Flow<Ringtone>
     val defaultPreAlarmNotificationDuration: Flow<Duration>
     val alarmVolume: Flow<Float>
     val isVibrationEnabled: Flow<Boolean>
@@ -20,7 +19,6 @@ interface SettingsRepository {
     val volumeFadeDuration: Flow<Duration>
     val themeSetting: Flow<ThemeMode>
     val isUseDynamicColors: Flow<Boolean>
-    val isFirstTime: Flow<Boolean>
 
     // One-time reads for domain use cases
     suspend fun getDefaultPreAlarmNotificationDuration(): Duration
@@ -28,10 +26,12 @@ interface SettingsRepository {
     suspend fun getAutoDismissTime(): Duration
     suspend fun getAlarmVolume(): Float
     suspend fun getVolumeFadeDuration(): Duration
+    suspend fun getIsFirstTimeStart(): Boolean
+    suspend fun getDefaultRingtone(): Ringtone
 
     // Setters
     suspend fun set24HourFormat(enabled: Boolean)
-    suspend fun setDefaultRingtoneUri(uri: Uri)
+    suspend fun setDefaultRingtone(ringtone: Ringtone)
     suspend fun setDefaultPreAlarmNotificationDuration(duration: Duration)
     suspend fun setAlarmVolume(volume: Float)
     suspend fun setVibrationEnabled(enabled: Boolean)
@@ -41,4 +41,5 @@ interface SettingsRepository {
     suspend fun setVolumeFadeDuration(duration: Duration)
     suspend fun setThemeSetting(themeMode: ThemeMode)
     suspend fun setUseDynamicColors(enabled: Boolean)
+    suspend fun setIsFirstTimeStart(value: Boolean)
 }

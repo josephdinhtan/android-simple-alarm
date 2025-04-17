@@ -10,6 +10,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.jddev.simplealarm.presentation.screens.settings.ringtone.RingtonePickerScreen
 import com.jddev.simplealarm.presentation.screens.settings.thememode.SettingsThemeModeScreen
 
 fun NavGraphBuilder.settingsNavGraph(
@@ -27,6 +28,9 @@ fun NavGraphBuilder.settingsNavGraph(
                 navigateToThemeMode = {
                     navController.navigate("nav_settings_theme_mode")
                 },
+                navigateToRingtone = {
+                    navController.navigate("nav_settings_ringtone")
+                },
                 onBack = { navController.navigateUp() }
             )
         }
@@ -35,6 +39,12 @@ fun NavGraphBuilder.settingsNavGraph(
             val viewModel = it.sharedSettingsViewModel<SettingsViewModel>(navController)
             SettingsThemeModeScreen(
                 viewModel = viewModel,
+                onBack = { navController.navigateUp() },
+            )
+        }
+
+        composable("nav_settings_ringtone") {
+            RingtonePickerScreen(
                 onBack = { navController.navigateUp() },
             )
         }

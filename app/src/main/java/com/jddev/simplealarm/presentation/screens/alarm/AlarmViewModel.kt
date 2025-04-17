@@ -3,7 +3,7 @@ package com.jddev.simplealarm.presentation.screens.alarm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jddev.simplealarm.domain.model.alarm.Alarm
-import com.jddev.simplealarm.domain.model.alarm.AlarmTone
+import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simplealarm.domain.repository.SettingsRepository
 import com.jddev.simplealarm.domain.usecase.alarm.AddAlarmUseCase
 import com.jddev.simplealarm.domain.usecase.alarm.DeleteAlarmUseCase
@@ -30,8 +30,8 @@ class AlarmViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
-    val defaultAlarmTone = settingsRepository.defaultRingtone
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AlarmTone.Silent)
+    val defaultRingtone = settingsRepository.defaultRingtone
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), Ringtone.Silent)
 
     private val _alarms = MutableStateFlow<List<Alarm>>(emptyList())
     val alarms = _alarms.asStateFlow()

@@ -1,13 +1,11 @@
 package com.jddev.simplealarm.presentation.screens.settings
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.ColorLens
 import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.DynamicForm
 import androidx.compose.material.icons.outlined.Timelapse
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -18,8 +16,8 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simplealarm.domain.model.settings.ThemeMode
 import com.jddev.simpletouch.ui.customization.settingsui.StSettingsUi
 import com.jddev.simpletouch.ui.customization.settingsui.group.StSettingsGroup
@@ -33,16 +31,20 @@ import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBeh
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     navigateToThemeMode: () -> Unit,
+    navigateToRingtone: () -> Unit,
     onBack: () -> Unit,
 ) {
     val themeMode = settingsViewModel.themeMode.collectAsState()
     val is24hFormat = settingsViewModel.is24hFormat.collectAsState()
     val isUseDynamicColors = settingsViewModel.isUseDynamicColors.collectAsState()
+    val defaultRingtone = settingsViewModel.defaultRingtone.collectAsState()
     SettingsScreen(
         themeMode = themeMode.value,
         is24hFormat = is24hFormat.value,
         isUseDynamicColors = isUseDynamicColors.value,
+        defaultRingtone = defaultRingtone.value,
         navigateToThemeMode = navigateToThemeMode,
+        navigateToRingtone = navigateToRingtone,
         on24hFormatChange = { settingsViewModel.on24hFormatChange(it) },
         onUseDynamicColorsChange = { settingsViewModel.setUseDynamicColors(it) },
         onBack = onBack,
@@ -56,7 +58,9 @@ private fun SettingsScreen(
     themeMode: ThemeMode,
     is24hFormat: Boolean,
     isUseDynamicColors: Boolean,
+    defaultRingtone: Ringtone,
     navigateToThemeMode: () -> Unit,
+    navigateToRingtone: () -> Unit,
     on24hFormatChange: (Boolean) -> Unit,
     onUseDynamicColorsChange: (Boolean) -> Unit,
     onBack: () -> Unit,
@@ -106,8 +110,8 @@ private fun SettingsScreen(
                     onClick = {})
                 StSettingsNavigateItem(
                     title = "Default ringtone",
-                    subTitle = "Chime Time",
-                    onClick = {})
+                    subTitle = defaultRingtone.title,
+                    onClick = navigateToRingtone)
                 StSettingsSliderItem(
                     title = "Default alarm volume",
                     leadingImageVector = Icons.Outlined.Alarm,

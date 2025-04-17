@@ -3,7 +3,7 @@ package com.jddev.simplealarm.data.mapper
 import android.net.Uri
 import com.jddev.simplealarm.data.database.alarm.AlarmEntity
 import com.jddev.simplealarm.domain.model.alarm.Alarm
-import com.jddev.simplealarm.domain.model.alarm.AlarmTone
+import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import java.time.DayOfWeek
 import java.time.Duration
 
@@ -17,7 +17,7 @@ fun AlarmEntity.toDomain(): Alarm = Alarm(
     },
     preAlarmNotificationDuration = Duration.ofMinutes(preAlarmNotificationMin.toLong()),
     isEnabled = isEnabled,
-    tone = AlarmTone(
+    tone = Ringtone(
         uri = Uri.parse(toneUriStr), title = toneTitle
     ),
     createdAt = createdAt

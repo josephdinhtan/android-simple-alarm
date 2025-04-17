@@ -8,7 +8,7 @@ data class Alarm(
     val hour: Int,
     val minute: Int,
     val label: String = "",
-    val tone: AlarmTone = AlarmTone.Silent, // silent by default
+    val tone: Ringtone = Ringtone.Silent,
     val repeatDays: List<DayOfWeek> = emptyList(),
     val isEnabled: Boolean = true,
     val preAlarmNotificationDuration: Duration = Duration.ZERO,

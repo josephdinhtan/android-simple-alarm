@@ -4,7 +4,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
-import com.jddev.simplealarm.domain.model.alarm.AlarmTone
+import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simplealarm.domain.system.SystemSettingsManager
 import javax.inject.Inject
 
@@ -14,12 +14,12 @@ class SystemSettingsManagerImpl @Inject constructor(
     private val notificationManager: NotificationManager,
     private val ringtoneManager: RingtoneManager,
 ) : SystemSettingsManager {
-    override fun getDefaultAlarmTone(): AlarmTone? {
+    override fun getDefaultRingtone(): Ringtone? {
         val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
         val title = RingtoneManager.getRingtone(context, uri).getTitle(context)
 
         return if (uri != null && title != null) {
-            AlarmTone(
+            Ringtone(
                 title = title,
                 uri = uri
             )
@@ -50,13 +50,13 @@ class SystemSettingsManagerImpl @Inject constructor(
         return notificationManager.currentInterruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL
     }
 
-    override fun getAlarmTones(): List<AlarmTone> {
-        val list = mutableListOf<AlarmTone>()
+    override fun getRingtones(): List<Ringtone> {
+        val list = mutableListOf<Ringtone>()
         val cursor = ringtoneManager.cursor
         while (cursor.moveToNext()) {
             val title = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
             val uri = ringtoneManager.getRingtoneUri(cursor.position)
-            list.add(AlarmTone(title, uri))
+            list.add(Ringtone(title, uri))
         }
         return list
     }

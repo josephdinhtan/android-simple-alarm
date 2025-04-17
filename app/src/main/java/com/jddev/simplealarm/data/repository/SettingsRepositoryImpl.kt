@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.jddev.simplealarm.domain.model.alarm.AlarmTone
+import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simplealarm.domain.model.settings.ThemeMode
 import com.jddev.simplealarm.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -25,13 +25,13 @@ class SettingsRepositoryImpl @Inject constructor(
     override val is24HourFormat: Flow<Boolean> = dataStorePreferences.data.map { preferences ->
         preferences[SettingsPreferencesKeys.is24HourFormat] ?: true
     }
-    override val defaultRingtone: Flow<AlarmTone> = dataStorePreferences.data.map { preferences ->
+    override val defaultRingtone: Flow<Ringtone> = dataStorePreferences.data.map { preferences ->
         val defaultRingtoneUriStr = preferences[SettingsPreferencesKeys.defaultRingtoneUri]
         val defaultRingtoneTitle = preferences[SettingsPreferencesKeys.defaultRingtoneTitle]
         if (defaultRingtoneUriStr != null && defaultRingtoneTitle != null) {
-            AlarmTone(defaultRingtoneTitle, Uri.parse(defaultRingtoneUriStr))
+            Ringtone(defaultRingtoneTitle, Uri.parse(defaultRingtoneUriStr))
         } else {
-            AlarmTone.Silent
+            Ringtone.Silent
         }
     }
     override val defaultPreAlarmNotificationDuration: Flow<Duration> =
@@ -72,10 +72,6 @@ class SettingsRepositoryImpl @Inject constructor(
         preferences[SettingsPreferencesKeys.useDynamicColors] ?: true
     }
 
-    override val isFirstTime: Flow<Boolean> = dataStorePreferences.data.map { preferences ->
-        preferences[SettingsPreferencesKeys.isFirstTime] ?: true
-    }
-
     override suspend fun getDefaultPreAlarmNotificationDuration(): Duration {
         val durationMinutes =
             dataStorePreferences.data.first()[SettingsPreferencesKeys.defaultPreAlarmNotificationMin]
@@ -100,8 +96,25 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getVolumeFadeDuration(): Duration {
-        val durationSeconds = dataStorePreferences.data.first()[SettingsPreferencesKeys.volumeFadeDuration] ?: 0
+        val durationSeconds =
+            dataStorePreferences.data.first()[SettingsPreferencesKeys.volumeFadeDuration] ?: 0
         return durationSeconds.seconds
+    }
+
+    override suspend fun getIsFirstTimeStart(): Boolean {
+        return dataStorePreferences.data.first()[SettingsPreferencesKeys.isFirstTime] ?: true
+    }
+
+    override suspend fun getDefaultRingtone(): Ringtone {
+        val defaultRingtoneUriStr =
+            dataStorePreferences.data.first()[SettingsPreferencesKeys.defaultRingtoneUri]
+        val defaultRingtoneTitle =
+            dataStorePreferences.data.first()[SettingsPreferencesKeys.defaultRingtoneTitle]
+        return if (defaultRingtoneUriStr != null && defaultRingtoneTitle != null) {
+            Ringtone(defaultRingtoneTitle, Uri.parse(defaultRingtoneUriStr))
+        } else {
+            Ringtone.Silent
+        }
     }
 
     override suspend fun set24HourFormat(enabled: Boolean) {
@@ -110,9 +123,10 @@ class SettingsRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun setDefaultRingtoneUri(uri: Uri) {
+    override suspend fun setDefaultRingtone(ringtone: Ringtone) {
         dataStorePreferences.edit { preferences ->
-            preferences[SettingsPreferencesKeys.defaultRingtoneUri] = uri.toString()
+            preferences[SettingsPreferencesKeys.defaultRingtoneUri] = ringtone.uri.toString()
+            preferences[SettingsPreferencesKeys.defaultRingtoneTitle] = ringtone.title
         }
     }
 
@@ -155,7 +169,8 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setVolumeFadeDuration(duration: Duration) {
         dataStorePreferences.edit { preferences ->
-            preferences[SettingsPreferencesKeys.volumeFadeDuration] = duration.inWholeSeconds.toInt()
+            preferences[SettingsPreferencesKeys.volumeFadeDuration] =
+                duration.inWholeSeconds.toInt()
         }
     }
 
@@ -168,6 +183,12 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setUseDynamicColors(enabled: Boolean) {
         dataStorePreferences.edit { preferences ->
             preferences[SettingsPreferencesKeys.useDynamicColors] = enabled
+        }
+    }
+
+    override suspend fun setIsFirstTimeStart(value: Boolean) {
+        dataStorePreferences.edit { preferences ->
+            preferences[SettingsPreferencesKeys.isFirstTime] = value
         }
     }
 }

@@ -54,7 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jddev.simplealarm.domain.model.alarm.Alarm
-import com.jddev.simplealarm.domain.model.alarm.AlarmTone
+import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simpletouch.ui.customization.settingsui.StSettingsUi
 import com.jddev.simpletouch.ui.customization.settingsui.group.StSettingsGroup
 import com.jddev.simpletouch.ui.customization.settingsui.navigation.StSettingsNavigateItem
@@ -71,10 +71,10 @@ fun AddNewAlarmRoute(
     alarmViewModel: AlarmViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
-    val defaultAlarmTone by alarmViewModel.defaultAlarmTone.collectAsState()
+    val defaultRingtone by alarmViewModel.defaultRingtone.collectAsState()
     EditAlarmScreen(
         alarm = null,
-        defaultAlarmTone = defaultAlarmTone,
+        defaultRingtone = defaultRingtone,
         onSave = {
             alarmViewModel.addNewAlarm(it)
             onBack()
@@ -90,7 +90,7 @@ fun EditAlarmRoute(
     onBack: () -> Unit,
 ) {
     val editingAlarm by alarmViewModel.editingAlarm.collectAsState()
-    val defaultAlarmTone by alarmViewModel.defaultAlarmTone.collectAsState()
+    val defaultRingtone by alarmViewModel.defaultRingtone.collectAsState()
 
     LaunchedEffect(alarmId) {
         alarmViewModel.getAlarm(alarmId)
@@ -105,7 +105,7 @@ fun EditAlarmRoute(
 
     EditAlarmScreen(
         alarm = editingAlarm,
-        defaultAlarmTone = defaultAlarmTone,
+        defaultRingtone = defaultRingtone,
         onDelete = {
             alarmViewModel.delete(it)
             onBack()
@@ -122,7 +122,7 @@ fun EditAlarmRoute(
 @Composable
 fun EditAlarmScreen(
     alarm: Alarm?,
-    defaultAlarmTone: AlarmTone?,
+    defaultRingtone: Ringtone?,
     onSave: (Alarm) -> Unit,
     onDelete: ((Alarm?) -> Unit)? = null,
     onCancel: () -> Unit,
@@ -132,7 +132,7 @@ fun EditAlarmScreen(
     var timeMinute by remember { mutableIntStateOf(alarm?.minute ?: LocalTime.now().minute) }
     var label by remember { mutableStateOf(alarm?.label ?: "") }
     var repeatDays by remember { mutableStateOf(alarm?.repeatDays?.toSet() ?: emptySet()) }
-    val alarmTone by remember { mutableStateOf(alarm?.tone ?: defaultAlarmTone) }
+    val ringtone by remember { mutableStateOf(alarm?.tone ?: defaultRingtone) }
 
     var isVibration by remember { mutableStateOf(true) }
 
@@ -236,7 +236,7 @@ fun EditAlarmScreen(
             }
 
             StSettingsGroup {
-                StSettingsNavigateItem(title = "Ringtone", subTitle = alarmTone?.title ?: "Silent",
+                StSettingsNavigateItem(title = "Ringtone", subTitle = ringtone?.title ?: "Silent",
                     onClick = {
                     })
                 StSettingsSwitchItem(title = "Vibrate", checked = isVibration, onCheckedChange = {
@@ -331,6 +331,6 @@ private fun Preview() {
                 1, 12, 0, "Test", repeatDays = listOf(
                     DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY
                 )
-            ), AlarmTone.Silent, {}, {}, {})
+            ), Ringtone.Silent, {}, {}, {})
     }
 }
