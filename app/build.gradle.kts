@@ -68,6 +68,9 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
 
+    // Lottie animation
+    implementation(libs.lottie)
+
     implementation(libs.timber)
 
     implementation(libs.androidx.core.ktx)

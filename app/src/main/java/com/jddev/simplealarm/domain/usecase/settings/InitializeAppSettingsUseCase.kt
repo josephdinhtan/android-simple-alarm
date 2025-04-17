@@ -32,7 +32,6 @@ class InitializeAppSettingsUseCase @Inject constructor(
                 )
             }
             settingsRepository.setDefaultPreAlarmNotificationDuration(5.minutes)
-            settingsRepository.setAlarmVolume(1f)
             settingsRepository.setVibrationEnabled(true)
             settingsRepository.setSnoozeDuration(5.minutes)
             settingsRepository.setDefaultLabel("Alarm")

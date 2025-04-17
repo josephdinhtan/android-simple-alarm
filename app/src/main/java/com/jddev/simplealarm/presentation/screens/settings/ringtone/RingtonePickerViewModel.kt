@@ -7,7 +7,11 @@ import com.jddev.simplealarm.domain.repository.SettingsRepository
 import com.jddev.simplealarm.domain.system.SystemSettingsManager
 import com.jddev.simplealarm.domain.usecase.alarm.GetAlarmByIdUseCase
 import com.jddev.simplealarm.domain.usecase.alarm.UpdateAlarmUseCase
+import com.jddev.simplealarm.domain.usecase.others.StartPlayToneUseCase
+import com.jddev.simplealarm.domain.usecase.others.StopPlayToneUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -20,6 +24,8 @@ class RingtonePickerViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val getAlarmByIdUseCase: GetAlarmByIdUseCase,
     private val updateAlarmUseCase: UpdateAlarmUseCase,
+    private val startPlayToneUseCase: StartPlayToneUseCase,
+    private val stopPlayToneUseCase: StopPlayToneUseCase,
 ) : ViewModel() {
 
     private val _availableRingtones = MutableStateFlow<List<Ringtone>>(emptyList())
@@ -27,6 +33,9 @@ class RingtonePickerViewModel @Inject constructor(
 
     private val _selectedRingtone = MutableStateFlow(Ringtone.Silent)
     val selectedRingtone = _selectedRingtone.asStateFlow()
+
+    private val _isTonePlaying = MutableStateFlow<Boolean>(false)
+    val isTonePlaying = _isTonePlaying.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -54,9 +63,30 @@ class RingtonePickerViewModel @Inject constructor(
         }
     }
 
-    fun onRingtoneSelected(ringtone: Ringtone) {
+    fun onRingtoneSelectedAndPlayTone(ringtone: Ringtone) {
         _selectedRingtone.value = ringtone
-        // TODO: play tone here
+        viewModelScope.launch(Dispatchers.Main) {
+            stopPlayToneUseCase(Unit)
+            _isTonePlaying.value = false
+            delay(100)
+            startPlayToneUseCase(ringtone)
+            _isTonePlaying.value = true
+        }
+    }
+
+    fun stopPlayTone() {
+        viewModelScope.launch {
+            stopPlayToneUseCase(Unit)
+            _isTonePlaying.value = false
+        }
+    }
+
+    override fun onCleared() {
+        viewModelScope.launch {
+            stopPlayToneUseCase(Unit)
+            _isTonePlaying.value = false
+        }
+        super.onCleared()
     }
 
     fun getDefaultRingtone() {

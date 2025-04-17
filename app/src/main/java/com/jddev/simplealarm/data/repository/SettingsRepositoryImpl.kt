@@ -5,7 +5,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.jddev.simplealarm.domain.model.alarm.Ringtone
@@ -40,9 +39,6 @@ class SettingsRepositoryImpl @Inject constructor(
                 preferences[SettingsPreferencesKeys.defaultPreAlarmNotificationMin] ?: 5
             durationMinutes.minutes
         }
-    override val alarmVolume: Flow<Float> = dataStorePreferences.data.map { preferences ->
-        preferences[SettingsPreferencesKeys.alarmVolume] ?: 1f
-    }
     override val isVibrationEnabled: Flow<Boolean> = dataStorePreferences.data.map { preferences ->
         preferences[SettingsPreferencesKeys.isVibrationEnabled] ?: true
     }
@@ -91,10 +87,6 @@ class SettingsRepositoryImpl @Inject constructor(
         return durationMinutes.minutes
     }
 
-    override suspend fun getAlarmVolume(): Float {
-        return dataStorePreferences.data.first()[SettingsPreferencesKeys.alarmVolume] ?: 1f
-    }
-
     override suspend fun getVolumeFadeDuration(): Duration {
         val durationSeconds =
             dataStorePreferences.data.first()[SettingsPreferencesKeys.volumeFadeDuration] ?: 0
@@ -134,12 +126,6 @@ class SettingsRepositoryImpl @Inject constructor(
         dataStorePreferences.edit { preferences ->
             preferences[SettingsPreferencesKeys.defaultPreAlarmNotificationMin] =
                 duration.inWholeMinutes.toInt()
-        }
-    }
-
-    override suspend fun setAlarmVolume(volume: Float) {
-        dataStorePreferences.edit { preferences ->
-            preferences[SettingsPreferencesKeys.alarmVolume] = volume
         }
     }
 
@@ -199,7 +185,6 @@ private object SettingsPreferencesKeys {
     val defaultRingtoneTitle = stringPreferencesKey("default_ringtone_title")
     val defaultRingtoneUri = stringPreferencesKey("default_ringtone_uri")
     val defaultPreAlarmNotificationMin = intPreferencesKey("default_pre_alarm_notification_min")
-    val alarmVolume = floatPreferencesKey("alarm_volume")
     val isVibrationEnabled = booleanPreferencesKey("vibration_enabled")
     val snoozeDuration = intPreferencesKey("snooze_duration") // store in minutes or seconds
     val defaultLabel = stringPreferencesKey("default_label")

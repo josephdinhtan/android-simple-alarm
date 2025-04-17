@@ -5,9 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simplealarm.domain.model.settings.ThemeMode
 import com.jddev.simplealarm.domain.repository.SettingsRepository
+import com.jddev.simplealarm.domain.usecase.settings.GetAlarmVolumeUseCase
+import com.jddev.simplealarm.domain.usecase.settings.GetMaxAlarmVolumeUseCase
 import com.jddev.simplealarm.domain.usecase.settings.InitializeAppSettingsUseCase
+import com.jddev.simplealarm.domain.usecase.settings.SetAlarmVolumeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,7 +20,10 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val initializeAppSettingsUseCase: InitializeAppSettingsUseCase
+    private val initializeAppSettingsUseCase: InitializeAppSettingsUseCase,
+    private val getMaxAlarmVolumeUseCase: GetMaxAlarmVolumeUseCase,
+    private val getAlarmVolumeUseCase: GetAlarmVolumeUseCase,
+    private val setAlarmVolumeUseCase: SetAlarmVolumeUseCase,
 ) : ViewModel() {
     val themeMode = settingsRepository.themeSetting
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ThemeMode.SYSTEM)
@@ -29,9 +37,21 @@ class SettingsViewModel @Inject constructor(
     val defaultRingtone = settingsRepository.defaultRingtone
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), Ringtone.Silent)
 
+    private val _maxAlarmVolume = MutableStateFlow<Int>(10)
+    val maxAlarmVolume = _maxAlarmVolume.asStateFlow()
+
+    private val _currentAlarmVolume = MutableStateFlow<Int>(5)
+    val currentAlarmVolume = _currentAlarmVolume.asStateFlow()
+
     init {
         viewModelScope.launch {
             initializeAppSettingsUseCase(Unit)
+        }
+        viewModelScope.launch {
+            _maxAlarmVolume.value = getMaxAlarmVolumeUseCase(Unit)
+        }
+        viewModelScope.launch {
+            _currentAlarmVolume.value = getAlarmVolumeUseCase(Unit)
         }
     }
 
@@ -51,5 +71,14 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsRepository.setUseDynamicColors(enable)
         }
+    }
+
+    fun setAlarmVolume(volume: Int) {
+        if (volume <= 0 || volume > _maxAlarmVolume.value) return
+        _currentAlarmVolume.value = volume
+        viewModelScope.launch {
+            setAlarmVolumeUseCase(volume)
+        }
+        // TODO: consider play sound
     }
 }

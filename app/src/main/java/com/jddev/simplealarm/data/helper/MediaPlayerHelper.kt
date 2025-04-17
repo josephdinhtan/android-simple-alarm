@@ -11,12 +11,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration
 
-class TonePlayerHelper @Inject constructor(
+class MediaPlayerHelper @Inject constructor(
     private val mediaPlayer: MediaPlayer,
     @CoroutineScopeMain private val coroutineScopeMain: CoroutineScope,
     private val context: Context,
 ) {
-    fun playTone(uri: Uri, volume: Float, volumeFadeDuration: Duration = Duration.ZERO) {
+    fun play(uri: Uri, volume: Float, volumeFadeDuration: Duration = Duration.ZERO) {
         mediaPlayer.apply {
             setDataSource(context, uri)
             setAudioStreamType(AudioManager.STREAM_ALARM)
@@ -32,6 +32,11 @@ class TonePlayerHelper @Inject constructor(
                 fadeInVolume(mediaPlayer, volumeFadeDuration.inWholeMilliseconds)
             }
         }
+    }
+
+    fun stop() {
+        mediaPlayer.stop()
+        mediaPlayer.reset()
     }
 
     private suspend fun fadeInVolume(player: MediaPlayer, durationMillis: Long) {

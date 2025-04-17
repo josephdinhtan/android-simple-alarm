@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Timelapse
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,6 +27,7 @@ import com.jddev.simpletouch.ui.customization.settingsui.slider.StSettingsSlider
 import com.jddev.simpletouch.ui.customization.settingsui.switch.StSettingsSwitchItem
 import com.jddev.simpletouch.ui.foundation.topappbar.StUiLargeTopAppBar
 import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBehavior
+import kotlin.math.max
 
 @Composable
 fun SettingsScreen(
@@ -43,6 +45,9 @@ fun SettingsScreen(
         is24hFormat = is24hFormat.value,
         isUseDynamicColors = isUseDynamicColors.value,
         defaultRingtone = defaultRingtone.value,
+        alarmVolume = settingsViewModel.currentAlarmVolume.collectAsState().value,
+        maxAlarmVolume = settingsViewModel.maxAlarmVolume.collectAsState().value,
+        setAlarmVolume = { settingsViewModel.setAlarmVolume(it) },
         navigateToThemeMode = navigateToThemeMode,
         navigateToRingtone = navigateToRingtone,
         on24hFormatChange = { settingsViewModel.on24hFormatChange(it) },
@@ -59,6 +64,9 @@ private fun SettingsScreen(
     is24hFormat: Boolean,
     isUseDynamicColors: Boolean,
     defaultRingtone: Ringtone,
+    alarmVolume: Int,
+    maxAlarmVolume: Int,
+    setAlarmVolume: (Int) -> Unit,
     navigateToThemeMode: () -> Unit,
     navigateToRingtone: () -> Unit,
     on24hFormatChange: (Boolean) -> Unit,
@@ -73,7 +81,6 @@ private fun SettingsScreen(
             )
         },
     ) { innerPadding ->
-        var sliderPosition by remember { mutableFloatStateOf(40f) }
 
         StSettingsUi(
             modifier = Modifier.padding(innerPadding),
@@ -113,20 +120,17 @@ private fun SettingsScreen(
                     subTitle = defaultRingtone.title,
                     onClick = navigateToRingtone)
                 StSettingsSliderItem(
-                    title = "Default alarm volume",
+                    title = "Alarm volume $alarmVolume",
                     leadingImageVector = Icons.Outlined.Alarm,
-                    value = sliderPosition,
-                    steps = 99,
-                    valueRange = 0f..100f,
-                    onValueChange = { sliderPosition = it },
+                    value = alarmVolume.toFloat(),
+                    steps = maxAlarmVolume - 1,
+                    valueRange = 0f..maxAlarmVolume.toFloat(),
+                    onValueChange = { setAlarmVolume(it.toInt()) },
                 )
-                StSettingsSliderItem(
+                StSettingsNavigateItem(
                     title = "Gradually increase volume",
-                    leadingImageVector = Icons.Outlined.Timelapse,
-                    value = sliderPosition,
-                    steps = 99,
-                    valueRange = 0f..100f,
-                    onValueChange = { sliderPosition = it },
+                    subTitle = "5 seconds",
+                    onClick = {}
                 )
                 StSettingsSwitchItem(
                     title = "Vibration",

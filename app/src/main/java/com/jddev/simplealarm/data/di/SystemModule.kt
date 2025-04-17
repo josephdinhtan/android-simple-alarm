@@ -7,6 +7,7 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import com.jddev.simplealarm.data.system.AlarmSchedulerImpl
+import com.jddev.simplealarm.data.system.MediaPlayerImpl
 import com.jddev.simplealarm.data.system.NotificationControllerImpl
 import com.jddev.simplealarm.data.system.SystemSettingsManagerImpl
 import com.jddev.simplealarm.domain.system.AlarmScheduler
@@ -77,4 +78,10 @@ abstract class DataSystemModule {
     abstract fun bindsNotificationController(
         impl: NotificationControllerImpl
     ): NotificationController
+
+    @Singleton
+    @Binds
+    abstract fun bindsMediaPlayer(
+        impl: MediaPlayerImpl
+    ): com.jddev.simplealarm.domain.system.MediaPlayer
 }

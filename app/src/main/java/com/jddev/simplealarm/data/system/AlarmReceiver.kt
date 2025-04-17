@@ -5,10 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import com.jddev.simplealarm.data.di.CoroutineScopeMain
+import com.jddev.simplealarm.data.helper.MediaPlayerHelper
 import com.jddev.simplealarm.data.helper.NotificationHelper
-import com.jddev.simplealarm.data.helper.TonePlayerHelper
 import com.jddev.simplealarm.domain.repository.AlarmRepository
 import com.jddev.simplealarm.domain.repository.SettingsRepository
+import com.jddev.simplealarm.domain.system.SystemSettingsManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -18,13 +19,20 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class AlarmReceiver : BroadcastReceiver() {
 
-    @Inject lateinit var notificationHelper: NotificationHelper
-    @Inject lateinit var alarmRepository: AlarmRepository
-    @Inject lateinit var tonePlayerHelper: TonePlayerHelper
-    @Inject lateinit var settingsRepository: SettingsRepository
+    @Inject
+    lateinit var notificationHelper: NotificationHelper
+    @Inject
+    lateinit var alarmRepository: AlarmRepository
+    @Inject
+    lateinit var mediaPlayerHelper: MediaPlayerHelper
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
+    @Inject
+    lateinit var systemSettingsManager: SystemSettingsManager
 
     @Inject
-    @CoroutineScopeMain lateinit var coroutineScopeMain: CoroutineScope
+    @CoroutineScopeMain
+    lateinit var coroutineScopeMain: CoroutineScope
 
     override fun onReceive(context: Context, intent: Intent) {
         val alarmId = intent.getLongExtra("alarmId", -1)
@@ -35,15 +43,20 @@ class AlarmReceiver : BroadcastReceiver() {
         val style = intent.getStringExtra("type")
         coroutineScopeMain.launch {
             alarmRepository.getAlarmById(alarmId)?.let { alarm ->
+                val currentVolume = systemSettingsManager.getAlarmVolume().toFloat()
+                val maxVolume = systemSettingsManager.getMaxAlarmVolume().toFloat()
                 when (style) {
                     "alarm" -> {
                         notificationHelper.showAlarmAlertNotification(alarm)
-                        alarm.tone?.let {
-                            tonePlayerHelper.playTone(
-                                it.uri, settingsRepository.getAlarmVolume(), settingsRepository.getVolumeFadeDuration()
+                        alarm.tone.let {
+                            mediaPlayerHelper.play(
+                                it.uri,
+                                currentVolume / maxVolume,
+                                settingsRepository.getVolumeFadeDuration()
                             )
                         }
                     }
+
                     "notification" -> notificationHelper.showAlarmAlertNotification(alarm)
                     else -> {
                         Timber.e("Unknown type: $style")

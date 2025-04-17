@@ -4,7 +4,6 @@ import com.jddev.simplealarm.domain.model.alarm.Alarm
 import java.time.Duration
 
 interface NotificationController {
-
     fun schedulePreAlarmNotification(alarm: Alarm, notifyBeforeAt: Duration)
     fun showAlarmNotification(alarm: Alarm)
     fun cancelAlarmNotification(alarmId: Int)

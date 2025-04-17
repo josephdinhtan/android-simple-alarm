@@ -1,37 +1,61 @@
 package com.jddev.simplealarm.presentation.screens.settings.ringtone
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.airbnb.lottie.LottieProperty
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.LottieDynamicProperties
+import com.airbnb.lottie.compose.LottieDynamicProperty
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.model.KeyPath
+import com.jddev.simplealarm.R
 import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simpletouch.ui.customization.settingsui.StSettingsUi
 import com.jddev.simpletouch.ui.customization.settingsui.group.StSettingsGroup
+import com.jddev.simpletouch.ui.foundation.StUiCircleCheckbox
+import com.jddev.simpletouch.ui.foundation.topappbar.StUiLargeTopAppBar
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
 
@@ -52,22 +76,27 @@ fun RingtonePickerScreen(
     RingtonePickerScreen(
         screenTitle = if (isFromAlarmEditScreen) "Alarm ringtone" else "Default ringtone",
         ringtones = ringtonePickerViewModel.availableRingtones.collectAsState().value,
+        isTonePlaying = ringtonePickerViewModel.isTonePlaying.collectAsState().value,
         selectedRingtone = ringtonePickerViewModel.selectedRingtone.collectAsState().value,
-        onRingtoneSelected = { ringtonePickerViewModel.onRingtoneSelected(it) },
+        onRingtoneSelected = { ringtonePickerViewModel.onRingtoneSelectedAndPlayTone(it) },
+        onStopPlaying = { ringtonePickerViewModel.stopPlayTone() },
         onSave = {
             if (isFromAlarmEditScreen) {
                 ringtonePickerViewModel.setAlarmRingtone(
-                    ringtonePickerViewModel.selectedRingtone.value,
-                    alarmId
+                    ringtonePickerViewModel.selectedRingtone.value, alarmId
                 )
             } else {
                 ringtonePickerViewModel.setDefaultRingtone(
                     ringtonePickerViewModel.selectedRingtone.value
                 )
             }
+            ringtonePickerViewModel.stopPlayTone()
             onBack()
         },
-        onCancel = onBack,
+        onBack = {
+            ringtonePickerViewModel.stopPlayTone()
+            onBack()
+        },
     )
 }
 
@@ -77,20 +106,31 @@ private fun RingtonePickerScreen(
     screenTitle: String,
     ringtones: List<Ringtone>,
     selectedRingtone: Ringtone,
+    isTonePlaying: Boolean,
     onRingtoneSelected: (Ringtone) -> Unit,
+    onStopPlaying: () -> Unit,
     onSave: () -> Unit,
-    onCancel: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    BackHandler { onBack() }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP || event == Lifecycle.Event.ON_DESTROY || event == Lifecycle.Event.ON_PAUSE) {
+                onStopPlaying()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
     Scaffold(contentWindowInsets = WindowInsets.safeContent, topBar = {
-        CenterAlignedTopAppBar(
-            title = { Text(screenTitle) },
+        StUiLargeTopAppBar(
+            title = screenTitle,
+            onBack = onBack,
             scrollBehavior = scrollBehavior,
-            navigationIcon = {
-                IconButton(onClick = onCancel) {
-                    Icon(Icons.Default.Close, contentDescription = "Cancel")
-                }
-            },
             actions = {
                 IconButton(onClick = {
                     onSave()
@@ -98,20 +138,14 @@ private fun RingtonePickerScreen(
                     Icon(Icons.Default.Check, contentDescription = "Save")
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer
-            ),
         )
     }) { innerPadding ->
         StSettingsUi(
-            Modifier
-                .padding(innerPadding)
-                .selectableGroup(),
+            Modifier.padding(innerPadding),
             scrollBehavior = scrollBehavior,
         ) {
-            StSettingsGroup {
-                ringtones.forEach { ringtone ->
+            ringtones.forEach { ringtone ->
+                StSettingsGroup {
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -124,13 +158,29 @@ private fun RingtonePickerScreen(
                             .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        RadioButton(
-                            selected = (ringtone.uri == selectedRingtone.uri), onClick = null
+                        Icon(
+                            Icons.Outlined.NotificationsActive,
+                            "Tone",
+                            Modifier.size(32.dp),
+                            tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
                         )
                         Text(
                             text = ringtone.title,
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .weight(1f)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        LottieRingingAnimation(
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            isPlaying = isTonePlaying && (ringtone.uri == selectedRingtone.uri)
+                        )
+                        SelectedCheckbox(
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            isSelected = (ringtone.uri == selectedRingtone.uri)
                         )
                     }
                 }
@@ -140,17 +190,73 @@ private fun RingtonePickerScreen(
 }
 
 @Composable
+private fun LottieRingingAnimation(
+    modifier: Modifier = Modifier,
+    isPlaying: Boolean,
+) {
+    AnimatedVisibility(
+        modifier = modifier, visible = isPlaying, enter = fadeIn(), exit = fadeOut()
+    ) {
+        val color = MaterialTheme.colorScheme.onBackground
+
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.ringing))
+        val progress by animateLottieCompositionAsState(
+            composition, iterations = LottieConstants.IterateForever
+        )
+
+        val dynamicProps = remember(color) {
+            LottieDynamicProperties(
+                listOf(
+                    LottieDynamicProperty(
+                        property = LottieProperty.STROKE_COLOR,
+                        value = color.toArgb(),
+                        keyPath = KeyPath("**") // match all strokes
+                    ), LottieDynamicProperty(
+                        property = LottieProperty.COLOR,
+                        value = color.toArgb(),
+                        keyPath = KeyPath("**") // match all fills (just in case)
+                    )
+                )
+            )
+        }
+
+        LottieAnimation(
+            composition = composition,
+            progress = { progress },
+            dynamicProperties = dynamicProps,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+@Composable
+private fun SelectedCheckbox(
+    modifier: Modifier = Modifier,
+    isSelected: Boolean,
+) {
+    AnimatedVisibility(
+        modifier = modifier, visible = isSelected, enter = fadeIn(), exit = fadeOut()
+    ) {
+        StUiCircleCheckbox(
+            checked = true, onCheckedChange = null
+        )
+    }
+}
+
+@Composable
 @StUiPreview
 private fun Preview() {
-    val ringtones = List(20, { Ringtone("Ringtone $it", Uri.parse("uri_test")) })
+    val ringtones = List(20, { Ringtone("Ringtone $it", Uri.parse("uri_test_$it")) })
     StUiPreviewWrapper {
         RingtonePickerScreen(
             screenTitle = "Ringtone",
+            isTonePlaying = true,
             ringtones = ringtones,
-            selectedRingtone = Ringtone.Silent,
+            selectedRingtone = Ringtone("Ringtone 5", Uri.parse("uri_test_5")),
             onRingtoneSelected = {},
+            onStopPlaying = {},
             onSave = {},
-            onCancel = {},
+            onBack = {},
         )
     }
 }

@@ -11,7 +11,6 @@ interface SettingsRepository {
     val is24HourFormat: Flow<Boolean>
     val defaultRingtone: Flow<Ringtone>
     val defaultPreAlarmNotificationDuration: Flow<Duration>
-    val alarmVolume: Flow<Float>
     val isVibrationEnabled: Flow<Boolean>
     val snoozeDuration: Flow<Duration>
     val defaultLabel: Flow<String>
@@ -24,7 +23,6 @@ interface SettingsRepository {
     suspend fun getDefaultPreAlarmNotificationDuration(): Duration
     suspend fun getSnoozeDuration(): Duration
     suspend fun getAutoDismissTime(): Duration
-    suspend fun getAlarmVolume(): Float
     suspend fun getVolumeFadeDuration(): Duration
     suspend fun getIsFirstTimeStart(): Boolean
     suspend fun getDefaultRingtone(): Ringtone
@@ -33,7 +31,6 @@ interface SettingsRepository {
     suspend fun set24HourFormat(enabled: Boolean)
     suspend fun setDefaultRingtone(ringtone: Ringtone)
     suspend fun setDefaultPreAlarmNotificationDuration(duration: Duration)
-    suspend fun setAlarmVolume(volume: Float)
     suspend fun setVibrationEnabled(enabled: Boolean)
     suspend fun setSnoozeDuration(duration: Duration)
     suspend fun setDefaultLabel(label: String)
