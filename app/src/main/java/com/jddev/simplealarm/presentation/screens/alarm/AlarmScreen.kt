@@ -17,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jddev.simplealarm.core.default
 import com.jddev.simplealarm.domain.model.alarm.Alarm
+import com.jddev.simplealarm.presentation.components.AlarmCard
 import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBehavior
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
@@ -54,7 +56,7 @@ fun AlarmScreenContent(
         contentPadding = PaddingValues(16.dp)
     ) {
         items(items = alarms, key = { it.id }) { alarm ->
-            AlarmItem(
+            AlarmCard(
 //                modifier = Modifier.animateItem(
 //                    fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(
 //                        1000
@@ -70,7 +72,7 @@ fun AlarmScreenContent(
                 ),
                 alarm = alarm,
                 onToggle = {
-                    onUpdate(alarm.copy(isEnabled = !alarm.isEnabled))
+                    onUpdate(alarm.copy(enabled = !alarm.enabled))
                 }, onClick = {
                     onEditAlarm(alarm)
                 }
@@ -88,8 +90,8 @@ private fun Preview() {
     )
     StUiPreviewWrapper {
         AlarmScreenContent(alarms = listOf(
-            Alarm(1, 12, 0, "Test", repeatDays = repeatDayOfWeeK, isEnabled = true),
-            Alarm(1, 12, 0, "Test", repeatDays = repeatDayOfWeeK, isEnabled = false),
+            Alarm.default().copy(enabled = true, repeatDays = repeatDayOfWeeK),
+            Alarm.default().copy(enabled = false),
         ), scrollBehavior = stUiLargeTopAppbarScrollBehavior(), {}, {})
     }
 }

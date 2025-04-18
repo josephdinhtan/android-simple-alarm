@@ -22,7 +22,7 @@ class InitializeAppSettingsUseCase @Inject constructor(
             settingsRepository.setIsFirstTimeStart(false)
 
             // Initialize all default values here
-            settingsRepository.set24HourFormat(true)
+            settingsRepository.set24HourFormat(systemSettingsManager.is24HourFormat())
             systemSettingsManager.getDefaultRingtone()?.let { systemDefaultTone ->
                 settingsRepository.setDefaultRingtone(
                     Ringtone(

@@ -13,8 +13,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.jddev.simplealarm.presentation.ClockBottomBar
-import com.jddev.simplealarm.presentation.ClockNavItem
+import com.jddev.simplealarm.presentation.components.ClockBottomBar
+import com.jddev.simplealarm.presentation.components.ClockNavItem
 import com.jddev.simplealarm.presentation.screens.alarm.AlarmRoute
 import com.jddev.simplealarm.presentation.screens.alarm.AlarmTopAppBar
 import com.jddev.simplealarm.presentation.screens.clock.ClockScreen

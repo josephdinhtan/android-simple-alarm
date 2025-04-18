@@ -68,6 +68,10 @@ class SettingsRepositoryImpl @Inject constructor(
         preferences[SettingsPreferencesKeys.useDynamicColors] ?: true
     }
 
+    override suspend fun getIs24HourFormat(): Boolean {
+        return dataStorePreferences.data.first()[SettingsPreferencesKeys.is24HourFormat] ?: true
+    }
+
     override suspend fun getDefaultPreAlarmNotificationDuration(): Duration {
         val durationMinutes =
             dataStorePreferences.data.first()[SettingsPreferencesKeys.defaultPreAlarmNotificationMin]

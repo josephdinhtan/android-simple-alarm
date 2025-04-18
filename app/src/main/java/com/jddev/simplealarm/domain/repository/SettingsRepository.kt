@@ -20,6 +20,7 @@ interface SettingsRepository {
     val isUseDynamicColors: Flow<Boolean>
 
     // One-time reads for domain use cases
+    suspend fun getIs24HourFormat(): Boolean
     suspend fun getDefaultPreAlarmNotificationDuration(): Duration
     suspend fun getSnoozeDuration(): Duration
     suspend fun getAutoDismissTime(): Duration

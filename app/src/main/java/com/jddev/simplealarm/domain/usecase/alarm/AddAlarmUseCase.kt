@@ -5,7 +5,7 @@ import com.jddev.simplealarm.domain.repository.AlarmRepository
 import com.jddev.simplealarm.domain.system.AlarmScheduler
 import com.jddev.simplealarm.domain.system.NotificationController
 import com.jddev.simplealarm.domain.usecase.SuspendUseCase
-import java.time.Duration
+import kotlin.time.Duration
 import java.time.LocalTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +18,7 @@ class AddAlarmUseCase @Inject constructor(
 ) : SuspendUseCase<Alarm, Long> {
     override suspend operator fun invoke(params: Alarm): Long {
         val alarmId = repository.insertAlarm(params)
-        if (params.isEnabled) {
+        if (params.enabled) {
             alarmScheduler.schedule(params.copy(id = alarmId))
 
             val alarmTime = LocalTime.of(params.hour, params.minute)

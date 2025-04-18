@@ -6,10 +6,10 @@ import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.RingtoneManager
-import com.jddev.simplealarm.data.system.AlarmSchedulerImpl
-import com.jddev.simplealarm.data.system.MediaPlayerImpl
-import com.jddev.simplealarm.data.system.NotificationControllerImpl
-import com.jddev.simplealarm.data.system.SystemSettingsManagerImpl
+import com.jddev.simplealarm.data.platform.AlarmSchedulerImpl
+import com.jddev.simplealarm.data.platform.MediaPlayerImpl
+import com.jddev.simplealarm.data.platform.NotificationControllerImpl
+import com.jddev.simplealarm.data.platform.SystemSettingsManagerImpl
 import com.jddev.simplealarm.domain.system.AlarmScheduler
 import com.jddev.simplealarm.domain.system.NotificationController
 import com.jddev.simplealarm.domain.system.SystemSettingsManager

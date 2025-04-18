@@ -1,4 +1,4 @@
-package com.jddev.simplealarm.presentation.screens.alarm
+package com.jddev.simplealarm.presentation.components
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateDp
@@ -12,13 +12,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.jddev.simplealarm.core.default
+import com.jddev.simplealarm.core.toStringTime
 import com.jddev.simplealarm.domain.model.alarm.Alarm
 import com.jddev.simpletouch.ui.foundation.StUiSwitch
 import com.jddev.simpletouch.ui.utils.StUiPreview
@@ -35,13 +35,14 @@ import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
 import java.time.DayOfWeek
 
 @Composable
-fun AlarmItem(
+fun AlarmCard(
     modifier: Modifier = Modifier,
     alarm: Alarm,
+    is24HourFormat: Boolean = true,
     onToggle: (Boolean) -> Unit,
     onClick: () -> Unit,
 ) {
-    val transition = updateTransition(alarm.isEnabled, label = "alarm_toggle")
+    val transition = updateTransition(alarm.enabled, label = "alarm_toggle")
     val elevation by transition.animateDp(label = "elevation") {
         if (it) 6.dp else 2.dp
     }
@@ -65,32 +66,13 @@ fun AlarmItem(
         Row(modifier = Modifier
             .clickable { onClick() }
             .fillMaxWidth()
+            .wrapContentHeight()
             .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.SpaceBetween) {
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = "${alarm.hour.toString().padStart(2, '0')}:${
-                        alarm.minute.toString().padStart(2, '0')
-                    }",
-                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
-                    modifier = Modifier.padding(end = 16.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                alarm.label.takeIf { it.isNotBlank() }?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
-                        modifier = Modifier.padding(end = 16.dp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
                 if (alarm.repeatDays.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -104,21 +86,33 @@ fun AlarmItem(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-            }
-
-            Column(horizontalAlignment = Alignment.End) {
-                StUiSwitch(
-                    checked = alarm.isEnabled,
-                    onCheckedChange = onToggle,
+                Text(
+                    text = alarm.toStringTime(is24HourFormat),
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 48.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
+                    modifier = Modifier.padding(end = 16.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-
-                IconButton(onClick = onClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "Edit Alarm"
+                alarm.label.takeIf { it.isNotBlank() }?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
+
+            StUiSwitch(
+                modifier = Modifier.padding(8.dp),
+                checked = alarm.enabled,
+                onCheckedChange = onToggle,
+            )
         }
     }
 }
@@ -126,21 +120,24 @@ fun AlarmItem(
 @StUiPreview
 @Composable
 private fun Preview() {
-    val repeatDayOfWeeK = listOf(
+    val repeatDayOfWeek = listOf(
         DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY
     )
     StUiPreviewWrapper {
-        AlarmItem(alarm = Alarm(
-            1,
-            12,
-            0,
-            "Test overflow line, Test overflow line, Test overflow line",
-            repeatDays = repeatDayOfWeeK,
-
-        ), onToggle = {}, onClick = {})
+        AlarmCard(
+            alarm = Alarm.default()
+                .copy(
+                    label = "Test overflow line, Test overflow line, Test overflow line",
+                    repeatDays = repeatDayOfWeek
+                ),
+            onToggle = {},
+            onClick = {})
         Spacer(Modifier.height(16.dp))
-        AlarmItem(alarm = Alarm(
-            1, 12, 0, "Test", repeatDays = repeatDayOfWeeK, isEnabled = false
-        ), onToggle = {}, onClick = {})
+        AlarmCard(alarm = Alarm.default().copy(
+            hour = 23,
+            minute = 57,
+            enabled = false,
+            repeatDays = repeatDayOfWeek,
+        ), is24HourFormat = false, onToggle = {}, onClick = {})
     }
 }

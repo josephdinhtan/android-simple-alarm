@@ -5,7 +5,7 @@ import com.jddev.simplealarm.data.database.alarm.AlarmEntity
 import com.jddev.simplealarm.domain.model.alarm.Alarm
 import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import java.time.DayOfWeek
-import java.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 fun AlarmEntity.toDomain(): Alarm = Alarm(
     id = id,
@@ -15,9 +15,10 @@ fun AlarmEntity.toDomain(): Alarm = Alarm(
     repeatDays = repeatDaysInt.map { index ->
         DayOfWeek.of(index)
     },
-    preAlarmNotificationDuration = Duration.ofMinutes(preAlarmNotificationMin.toLong()),
-    isEnabled = isEnabled,
-    tone = Ringtone(
+    preAlarmNotificationDuration = preAlarmNotificationMin.minutes,
+    enabled = isEnabled,
+    vibration = vibration,
+    ringtone = Ringtone(
         uri = Uri.parse(toneUriStr), title = toneTitle
     ),
     createdAt = createdAt
@@ -31,9 +32,10 @@ fun Alarm.toEntity(): AlarmEntity = AlarmEntity(
     repeatDaysInt = repeatDays.map {
         it.value
     },
-    preAlarmNotificationMin = preAlarmNotificationDuration.toMinutes().toInt(),
-    isEnabled = isEnabled,
-    toneUriStr = tone.uri.toString(),
-    toneTitle = tone.title,
+    preAlarmNotificationMin = preAlarmNotificationDuration.inWholeMinutes.toInt(),
+    isEnabled = enabled,
+    vibration = vibration,
+    toneUriStr = ringtone.uri.toString(),
+    toneTitle = ringtone.title,
     createdAt = createdAt
 )

@@ -44,7 +44,7 @@ class AlarmViewModel @Inject constructor(
             getAlarms(Unit).collect { alarmList ->
                 _alarms.value = alarmList
                     .sortedWith(
-                        compareByDescending<Alarm> { it.isEnabled }  // 1. Enabled alarms first
+                        compareByDescending<Alarm> { it.enabled }  // 1. Enabled alarms first
                             .thenBy { it.nextTriggerTimeMillis() }   // 2. Sooner alarm first
                     )
             }

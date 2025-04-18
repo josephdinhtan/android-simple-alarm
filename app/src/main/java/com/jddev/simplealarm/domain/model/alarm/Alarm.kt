@@ -1,16 +1,19 @@
 package com.jddev.simplealarm.domain.model.alarm
 
 import java.time.DayOfWeek
-import java.time.Duration
+import kotlin.time.Duration
 
 data class Alarm(
-    val id: Long = 0L,
+    val id: Long = 0,
     val hour: Int,
     val minute: Int,
-    val label: String = "",
-    val tone: Ringtone = Ringtone.Silent,
-    val repeatDays: List<DayOfWeek> = emptyList(),
-    val isEnabled: Boolean = true,
-    val preAlarmNotificationDuration: Duration = Duration.ZERO,
-    val createdAt: Long = System.currentTimeMillis()
-)
+    val label: String,
+    val ringtone: Ringtone,
+    val vibration: Boolean,
+    val repeatDays: List<DayOfWeek>,
+    val enabled: Boolean,
+    val preAlarmNotificationDuration: Duration,
+    val createdAt: Long,
+) {
+    companion object
+}

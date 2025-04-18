@@ -1,4 +1,4 @@
-package com.jddev.simplealarm.data.system
+package com.jddev.simplealarm.data.platform
 
 import com.jddev.simplealarm.data.helper.AlarmManagerHelper
 import com.jddev.simplealarm.data.helper.ScheduleType

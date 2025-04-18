@@ -1,4 +1,4 @@
-package com.jddev.simplealarm.presentation
+package com.jddev.simplealarm.presentation.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Alarm

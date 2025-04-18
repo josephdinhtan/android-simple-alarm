@@ -77,7 +77,7 @@ private fun SettingsScreen(
     Scaffold(
         topBar = {
             StUiLargeTopAppBar(
-                scrollBehavior = scrollBehavior, title = "Settings", onBack = onBack
+                scrollBehavior = scrollBehavior, title = "Settings", onBack = onBack,
             )
         },
     ) { innerPadding ->

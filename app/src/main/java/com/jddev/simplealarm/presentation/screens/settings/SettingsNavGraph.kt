@@ -45,6 +45,7 @@ fun NavGraphBuilder.settingsNavGraph(
 
         composable("nav_settings_ringtone") {
             RingtonePickerScreen(
+                title = "Default ringtone",
                 onBack = { navController.navigateUp() },
             )
         }

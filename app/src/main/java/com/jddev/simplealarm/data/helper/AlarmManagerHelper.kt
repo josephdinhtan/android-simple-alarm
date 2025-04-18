@@ -4,11 +4,9 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import com.jddev.simplealarm.data.system.AlarmReceiver
+import com.jddev.simplealarm.data.platform.AlarmReceiver
 import com.jddev.simplealarm.data.utils.ExactAlarmPermissionHelper
-import com.jddev.simplealarm.data.utils.calculateTriggerTime
 import com.jddev.simplealarm.domain.model.alarm.Alarm
-import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
 

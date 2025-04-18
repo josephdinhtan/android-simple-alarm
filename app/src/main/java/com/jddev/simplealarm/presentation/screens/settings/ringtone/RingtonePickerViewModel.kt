@@ -105,7 +105,7 @@ class RingtonePickerViewModel @Inject constructor(
         viewModelScope.launch {
             val alarm = getAlarmByIdUseCase(alarmId)
             alarm?.let {
-                _selectedRingtone.value = it.tone
+                _selectedRingtone.value = it.ringtone
             }
         }
     }
@@ -114,7 +114,7 @@ class RingtonePickerViewModel @Inject constructor(
         viewModelScope.launch {
             val alarm = getAlarmByIdUseCase(alarmId)
             alarm?.let {
-                updateAlarmUseCase(it.copy(tone = ringtone))
+                updateAlarmUseCase(it.copy(ringtone = ringtone))
             }
         }
     }

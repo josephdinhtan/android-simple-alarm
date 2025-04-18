@@ -1,9 +1,10 @@
-package com.jddev.simplealarm.data.system
+package com.jddev.simplealarm.data.platform
 
 import android.app.NotificationManager
 import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
+import android.text.format.DateFormat
 import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simplealarm.domain.system.SystemSettingsManager
 import javax.inject.Inject
@@ -14,6 +15,11 @@ class SystemSettingsManagerImpl @Inject constructor(
     private val notificationManager: NotificationManager,
     private val ringtoneManager: RingtoneManager,
 ) : SystemSettingsManager {
+
+    override fun is24HourFormat(): Boolean {
+        return DateFormat.is24HourFormat(context)
+    }
+
     override fun getDefaultRingtone(): Ringtone? {
         val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
         val title = RingtoneManager.getRingtone(context, uri).getTitle(context)

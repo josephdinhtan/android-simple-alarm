@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
@@ -56,11 +57,13 @@ import com.jddev.simpletouch.ui.customization.settingsui.StSettingsUi
 import com.jddev.simpletouch.ui.customization.settingsui.group.StSettingsGroup
 import com.jddev.simpletouch.ui.foundation.StUiCircleCheckbox
 import com.jddev.simpletouch.ui.foundation.topappbar.StUiLargeTopAppBar
+import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBehavior
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
 
 @Composable
 fun RingtonePickerScreen(
+    title: String,
     alarmId: Long = -1L,
     ringtonePickerViewModel: RingtonePickerViewModel = hiltViewModel(),
     onBack: () -> Unit,
@@ -74,7 +77,7 @@ fun RingtonePickerScreen(
         }
     }
     RingtonePickerScreen(
-        screenTitle = if (isFromAlarmEditScreen) "Alarm ringtone" else "Default ringtone",
+        screenTitle = title,
         ringtones = ringtonePickerViewModel.availableRingtones.collectAsState().value,
         isTonePlaying = ringtonePickerViewModel.isTonePlaying.collectAsState().value,
         selectedRingtone = ringtonePickerViewModel.selectedRingtone.collectAsState().value,
@@ -112,7 +115,6 @@ private fun RingtonePickerScreen(
     onSave: () -> Unit,
     onBack: () -> Unit,
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     BackHandler { onBack() }
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -126,7 +128,8 @@ private fun RingtonePickerScreen(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
-    Scaffold(contentWindowInsets = WindowInsets.safeContent, topBar = {
+    val scrollBehavior = stUiLargeTopAppbarScrollBehavior()
+    Scaffold(contentWindowInsets = WindowInsets.safeDrawing, topBar = {
         StUiLargeTopAppBar(
             title = screenTitle,
             onBack = onBack,
