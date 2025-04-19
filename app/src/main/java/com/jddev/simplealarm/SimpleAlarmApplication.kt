@@ -1,8 +1,8 @@
 package com.jddev.simplealarm
 
 import android.app.Application
-import com.jddev.simplealarm.data.database.AlarmDatabase
 import com.jddev.simpletouch.utils.logging.AppTree
+import com.jscoding.simplealarm.data.database.AlarmDatabase
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 

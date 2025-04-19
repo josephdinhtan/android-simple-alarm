@@ -22,4 +22,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Simple Alarm"
 include(":app")
- 
+include(":domain")
+include(":data")
+include(":presentation")

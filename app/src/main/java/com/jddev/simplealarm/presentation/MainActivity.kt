@@ -6,10 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import com.jddev.simplealarm.presentation.screens.debug.DevControlPanelContent
-import com.jddev.simplealarm.presentation.screens.debug.DevUtility
+import com.jddev.simplealarm.presentation.debug.DevControlPanelContent
+import com.jddev.simplealarm.presentation.debug.DevUtility
 import com.jddev.simpletouch.utils.debugui.DevUtilityUi
 import com.jddev.simpletouch.utils.logging.LogManager
+import com.jscoding.simplealarm.presentation.SimpleAlarmApp
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
