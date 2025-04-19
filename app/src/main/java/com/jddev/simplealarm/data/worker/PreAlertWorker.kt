@@ -9,10 +9,12 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.jddev.simplealarm.core.toStringNotification
 import com.jddev.simplealarm.data.helper.NotificationHelper
+import com.jddev.simplealarm.data.service.AlarmRingingService.Companion.EXTRA_ALARM_ID
 import com.jddev.simplealarm.domain.repository.AlarmRepository
 import com.jddev.simplealarm.domain.repository.SettingsRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -31,13 +33,16 @@ class PreAlertWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         val alarmId = inputData.getLong(EXTRA_ALARM_ID, -1L)
-
-        if (alarmId == -1L) return Result.failure()
+        Timber.d("PreAlertWorker: $alarmId")
+        if (alarmId == -1L) {
+            Timber.e("Invalid alarm id")
+            return Result.failure()
+        }
 
         val alarm = alarmRepository.getAlarmById(alarmId)
         if (alarm != null) {
             val is24Hour = settingsRepository.getIs24HourFormat()
-            notificationHelper.showAlarmAlertNotification(alarm.toStringNotification(is24Hour))
+            notificationHelper.showAlarmAlertNotification(alarm.toStringNotification(is24Hour), alarmId)
             return Result.success()
         }
 

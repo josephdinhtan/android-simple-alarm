@@ -1,6 +1,6 @@
 package com.jddev.simplealarm.domain.model.alarm
 
-import java.time.DayOfWeek
+import com.jddev.simplealarm.domain.model.DayOfWeek
 import kotlin.time.Duration
 
 data class Alarm(

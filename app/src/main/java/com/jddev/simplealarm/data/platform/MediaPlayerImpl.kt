@@ -2,7 +2,7 @@ package com.jddev.simplealarm.data.platform
 
 import android.net.Uri
 import com.jddev.simplealarm.data.helper.MediaPlayerHelper
-import com.jddev.simplealarm.domain.system.MediaPlayer
+import com.jddev.simplealarm.domain.platform.MediaPlayer
 import javax.inject.Inject
 
 class MediaPlayerImpl @Inject constructor(

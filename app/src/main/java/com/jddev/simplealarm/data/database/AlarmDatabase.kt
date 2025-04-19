@@ -6,8 +6,6 @@ import androidx.room.TypeConverters
 import com.jddev.simplealarm.data.database.alarm.AlarmDao
 import com.jddev.simplealarm.data.database.alarm.AlarmEntity
 import com.jddev.simplealarm.data.database.alarm.Converters
-import com.jddev.simplealarm.data.database.settings.SettingsDao
-import com.jddev.simplealarm.data.database.settings.SettingsEntity
 
 //@Database(entities = [AlarmEntity::class, SettingsEntity::class], version = 1)
 //@TypeConverters(Converters::class)

@@ -1,4 +1,4 @@
-package com.jddev.simplealarm.domain.system
+package com.jddev.simplealarm.domain.platform
 
 import android.net.Uri
 

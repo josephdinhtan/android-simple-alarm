@@ -49,31 +49,31 @@ fun Alarm.toStringNotification(is24HourFormat: Boolean): String {
     return timeStr + labelStr
 }
 
-fun Alarm.getTimeInMillis(): Long {
-    val now = ZonedDateTime.now()
-
-    // Find next alarm time today or in future repeated days
-    val todayTime = now.withHour(hour).withMinute(minute).withSecond(0).withNano(0)
-
-    return if (repeatDays.isEmpty()) {
-        // No repeat — one-time alarm
-        val nextTime = if (todayTime.isAfter(now)) todayTime else todayTime.plusDays(1)
-        nextTime.toInstant().toEpochMilli()
-    } else {
-        // Repeating — find the next matching day
-        var daysToAdd = 0
-        var candidate: ZonedDateTime
-
-        while (daysToAdd <= 7) {
-            candidate = todayTime.plusDays(daysToAdd.toLong())
-            val candidateDay = candidate.dayOfWeek
-            if (candidate.isAfter(now) && repeatDays.contains(candidateDay)) {
-                return candidate.toInstant().toEpochMilli()
-            }
-            daysToAdd++
-        }
-
-        // Fallback
-        todayTime.plusDays(1).toInstant().toEpochMilli()
-    }
-}
+//fun Alarm.getTimeInMillis(): Long {
+//    val now = ZonedDateTime.now()
+//
+//    // Find next alarm time today or in future repeated days
+//    val todayTime = now.withHour(hour).withMinute(minute).withSecond(0).withNano(0)
+//
+//    return if (repeatDays.isEmpty()) {
+//        // No repeat — one-time alarm
+//        val nextTime = if (todayTime.isAfter(now)) todayTime else todayTime.plusDays(1)
+//        nextTime.toInstant().toEpochMilli()
+//    } else {
+//        // Repeating — find the next matching day
+//        var daysToAdd = 0
+//        var candidate: ZonedDateTime
+//
+//        while (daysToAdd <= 7) {
+//            candidate = todayTime.plusDays(daysToAdd.toLong())
+//            val candidateDay = candidate.dayOfWeek
+//            if (candidate.isAfter(now) && repeatDays.contains(candidateDay)) {
+//                return candidate.toInstant().toEpochMilli()
+//            }
+//            daysToAdd++
+//        }
+//
+//        // Fallback
+//        todayTime.plusDays(1).toInstant().toEpochMilli()
+//    }
+//}

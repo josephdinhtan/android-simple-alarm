@@ -28,11 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jddev.simplealarm.core.default
 import com.jddev.simplealarm.core.toStringTime
+import com.jddev.simplealarm.domain.model.DayOfWeek
 import com.jddev.simplealarm.domain.model.alarm.Alarm
 import com.jddev.simpletouch.ui.foundation.StUiSwitch
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
-import java.time.DayOfWeek
 
 @Composable
 fun AlarmCard(
@@ -63,29 +63,30 @@ fun AlarmCard(
             )
         ),
     ) {
-        Row(modifier = Modifier
+        Column(modifier = Modifier
             .clickable { onClick() }
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(20.dp),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-            Column(
-                modifier = Modifier.weight(1f)
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center) {
+            if (alarm.repeatDays.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = alarm.repeatDays.joinToString(", ") {
+                        it.toString().take(3)
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = repeatDayColor.copy(alpha = textAlpha),
+                    modifier = Modifier.padding(end = 16.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Row (
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                if (alarm.repeatDays.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = alarm.repeatDays.joinToString(", ") {
-                            it.toString().take(3)
-                        },
-                        style = MaterialTheme.typography.labelSmall,
-                        color = repeatDayColor.copy(alpha = textAlpha),
-                        modifier = Modifier.padding(end = 16.dp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
                 Text(
                     text = alarm.toStringTime(is24HourFormat),
                     style = MaterialTheme.typography.headlineLarge.copy(
@@ -93,26 +94,28 @@ fun AlarmCard(
                         fontSize = 48.sp
                     ),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
-                    modifier = Modifier.padding(end = 16.dp),
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .weight(1f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                alarm.label.takeIf { it.isNotBlank() }?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
 
-            StUiSwitch(
-                modifier = Modifier.padding(8.dp),
-                checked = alarm.enabled,
-                onCheckedChange = onToggle,
-            )
+                StUiSwitch(
+                    modifier = Modifier.padding(8.dp),
+                    checked = alarm.enabled,
+                    onCheckedChange = onToggle,
+                )
+            }
+            alarm.label.takeIf { it.isNotBlank() }?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

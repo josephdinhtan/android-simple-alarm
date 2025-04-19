@@ -3,7 +3,7 @@ package com.jddev.simplealarm.domain.usecase.settings
 import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simplealarm.domain.model.settings.ThemeMode
 import com.jddev.simplealarm.domain.repository.SettingsRepository
-import com.jddev.simplealarm.domain.system.SystemSettingsManager
+import com.jddev.simplealarm.domain.platform.SystemSettingsManager
 import com.jddev.simplealarm.domain.usecase.SuspendUseCase
 import javax.inject.Inject
 import javax.inject.Singleton

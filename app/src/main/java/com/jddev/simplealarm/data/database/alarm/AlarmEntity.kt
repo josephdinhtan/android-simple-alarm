@@ -2,7 +2,6 @@ package com.jddev.simplealarm.data.database.alarm
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.time.Duration
 
 @Entity(tableName = "alarms")
 data class AlarmEntity(

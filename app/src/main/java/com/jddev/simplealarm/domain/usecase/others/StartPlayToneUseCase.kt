@@ -2,8 +2,8 @@ package com.jddev.simplealarm.domain.usecase.others
 
 import android.net.Uri
 import com.jddev.simplealarm.domain.model.alarm.Ringtone
-import com.jddev.simplealarm.domain.system.MediaPlayer
-import com.jddev.simplealarm.domain.system.SystemSettingsManager
+import com.jddev.simplealarm.domain.platform.MediaPlayer
+import com.jddev.simplealarm.domain.platform.SystemSettingsManager
 import com.jddev.simplealarm.domain.usecase.SuspendUseCase
 import javax.inject.Inject
 import javax.inject.Singleton

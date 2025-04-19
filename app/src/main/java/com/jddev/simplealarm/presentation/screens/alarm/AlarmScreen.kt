@@ -18,12 +18,12 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jddev.simplealarm.core.default
+import com.jddev.simplealarm.domain.model.DayOfWeek
 import com.jddev.simplealarm.domain.model.alarm.Alarm
 import com.jddev.simplealarm.presentation.components.AlarmCard
 import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBehavior
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
-import java.time.DayOfWeek
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

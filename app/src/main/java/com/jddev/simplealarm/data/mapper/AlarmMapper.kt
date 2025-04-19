@@ -2,9 +2,10 @@ package com.jddev.simplealarm.data.mapper
 
 import android.net.Uri
 import com.jddev.simplealarm.data.database.alarm.AlarmEntity
+import com.jddev.simplealarm.data.utils.of
+import com.jddev.simplealarm.domain.model.DayOfWeek
 import com.jddev.simplealarm.domain.model.alarm.Alarm
 import com.jddev.simplealarm.domain.model.alarm.Ringtone
-import java.time.DayOfWeek
 import kotlin.time.Duration.Companion.minutes
 
 fun AlarmEntity.toDomain(): Alarm = Alarm(
@@ -12,8 +13,8 @@ fun AlarmEntity.toDomain(): Alarm = Alarm(
     hour = hour,
     minute = minute,
     label = label,
-    repeatDays = repeatDaysInt.map { index ->
-        DayOfWeek.of(index)
+    repeatDays = repeatDaysInt.map {
+        DayOfWeek.of(it)
     },
     preAlarmNotificationDuration = preAlarmNotificationMin.minutes,
     enabled = isEnabled,

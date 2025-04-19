@@ -6,8 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import com.jddev.simpletouch.ui.debug.DevControlPanelContent
-import com.jddev.simpletouch.ui.debug.DevUtility
+import com.jddev.simplealarm.presentation.screens.debug.DevControlPanelContent
+import com.jddev.simplealarm.presentation.screens.debug.DevUtility
 import com.jddev.simpletouch.utils.debugui.DevUtilityUi
 import com.jddev.simpletouch.utils.logging.LogManager
 import dagger.hilt.android.AndroidEntryPoint

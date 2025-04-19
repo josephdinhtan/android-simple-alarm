@@ -6,7 +6,7 @@ import android.media.AudioManager
 import android.media.RingtoneManager
 import android.text.format.DateFormat
 import com.jddev.simplealarm.domain.model.alarm.Ringtone
-import com.jddev.simplealarm.domain.system.SystemSettingsManager
+import com.jddev.simplealarm.domain.platform.SystemSettingsManager
 import javax.inject.Inject
 
 class SystemSettingsManagerImpl @Inject constructor(

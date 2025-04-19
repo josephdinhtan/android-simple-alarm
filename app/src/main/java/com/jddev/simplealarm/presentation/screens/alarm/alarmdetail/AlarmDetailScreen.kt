@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jddev.simplealarm.core.default
+import com.jddev.simplealarm.domain.model.DayOfWeek
 import com.jddev.simplealarm.domain.model.alarm.Alarm
 import com.jddev.simplealarm.presentation.components.DialTimePicker
 import com.jddev.simpletouch.ui.customization.settingsui.StSettingsUi
@@ -49,7 +50,6 @@ import com.jddev.simpletouch.ui.customization.settingsui.switch.StSettingsSwitch
 import com.jddev.simpletouch.ui.foundation.dialog.StUiEmptyDialog
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
-import java.time.DayOfWeek
 
 @Composable
 fun AddNewAlarmRoute(

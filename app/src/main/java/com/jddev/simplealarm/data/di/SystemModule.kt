@@ -8,11 +8,11 @@ import android.media.MediaPlayer
 import android.media.RingtoneManager
 import com.jddev.simplealarm.data.platform.AlarmSchedulerImpl
 import com.jddev.simplealarm.data.platform.MediaPlayerImpl
-import com.jddev.simplealarm.data.platform.NotificationControllerImpl
+import com.jddev.simplealarm.data.platform.NotificationSchedulerImpl
 import com.jddev.simplealarm.data.platform.SystemSettingsManagerImpl
-import com.jddev.simplealarm.domain.system.AlarmScheduler
-import com.jddev.simplealarm.domain.system.NotificationController
-import com.jddev.simplealarm.domain.system.SystemSettingsManager
+import com.jddev.simplealarm.domain.platform.AlarmScheduler
+import com.jddev.simplealarm.domain.platform.NotificationScheduler
+import com.jddev.simplealarm.domain.platform.SystemSettingsManager
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -76,12 +76,12 @@ abstract class DataSystemModule {
     @Singleton
     @Binds
     abstract fun bindsNotificationController(
-        impl: NotificationControllerImpl
-    ): NotificationController
+        impl: NotificationSchedulerImpl
+    ): NotificationScheduler
 
     @Singleton
     @Binds
     abstract fun bindsMediaPlayer(
         impl: MediaPlayerImpl
-    ): com.jddev.simplealarm.domain.system.MediaPlayer
+    ): com.jddev.simplealarm.domain.platform.MediaPlayer
 }

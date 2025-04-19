@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jddev.simplealarm.domain.model.alarm.Ringtone
 import com.jddev.simplealarm.domain.repository.SettingsRepository
-import com.jddev.simplealarm.domain.system.SystemSettingsManager
+import com.jddev.simplealarm.domain.platform.SystemSettingsManager
 import com.jddev.simplealarm.domain.usecase.alarm.GetAlarmByIdUseCase
 import com.jddev.simplealarm.domain.usecase.alarm.UpdateAlarmUseCase
 import com.jddev.simplealarm.domain.usecase.others.StartPlayToneUseCase

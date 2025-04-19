@@ -1,6 +1,6 @@
 package com.jddev.simplealarm.domain.usecase.others
 
-import com.jddev.simplealarm.domain.system.MediaPlayer
+import com.jddev.simplealarm.domain.platform.MediaPlayer
 import com.jddev.simplealarm.domain.usecase.SuspendUseCase
 import javax.inject.Inject
 import javax.inject.Singleton
