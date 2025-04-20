@@ -33,6 +33,7 @@ fun Alarm.Companion.default(): Alarm {
         repeatDays = emptyList(),
         enabled = true,
         vibration = true,
+        snoozeTime = 5.minutes,
         preAlarmNotificationDuration = 5.minutes,
         createdAt = System.currentTimeMillis(),
     )

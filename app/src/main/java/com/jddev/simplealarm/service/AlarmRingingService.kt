@@ -51,9 +51,14 @@ class AlarmRingingService : LifecycleService() {
                 return START_NOT_STICKY
             }
 
+            ACTION_SNOOZE_ALARM -> {
+                stopRingingAlarm()
+                return START_NOT_STICKY
+            }
+
             ACTION_ALARM_RINGING -> {
                 val alarmId = intent.getLongExtra(EXTRA_ALARM_ID, -1)
-                Timber.d("ACTION_ALARM_RINGING: $alarmId")
+                Timber.d("ACTION_ALARM_RINGING: alarmId $alarmId")
                 if (alarmId == -1L) {
                     Timber.e("Invalid alarm ID")
                     stopSelf()
@@ -134,7 +139,7 @@ class AlarmRingingService : LifecycleService() {
 
             // Wake up screen
             wakeUpScreen(this@AlarmRingingService.applicationContext)
-            RingingActivity.startActivity(this@AlarmRingingService.applicationContext, alarmId)
+//            RingingActivity.startActivity(this@AlarmRingingService.applicationContext, alarmId)
 
 //            val options = ActivityOptions.makeBasic()
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -200,6 +205,7 @@ class AlarmRingingService : LifecycleService() {
     companion object {
         const val EXTRA_ALARM_ID = "alarmId"
         const val ACTION_DISMISS_ALARM = "com.jddev.simplealarm.ACTION_DISMISS_ALARM"
+        const val ACTION_SNOOZE_ALARM = "com.jddev.simplealarm.ACTION_SNOOZE_ALARM"
         const val ACTION_ALARM_RINGING = "com.jddev.simplealarm.ACTION_ALARM_RINGING"
         const val ACTION_ALARM_NOTIFICATION = "com.jddev.simplealarm.ACTION_ALARM_NOTIFICATION"
 
@@ -214,6 +220,13 @@ class AlarmRingingService : LifecycleService() {
         fun dismissAlarm(context: Context) {
             val intent = Intent(context, AlarmRingingService::class.java).apply {
                 action = ACTION_DISMISS_ALARM
+            }
+            ContextCompat.startForegroundService(context, intent)
+        }
+
+        fun snoozeAlarm(context: Context) {
+            val intent = Intent(context, AlarmRingingService::class.java).apply {
+                action = ACTION_SNOOZE_ALARM
             }
             ContextCompat.startForegroundService(context, intent)
         }

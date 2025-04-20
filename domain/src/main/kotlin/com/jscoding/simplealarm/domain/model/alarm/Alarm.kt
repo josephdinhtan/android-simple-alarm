@@ -12,6 +12,7 @@ data class Alarm(
     val vibration: Boolean,
     val repeatDays: List<DayOfWeek>,
     val enabled: Boolean,
+    val snoozeTime: Duration,
     val preAlarmNotificationDuration: Duration,
     val createdAt: Long,
 ) {

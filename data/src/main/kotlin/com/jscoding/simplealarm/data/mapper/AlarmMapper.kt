@@ -6,7 +6,7 @@ import com.jscoding.simplealarm.data.utils.of
 import com.jscoding.simplealarm.domain.model.DayOfWeek
 import com.jscoding.simplealarm.domain.model.alarm.Alarm
 import com.jscoding.simplealarm.domain.model.alarm.Ringtone
-import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 fun AlarmEntity.toDomain(): Alarm = Alarm(
     id = id,
@@ -16,7 +16,8 @@ fun AlarmEntity.toDomain(): Alarm = Alarm(
     repeatDays = repeatDaysInt.map {
         DayOfWeek.of(it)
     },
-    preAlarmNotificationDuration = preAlarmNotificationMin.minutes,
+    snoozeTime = snoozeTimeSeconds.seconds,
+    preAlarmNotificationDuration = preAlarmNotificationSeconds.seconds,
     enabled = isEnabled,
     vibration = vibration,
     ringtone = Ringtone(
@@ -33,7 +34,8 @@ fun Alarm.toEntity(): AlarmEntity = AlarmEntity(
     repeatDaysInt = repeatDays.map {
         it.value
     },
-    preAlarmNotificationMin = preAlarmNotificationDuration.inWholeMinutes.toInt(),
+    snoozeTimeSeconds = snoozeTime.inWholeSeconds.toInt(),
+    preAlarmNotificationSeconds = preAlarmNotificationDuration.inWholeSeconds.toInt(),
     isEnabled = enabled,
     vibration = vibration,
     toneUriStr = ringtone.uri.toString(),

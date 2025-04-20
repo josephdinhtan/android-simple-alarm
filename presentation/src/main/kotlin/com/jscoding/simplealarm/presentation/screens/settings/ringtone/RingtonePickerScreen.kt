@@ -247,7 +247,9 @@ private fun SelectedCheckbox(
 @Composable
 @StUiPreview
 private fun Preview() {
-    val ringtones = List(20, { Ringtone("Ringtone $it", Uri.parse("uri_test_$it")) })
+    val ringtones = List(
+        20
+    ) { Ringtone("Ringtone $it", Uri.parse("uri_test_$it")) }
     StUiPreviewWrapper {
         RingtonePickerScreen(
             screenTitle = "Ringtone",

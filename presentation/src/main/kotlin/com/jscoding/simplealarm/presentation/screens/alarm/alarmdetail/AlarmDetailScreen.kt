@@ -53,7 +53,7 @@ import com.jscoding.simplealarm.presentation.utils.default
 
 @Composable
 fun AddNewAlarmRoute(
-    alarmDetailViewModel: AlarmDetailScreenViewModel = hiltViewModel(),
+    alarmDetailViewModel: AlarmDetailViewModel = hiltViewModel(),
     navigateToRingtone: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -71,7 +71,7 @@ fun AddNewAlarmRoute(
 
 @Composable
 fun EditAlarmRoute(
-    alarmDetailViewModel: AlarmDetailScreenViewModel = hiltViewModel(),
+    alarmDetailViewModel: AlarmDetailViewModel = hiltViewModel(),
     alarmId: Long,
     navigateToRingtone: () -> Unit,
     onBack: () -> Unit,

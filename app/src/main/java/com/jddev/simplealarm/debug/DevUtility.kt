@@ -103,6 +103,7 @@ private fun Alarm.Companion.defaultTest(): Alarm {
         repeatDays = emptyList(),
         ringtone = Ringtone.Silent,
         vibration = true,
+        snoozeTime = 5.minutes,
         preAlarmNotificationDuration = 5.minutes
     )
 }

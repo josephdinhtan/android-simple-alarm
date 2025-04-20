@@ -34,6 +34,7 @@
         <activity
             android:name=".activity.RingingActivity"
             android:launchMode="singleInstance"
+            android:excludeFromRecents="true"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
         <activity

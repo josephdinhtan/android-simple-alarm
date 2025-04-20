@@ -1,4 +1,4 @@
-package com.jddev.simplealarm.integration
+package com.jddev.simplealarm.impl
 
 import android.app.PendingIntent
 import android.content.Context

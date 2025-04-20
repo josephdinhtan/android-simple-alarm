@@ -18,7 +18,7 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
-class AlarmDetailScreenViewModel @Inject constructor(
+class AlarmDetailViewModel @Inject constructor(
     private val getAlarmByIdUseCase: GetAlarmByIdUseCase,
     private val settingsRepository: SettingsRepository,
     private val addAlarmUseCase: AddAlarmUseCase,
@@ -43,6 +43,7 @@ class AlarmDetailScreenViewModel @Inject constructor(
                 repeatDays = emptyList(),
                 vibration = true,
                 enabled = true,
+                snoozeTime = 5.minutes,
                 preAlarmNotificationDuration = 5.minutes,
                 createdAt = System.currentTimeMillis(),
             )

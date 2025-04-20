@@ -47,20 +47,6 @@ class RingtonePickerViewModel @Inject constructor(
                 _availableRingtones.value = systemRingtones
             }
         }
-
-        viewModelScope.launch {
-            selectedRingtone.collect {
-                Timber.e("selectedRingtone = $it")
-            }
-        }
-
-        viewModelScope.launch {
-            availableRingtones.collect {
-                for (ringtone in it) {
-                    Timber.e("availableRingtones = $ringtone")
-                }
-            }
-        }
     }
 
     fun onRingtoneSelectedAndPlayTone(ringtone: Ringtone) {

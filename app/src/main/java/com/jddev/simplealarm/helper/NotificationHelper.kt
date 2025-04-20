@@ -14,6 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.jddev.simplealarm.activity.RingingActivity
+import com.jddev.simplealarm.service.AlarmRingingService
 import com.jscoding.simplealarm.data.R
 import timber.log.Timber
 import javax.inject.Inject
@@ -69,10 +70,12 @@ class NotificationHelper @Inject constructor(
 
     fun createAlertAlarmNotification(contentText: String, alarmId: Long): Notification {
 
-        val dismissIntent = Intent(context, com.jddev.simplealarm.service.AlarmRingingService::class.java).apply {
-            action = com.jddev.simplealarm.service.AlarmRingingService.ACTION_DISMISS_ALARM
-            putExtra(com.jddev.simplealarm.service.AlarmRingingService.EXTRA_ALARM_ID, alarmId)
-        }
+        val dismissIntent =
+            Intent(context, com.jddev.simplealarm.service.AlarmRingingService::class.java).apply {
+                action = com.jddev.simplealarm.service.AlarmRingingService.ACTION_DISMISS_ALARM
+                putExtra(com.jddev.simplealarm.service.AlarmRingingService.EXTRA_ALARM_ID, alarmId)
+            }
+
         val dismissPendingIntent = PendingIntent.getService(
             context,
             0,
@@ -108,15 +111,8 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val dismissIntent = Intent(context, com.jddev.simplealarm.service.AlarmRingingService::class.java).apply {
-            action = com.jddev.simplealarm.service.AlarmRingingService.ACTION_DISMISS_ALARM
-        }
-        val dismissPendingIntent = PendingIntent.getService(
-            context,
-            0,
-            dismissIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val dismissPendingIntent = getActionPendingIntent(alarmId, context, AlarmRingingService.ACTION_DISMISS_ALARM)
+        val snoozePendingIntent = getActionPendingIntent(alarmId, context, AlarmRingingService.ACTION_SNOOZE_ALARM)
 
         return NotificationCompat.Builder(context, CHANNEL_ALARM_NOTIFICATION)
             .setContentTitle("Alarm Ringing")
@@ -134,7 +130,28 @@ class NotificationHelper @Inject constructor(
                 "Dismiss",
                 dismissPendingIntent
             )
+            .addAction(
+                0,
+                "Snooze",
+                snoozePendingIntent
+            )
             .build()
+    }
+
+    private fun getActionPendingIntent(alarmId: Long, context: Context, actionStr: String): PendingIntent {
+        val intent =
+            Intent(context, AlarmRingingService::class.java).apply {
+                action = actionStr
+                putExtra(AlarmRingingService.EXTRA_ALARM_ID, alarmId)
+            }
+
+        val pendingIntent = PendingIntent.getService(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        return pendingIntent
     }
 
     fun cancelNotification(notificationId: Int) {

@@ -11,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.jscoding.simplealarm.presentation.SingleAlarmRingingApp
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class RingingActivity : AppCompatActivity() {
@@ -18,11 +19,24 @@ class RingingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val alarmId = intent.getLongExtra("alarmId", -1)
+        if (alarmId == -1L) {
+            Timber.e("Alarm id not found")
+            finish()
+            return
+        }
+
         setContent {
-            SingleAlarmRingingApp()
+            SingleAlarmRingingApp(
+                alarmId = alarmId,
+                onFinished = {
+                    this@RingingActivity.finish()
+                }
+            )
         }
     }
 
+    @Suppress("DEPRECATION")
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
