@@ -54,7 +54,13 @@ dependencies {
 
     // hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
     kapt(libs.hilt.android.compiler)
+
+    // lifecycle service
+    implementation(libs.androidx.lifecycle.service)
 
     implementation(libs.timber)
 

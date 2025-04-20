@@ -1,4 +1,4 @@
-package com.jddev.simplealarm.presentation.debug
+package com.jddev.simplealarm.debug
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -46,5 +46,9 @@ internal fun DevControlPanelContent(
         Button({
             devUtility.cancelAllSchedulePreAlarmNotification()
         }) { Text("Cancel All Schedule PreAlarm notification") }
+
+        Button({
+            devUtility.startRingingActivity()
+        }) { Text("Show ringing activity") }
     }
 }

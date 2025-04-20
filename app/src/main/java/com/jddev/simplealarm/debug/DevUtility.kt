@@ -1,8 +1,9 @@
-package com.jddev.simplealarm.presentation.debug
+package com.jddev.simplealarm.debug
 
 import android.content.Context
+import com.jddev.simplealarm.activity.RingingActivity
 import com.jscoding.simplealarm.data.di.CoroutineScopeIO
-import com.jscoding.simplealarm.data.service.AlarmRingingService
+import com.jddev.simplealarm.service.AlarmRingingService
 import com.jscoding.simplealarm.domain.model.alarm.Alarm
 import com.jscoding.simplealarm.domain.model.alarm.Ringtone
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
@@ -84,6 +85,10 @@ class DevUtility @Inject constructor(
         coroutineScopeIO.launch {
 //            notificationController.cancelAllPreAlarmNotifications()
         }
+    }
+
+    fun startRingingActivity() {
+        RingingActivity.startActivity(context, 1)
     }
 }
 

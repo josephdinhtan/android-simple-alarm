@@ -19,9 +19,9 @@ class AddAlarmUseCase @Inject constructor(
         if (params.enabled) {
             // schedule alarm
             if (params.repeatDays.isEmpty()) {
-                alarmScheduler.schedule(params.id, params.hour, params.minute)
+                alarmScheduler.schedule(alarmId, params.hour, params.minute)
             } else {
-                alarmScheduler.schedule(params.id, params.hour, params.minute, params.repeatDays)
+                alarmScheduler.schedule(alarmId, params.hour, params.minute, params.repeatDays)
             }
 
             // schedule pre-alarm notification

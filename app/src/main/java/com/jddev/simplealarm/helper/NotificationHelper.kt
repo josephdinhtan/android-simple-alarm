@@ -1,4 +1,4 @@
-package com.jscoding.simplealarm.data.helper
+package com.jddev.simplealarm.helper
 
 import android.Manifest
 import android.app.Application
@@ -13,8 +13,8 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.jddev.simplealarm.activity.RingingActivity
 import com.jscoding.simplealarm.data.R
-import com.jscoding.simplealarm.data.service.AlarmRingingService
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,6 +29,8 @@ class NotificationHelper @Inject constructor(
         NotificationManager.IMPORTANCE_HIGH
     ).also {
         it.enableVibration(true)
+        it.enableLights(true)
+        it.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
     }
 
     init {
@@ -66,9 +68,10 @@ class NotificationHelper @Inject constructor(
     }
 
     fun createAlertAlarmNotification(contentText: String, alarmId: Long): Notification {
-        val dismissIntent = Intent(context, AlarmRingingService::class.java).apply {
-            action = AlarmRingingService.ACTION_DISMISS_ALARM
-            putExtra(AlarmRingingService.EXTRA_ALARM_ID, alarmId)
+
+        val dismissIntent = Intent(context, com.jddev.simplealarm.service.AlarmRingingService::class.java).apply {
+            action = com.jddev.simplealarm.service.AlarmRingingService.ACTION_DISMISS_ALARM
+            putExtra(com.jddev.simplealarm.service.AlarmRingingService.EXTRA_ALARM_ID, alarmId)
         }
         val dismissPendingIntent = PendingIntent.getService(
             context,
@@ -94,9 +97,19 @@ class NotificationHelper @Inject constructor(
             .build()
     }
 
-    fun createOngoingAlarmNotification(contentText: String): Notification {
-        val dismissIntent = Intent(context, AlarmRingingService::class.java).apply {
-            action = AlarmRingingService.ACTION_DISMISS_ALARM
+    fun createOngoingAlarmNotification(contentText: String, alarmId: Long): Notification {
+        // show ringing activity
+        val fullScreenIntent = Intent(context, RingingActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("alarmId", alarmId)
+        }
+        val fullScreenPendingIntent = PendingIntent.getActivity(
+            context, 0, fullScreenIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val dismissIntent = Intent(context, com.jddev.simplealarm.service.AlarmRingingService::class.java).apply {
+            action = com.jddev.simplealarm.service.AlarmRingingService.ACTION_DISMISS_ALARM
         }
         val dismissPendingIntent = PendingIntent.getService(
             context,
@@ -113,6 +126,8 @@ class NotificationHelper @Inject constructor(
             .setCategory(NotificationCompat.CATEGORY_ALARM) // treated as alarm
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setFullScreenIntent(fullScreenPendingIntent, true)
+            .setContentIntent(fullScreenPendingIntent)
             .setAutoCancel(false)
             .addAction(
                 0,

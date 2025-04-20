@@ -1,13 +1,18 @@
-package com.jscoding.simplealarm.data.service
+package com.jddev.simplealarm.service
 
+import android.app.ActivityOptions
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.PowerManager
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import com.jddev.simplealarm.activity.RingingActivity
+import com.jddev.simplealarm.helper.NotificationHelper
 import com.jscoding.simplealarm.data.helper.MediaPlayerHelper
-import com.jscoding.simplealarm.data.helper.NotificationHelper
 import com.jscoding.simplealarm.data.utils.toStringNotification
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
@@ -17,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class AlarmRingingService : LifecycleService() {
@@ -47,6 +53,7 @@ class AlarmRingingService : LifecycleService() {
 
             ACTION_ALARM_RINGING -> {
                 val alarmId = intent.getLongExtra(EXTRA_ALARM_ID, -1)
+                Timber.d("ACTION_ALARM_RINGING: $alarmId")
                 if (alarmId == -1L) {
                     Timber.e("Invalid alarm ID")
                     stopSelf()
@@ -84,6 +91,13 @@ class AlarmRingingService : LifecycleService() {
     }
 
     private fun startRingingAlarm(alarmId: Long) {
+        val placeholderNotification = notificationHelper.createAlertAlarmNotification(
+            "", alarmId
+        )
+        startForeground(
+            NotificationHelper.CHANNEL_ALARM_RINGING_NOTIFICATION_ID,
+            placeholderNotification
+        )
         lifecycleScope.launch(Dispatchers.Main) {
             val alarm = alarmRepository.getAlarmById(alarmId)
 
@@ -97,9 +111,15 @@ class AlarmRingingService : LifecycleService() {
             // Start as a foreground service with notification
             val is24Hour = settingsRepository.getIs24HourFormat()
             val notification = notificationHelper.createOngoingAlarmNotification(
-                alarm.toStringNotification(is24Hour)
+                alarm.toStringNotification(is24Hour),
+                alarmId
             )
-            startForeground(NotificationHelper.CHANNEL_ALARM_RINGING_NOTIFICATION_ID, notification)
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(
+                NotificationHelper.CHANNEL_ALARM_RINGING_NOTIFICATION_ID,
+                notification
+            )
 
             // Play sound
             val currentVolume = systemSettingsManager.getAlarmVolume().toFloat()
@@ -111,6 +131,26 @@ class AlarmRingingService : LifecycleService() {
                 volume,
                 settingsRepository.getVolumeFadeDuration()
             )
+
+            // Wake up screen
+            wakeUpScreen(this@AlarmRingingService.applicationContext)
+            RingingActivity.startActivity(this@AlarmRingingService.applicationContext, alarmId)
+
+//            val options = ActivityOptions.makeBasic()
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+//                options.setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
+//            }
+//            val pendingIntent = PendingIntent.getActivity(
+//                this@AlarmRingingService,
+//                0,
+//                Intent(this@AlarmRingingService, RingingActivity::class.java),
+//                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+//            )
+//
+//            pendingIntent.send(
+//                this@AlarmRingingService, 0, null, null, null,
+//                options.toBundle().toString()
+//            )
         }
     }
 
@@ -118,7 +158,10 @@ class AlarmRingingService : LifecycleService() {
         val placeholderNotification = notificationHelper.createAlertAlarmNotification(
             "", alarmId
         )
-        startForeground(NotificationHelper.CHANNEL_ALARM_ALERT_NOTIFICATION_ID, placeholderNotification)
+        startForeground(
+            NotificationHelper.CHANNEL_ALARM_ALERT_NOTIFICATION_ID,
+            placeholderNotification
+        )
 
         lifecycleScope.launch(Dispatchers.Main) {
             val alarm = alarmRepository.getAlarmById(alarmId)
@@ -134,9 +177,24 @@ class AlarmRingingService : LifecycleService() {
                 alarm.toStringNotification(is24Hour), alarmId
             )
             Timber.d("Show notification id: $alarmId, content: ${alarm.toStringNotification(is24Hour)}")
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(NotificationHelper.CHANNEL_ALARM_ALERT_NOTIFICATION_ID, notification)
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(
+                NotificationHelper.CHANNEL_ALARM_ALERT_NOTIFICATION_ID,
+                notification
+            )
         }
+    }
+
+    private fun wakeUpScreen(context: Context) {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val wakeLock = powerManager.newWakeLock(
+            PowerManager.FULL_WAKE_LOCK or
+                    PowerManager.ACQUIRE_CAUSES_WAKEUP or
+                    PowerManager.ON_AFTER_RELEASE,
+            "SimpleAlarm:AlarmWakeLock"
+        )
+        wakeLock.acquire(3000L) // 3 seconds just to turn on the screen
     }
 
     companion object {

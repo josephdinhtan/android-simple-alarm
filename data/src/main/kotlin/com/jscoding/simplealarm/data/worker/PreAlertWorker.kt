@@ -7,8 +7,6 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.jscoding.simplealarm.data.helper.NotificationHelper
-import com.jscoding.simplealarm.data.utils.toStringNotification
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import dagger.assisted.Assisted
@@ -25,8 +23,7 @@ class PreAlertWorker @AssistedInject constructor(
 
     @Inject
     lateinit var alarmRepository: AlarmRepository
-    @Inject
-    lateinit var notificationHelper: NotificationHelper
+
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
@@ -41,7 +38,7 @@ class PreAlertWorker @AssistedInject constructor(
         val alarm = alarmRepository.getAlarmById(alarmId)
         if (alarm != null) {
             val is24Hour = settingsRepository.getIs24HourFormat()
-            notificationHelper.showAlarmAlertNotification(alarm.toStringNotification(is24Hour), alarmId)
+//            notificationHelper.showAlarmAlertNotification(alarm.toStringNotification(is24Hour), alarmId)
             return Result.success()
         }
 

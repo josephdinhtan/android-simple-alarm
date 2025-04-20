@@ -59,12 +59,6 @@ dependencies {
     implementation(libs.androidx.hilt.common)
     kapt(libs.hilt.android.compiler)
 
-    // database
-    implementation(libs.datastore.preferences)
-    implementation(libs.androidx.room.common)
-    implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
-
     // Lottie animation
     implementation(libs.lottie)
 

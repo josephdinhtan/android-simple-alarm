@@ -1,11 +1,11 @@
-package com.jscoding.simplealarm.data.platform
+package com.jddev.simplealarm.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
-import com.jscoding.simplealarm.data.helper.ScheduleType
-import com.jscoding.simplealarm.data.service.AlarmRingingService
+import com.jddev.simplealarm.integration.ScheduleType
+import com.jddev.simplealarm.service.AlarmRingingService
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -15,16 +15,17 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val alarmId = intent.getLongExtra("alarmId", -1)
 
-        Toast.makeText(context, "Alarm ringing! ID: $alarmId", Toast.LENGTH_LONG).show()
-
         val style = intent.getStringExtra("type")
         Timber.d("Received intent alarmId: $alarmId, type: $style")
         when (style) {
-            ScheduleType.ALARM.style -> {
+            ScheduleType.ALARM.value -> {
+                Toast.makeText(context, "Alarm firing! ID: $alarmId", Toast.LENGTH_LONG).show()
                 AlarmRingingService.startRinging(context, alarmId)
             }
 
-            ScheduleType.NOTIFICATION.style -> {
+            ScheduleType.NOTIFICATION.value -> {
+                Toast.makeText(context, "Notification firing! ID: $alarmId", Toast.LENGTH_LONG)
+                    .show()
                 AlarmRingingService.startNotification(context, alarmId)
             }
         }

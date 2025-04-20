@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools" >
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.START_ACTIVITIES_FROM_BACKGROUND"
+        tools:ignore="ProtectedPermissions" />
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
 
     <application
         android:name=".SimpleAlarmApplication"
@@ -18,11 +30,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SimpleAlarm"
-        tools:targetApi="35">
+        tools:targetApi="35" >
         <activity
-            android:name=".presentation.MainActivity"
+            android:name=".activity.RingingActivity"
+            android:launchMode="singleInstance"
             android:exported="true"
-            android:theme="@style/Theme.SimpleAlarm">
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+        <activity
+            android:name=".activity.MainActivity"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.SimpleAlarm" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,11 +49,13 @@
         </activity>
 
         <service
-            android:name=".data.service.AlarmRingingService"
+            android:name=".service.AlarmRingingService"
             android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
-
-        <receiver android:name=".data.platform.AlarmReceiver" />
+            android:foregroundServiceType="mediaPlayback"
+            android:enabled="true"
+            android:directBootAware="true"
+            android:permission="android.permission.FOREGROUND_SERVICE"/>
+        <receiver android:name=".receiver.AlarmReceiver" />
     </application>
 
 </manifest>
