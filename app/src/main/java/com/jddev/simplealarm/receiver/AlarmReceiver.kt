@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import com.jddev.simplealarm.impl.ScheduleType
-import com.jddev.simplealarm.service.AlarmRingingService
+import com.jddev.simplealarm.service.AlarmKlaxonService
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -20,13 +20,13 @@ class AlarmReceiver : BroadcastReceiver() {
         when (style) {
             ScheduleType.ALARM.value -> {
                 Toast.makeText(context, "Alarm firing! ID: $alarmId", Toast.LENGTH_LONG).show()
-                AlarmRingingService.startRinging(context, alarmId)
+                AlarmKlaxonService.startRinging(context, alarmId)
             }
 
             ScheduleType.NOTIFICATION.value -> {
                 Toast.makeText(context, "Notification firing! ID: $alarmId", Toast.LENGTH_LONG)
                     .show()
-                AlarmRingingService.startNotification(context, alarmId)
+                AlarmKlaxonService.startNotification(context, alarmId)
             }
         }
     }

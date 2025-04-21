@@ -21,15 +21,21 @@ fun AlarmKlaxonScreen(
     val alarmKlaxonState = viewModel.alarmKlaxonState.collectAsState().value
 
     AniVisibility(visible = alarmKlaxonState is AlarmKlaxonState.Ringing) {
-        RingingScreen(
-            time = (alarmKlaxonState as AlarmKlaxonState.Ringing).timeStringDisplay,
-            onSnooze = { viewModel.snoozeAlarm(alarmId) },
-            onDismiss = { viewModel.dismissAlarm(alarmId) }
-        )
+        if(alarmKlaxonState is AlarmKlaxonState.Ringing) {
+            RingingScreen(
+                time = alarmKlaxonState.timeDisplay,
+                onSnooze = { viewModel.snoozeAlarm(alarmId) },
+                onDismiss = { viewModel.dismissAlarm(alarmId) }
+            )
+        }
     }
 
     AniVisibility(visible = alarmKlaxonState is AlarmKlaxonState.Snoozed) {
-        SnoozedScreen(onFinished = onFinished)
+        if(alarmKlaxonState is AlarmKlaxonState.Snoozed) {
+        SnoozedScreen(
+            snoozedTimeDisplay = alarmKlaxonState.snoozedTimeDisplay,
+            onFinished = onFinished)
+        }
     }
 
     AniVisibility(visible = alarmKlaxonState is AlarmKlaxonState.Dismissed) {

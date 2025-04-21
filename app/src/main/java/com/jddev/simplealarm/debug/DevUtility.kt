@@ -3,7 +3,7 @@ package com.jddev.simplealarm.debug
 import android.content.Context
 import com.jddev.simplealarm.activity.RingingActivity
 import com.jscoding.simplealarm.data.di.CoroutineScopeIO
-import com.jddev.simplealarm.service.AlarmRingingService
+import com.jddev.simplealarm.service.AlarmKlaxonService
 import com.jscoding.simplealarm.domain.model.alarm.Alarm
 import com.jscoding.simplealarm.domain.model.alarm.Ringtone
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
@@ -32,7 +32,7 @@ class DevUtility @Inject constructor(
     }
 
     fun startRingingForegroundService() {
-        AlarmRingingService.startRinging(context, 1)
+        AlarmKlaxonService.startRinging(context, 1)
     }
 
     fun schedulePreAlarmNotificationAfter1Minutes() {

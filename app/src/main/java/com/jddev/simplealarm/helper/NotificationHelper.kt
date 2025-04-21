@@ -1,7 +1,6 @@
 package com.jddev.simplealarm.helper
 
 import android.Manifest
-import android.app.Application
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -14,7 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.jddev.simplealarm.activity.RingingActivity
-import com.jddev.simplealarm.service.AlarmRingingService
+import com.jddev.simplealarm.service.AlarmKlaxonService
 import com.jscoding.simplealarm.data.R
 import timber.log.Timber
 import javax.inject.Inject
@@ -23,10 +22,28 @@ import javax.inject.Singleton
 @Singleton
 class NotificationHelper @Inject constructor(
     private val context: Context,
+    private val notificationManager: NotificationManager,
 ) {
-    private val channelAlarmAlertNotification = NotificationChannel(
-        CHANNEL_ALARM_NOTIFICATION,
-        "Alarm alert",
+    private val channelFiringAlarmNotification = NotificationChannel(
+        FIRING_NOTIFICATION_CHANNEL_ID,
+        "Firing alarms & timers",
+        NotificationManager.IMPORTANCE_HIGH
+    ).also {
+        it.enableVibration(true)
+        it.enableLights(true)
+        it.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+    }
+    private val channelSnoozedAlarmNotification = NotificationChannel(
+        ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID,
+        "Snoozed alarms",
+        NotificationManager.IMPORTANCE_HIGH
+    ).also {
+        it.enableLights(true)
+        it.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+    }
+    private val channelUpcomingAlarmNotification = NotificationChannel(
+        ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID,
+        "Upcoming alarms",
         NotificationManager.IMPORTANCE_HIGH
     ).also {
         it.enableVibration(true)
@@ -34,15 +51,13 @@ class NotificationHelper @Inject constructor(
         it.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
     }
 
-    init {
-        (context.getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager).also {
-            it.createNotificationChannel(channelAlarmAlertNotification)
-        }
+    fun createNotificationChannels() {
+        notificationManager.createNotificationChannel(channelFiringAlarmNotification)
+        notificationManager.createNotificationChannel(channelSnoozedAlarmNotification)
+        notificationManager.createNotificationChannel(channelUpcomingAlarmNotification)
     }
 
-    fun showAlarmAlertNotification(contentText: String, alarmId: Long) {
-        Timber.d("Showing notification alarm: $contentText")
-        val notification = createAlertAlarmNotification(contentText, alarmId)
+    fun showNotification(notificationChannelId: Int, notification: Notification) {
         with(NotificationManagerCompat.from(context)) {
             if (ActivityCompat.checkSelfPermission(
                     context,
@@ -52,7 +67,7 @@ class NotificationHelper @Inject constructor(
                 Timber.e("Notification permission not granted")
                 return@with
             }
-            notify(CHANNEL_ALARM_ALERT_NOTIFICATION_ID, notification)
+            notify(notificationChannelId, notification)
         }
     }
 
@@ -68,13 +83,15 @@ class NotificationHelper @Inject constructor(
         return false
     }
 
-    fun createAlertAlarmNotification(contentText: String, alarmId: Long): Notification {
-
-        val dismissIntent =
-            Intent(context, com.jddev.simplealarm.service.AlarmRingingService::class.java).apply {
-                action = com.jddev.simplealarm.service.AlarmRingingService.ACTION_DISMISS_ALARM
-                putExtra(com.jddev.simplealarm.service.AlarmRingingService.EXTRA_ALARM_ID, alarmId)
-            }
+    fun createAlarmDismissNotification(
+        title: String,
+        contentText: String,
+        alarmId: Long,
+    ): Notification {
+        val dismissIntent = Intent(context, AlarmKlaxonService::class.java).apply {
+            action = AlarmKlaxonService.ACTION_DISMISS_ALARM
+            putExtra(AlarmKlaxonService.EXTRA_ALARM_ID, alarmId)
+        }
 
         val dismissPendingIntent = PendingIntent.getService(
             context,
@@ -83,8 +100,8 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        return NotificationCompat.Builder(context, CHANNEL_ALARM_NOTIFICATION)
-            .setContentTitle("Upcoming alarm")
+        return NotificationCompat.Builder(context, ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID)
+            .setContentTitle(title)
             .setContentText(contentText)
             .setSmallIcon(R.drawable.ic_alarm_clock)
             .setOngoing(true)
@@ -100,7 +117,11 @@ class NotificationHelper @Inject constructor(
             .build()
     }
 
-    fun createOngoingAlarmNotification(contentText: String, alarmId: Long): Notification {
+    fun createOngoingAlarmNotification(
+        title: String,
+        contentText: String,
+        alarmId: Long,
+    ): Notification {
         // show ringing activity
         val fullScreenIntent = Intent(context, RingingActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -111,11 +132,13 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val dismissPendingIntent = getActionPendingIntent(alarmId, context, AlarmRingingService.ACTION_DISMISS_ALARM)
-        val snoozePendingIntent = getActionPendingIntent(alarmId, context, AlarmRingingService.ACTION_SNOOZE_ALARM)
+        val dismissPendingIntent =
+            getActionPendingIntent(alarmId, context, AlarmKlaxonService.ACTION_DISMISS_ALARM)
+        val snoozePendingIntent =
+            getActionPendingIntent(alarmId, context, AlarmKlaxonService.ACTION_SNOOZE_ALARM)
 
-        return NotificationCompat.Builder(context, CHANNEL_ALARM_NOTIFICATION)
-            .setContentTitle("Alarm Ringing")
+        return NotificationCompat.Builder(context, FIRING_NOTIFICATION_CHANNEL_ID)
+            .setContentTitle(title)
             .setContentText(contentText)
             .setSmallIcon(R.drawable.ic_alarm_clock)
             .setOngoing(true)
@@ -138,11 +161,26 @@ class NotificationHelper @Inject constructor(
             .build()
     }
 
-    private fun getActionPendingIntent(alarmId: Long, context: Context, actionStr: String): PendingIntent {
+    fun createTemporaryRingingNotification(context: Context): Notification {
+        return NotificationCompat.Builder(context, FIRING_NOTIFICATION_CHANNEL_ID)
+            .setContentTitle("Preparing Alarm...")
+            .setContentText("Just a moment...")
+            .setSmallIcon(R.drawable.ic_alarm_clock)
+            .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .build()
+    }
+
+    private fun getActionPendingIntent(
+        alarmId: Long,
+        context: Context,
+        actionStr: String,
+    ): PendingIntent {
         val intent =
-            Intent(context, AlarmRingingService::class.java).apply {
+            Intent(context, AlarmKlaxonService::class.java).apply {
                 action = actionStr
-                putExtra(AlarmRingingService.EXTRA_ALARM_ID, alarmId)
+                putExtra(AlarmKlaxonService.EXTRA_ALARM_ID, alarmId)
             }
 
         val pendingIntent = PendingIntent.getService(
@@ -161,8 +199,14 @@ class NotificationHelper @Inject constructor(
     }
 
     companion object {
-        const val CHANNEL_ALARM_NOTIFICATION = "notification_channel_alarm"
-        const val CHANNEL_ALARM_ALERT_NOTIFICATION_ID = 0x198
-        const val CHANNEL_ALARM_RINGING_NOTIFICATION_ID = 0x199
+        const val CHANNEL_ALARM_FOREGROUND_NOTIFICATION_ID = 0x198
+//        const val CHANNEL_ALARM_SNOOZE_NOTIFICATION_ID = 0x199
+
+        const val ALARM_MISSED_NOTIFICATION_CHANNEL_ID = "alarmMissedNotification"
+        const val ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID = "alarmUpcomingNotification"
+        const val ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID = "alarmSnoozingNotification"
+        const val FIRING_NOTIFICATION_CHANNEL_ID = "firingAlarmsAndTimersNotification"
+        const val TIMER_MODEL_NOTIFICATION_CHANNEL_ID = "timerNotification"
+        const val STOPWATCH_NOTIFICATION_CHANNEL_ID = "stopwatchNotification"
     }
 }

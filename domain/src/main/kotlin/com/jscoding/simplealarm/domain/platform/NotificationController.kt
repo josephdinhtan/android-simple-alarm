@@ -1,7 +1,14 @@
 package com.jscoding.simplealarm.domain.platform
 
-import android.app.Notification
+import kotlin.time.Duration
 
 interface NotificationController {
-    fun createNotification(title: String, content: String, alarmId: Long): Notification
+    fun cancelNotification(notificationId: Int)
+    suspend fun showSnoozedNotification(
+        notificationId: Int,
+        alarmId: Long,
+        alarmHour: Int,
+        alarmMinute: Int,
+        snoozeTime: Duration,
+    )
 }

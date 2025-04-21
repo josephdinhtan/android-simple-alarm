@@ -2,11 +2,10 @@ package com.jscoding.simplealarm.presentation.screens.ringing
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +20,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SnoozedScreen(
+    snoozedTimeDisplay: String,
     onFinished: () -> Unit,
 ) {
 
@@ -29,26 +29,25 @@ fun SnoozedScreen(
         onFinished()
     }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding(),
-        contentAlignment = Alignment.Center
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(vertical = 32.dp)
-        ) {
-            Text(
-                text = "SNOOZE",
-                style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-        }
+        Text(
+            text = "SNOOZED",
+            style = MaterialTheme.typography.displayLarge,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = snoozedTimeDisplay,
+            style = MaterialTheme.typography.displayMedium,
+            textAlign = TextAlign.Center
+        )
     }
 }

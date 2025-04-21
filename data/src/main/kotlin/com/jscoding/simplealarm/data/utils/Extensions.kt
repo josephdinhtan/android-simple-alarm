@@ -3,7 +3,12 @@ package com.jscoding.simplealarm.data.utils
 import com.jscoding.simplealarm.domain.model.DayOfWeek
 import com.jscoding.simplealarm.domain.model.alarm.Alarm
 import java.time.DateTimeException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Calendar
+import java.util.Locale
+import kotlin.time.Duration
 
 fun DayOfWeek.toCalendarDayOfWeek() : Int {
     return if(this == DayOfWeek.SUNDAY) {
@@ -43,6 +48,54 @@ fun Alarm.toStringNotification(is24HourFormat: Boolean): String {
         " - $label"
     } else ""
     return timeStr + labelStr
+}
+
+fun getAlarmTimeDisplay(
+    hour: Int,
+    minutes: Int,
+    is24HourFormat: Boolean
+): String {
+    val now = LocalDateTime.now()
+    var baseTime = now.withHour(hour).withMinute(minutes).withSecond(0).withNano(0)
+
+    if (baseTime.isBefore(now)) {
+        baseTime = baseTime.plusDays(1)
+    }
+
+    val dayOfWeek = baseTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+    val timeFormatter = if (is24HourFormat) {
+        DateTimeFormatter.ofPattern("HH:mm")
+    } else {
+        DateTimeFormatter.ofPattern("hh:mm a")
+    }
+
+    return "$dayOfWeek ${baseTime.format(timeFormatter)}"
+}
+
+fun getSnoozedAlarmTimeDisplay(
+    hour: Int,
+    minutes: Int,
+    snoozeTime: Duration,
+    is24HourFormat: Boolean
+): String {
+    val now = LocalDateTime.now()
+    var baseTime = now.withHour(hour).withMinute(minutes).withSecond(0).withNano(0)
+
+    if (baseTime.isBefore(now)) {
+        baseTime = baseTime.plusDays(1)
+    }
+
+    val javaDuration = java.time.Duration.ofMillis(snoozeTime.inWholeMilliseconds)
+    val snoozedTime = baseTime.plus(javaDuration)
+
+    val dayOfWeek = snoozedTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+    val timeFormatter = if (is24HourFormat) {
+        DateTimeFormatter.ofPattern("HH:mm")
+    } else {
+        DateTimeFormatter.ofPattern("hh:mm a")
+    }
+
+    return "$dayOfWeek ${snoozedTime.format(timeFormatter)}"
 }
 
 fun calculateNextTriggerTime(dayOfWeek: DayOfWeek, hour: Int, minute: Int): Long {

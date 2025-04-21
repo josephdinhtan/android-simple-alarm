@@ -6,6 +6,7 @@ import com.jscoding.simplealarm.data.utils.calculateTriggerTime
 import com.jscoding.simplealarm.domain.model.DayOfWeek
 import com.jscoding.simplealarm.domain.platform.AlarmIntentProvider
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
+import timber.log.Timber
 import javax.inject.Inject
 
 class AlarmSchedulerImpl @Inject constructor(
@@ -16,6 +17,7 @@ class AlarmSchedulerImpl @Inject constructor(
     override fun schedule(alarmId: Long, hour: Int, minute: Int) {
         val triggerTime = calculateTriggerTime(hour, minute)
         val pendingIntent = intentProvider.provideAlarmIntent(alarmId, alarmId.toScheduleId())
+        Timber.d("Alarm scheduled for $hour:$minute")
         alarmManagerHelper.schedule(pendingIntent, triggerTime)
     }
 
