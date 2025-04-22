@@ -97,11 +97,11 @@ This project follows modern **Android development best practices** to ensure mai
 
 ## 📱 Screenshots
 
-<!-- Replace with actual screenshot paths -->
-![Main Screen](screenshots/home_alarm_screen.png)
-![Settings Screen](screenshots/settings_first_screen.png)
-![Set Alarm](screenshots/home_alarm_screen.png)
-![Alarm Ringing](screenshots/settings_first_screen.png)
+<p align="center">
+  <img src="screenshots/home_alarm_screen.png" width="30%" />
+  <img src="screenshots/settings_first_screen.png" width="30%" />
+  <img src="screenshots/settings_first_screen.png" width="30%" />
+</p>
 
 ---
 
