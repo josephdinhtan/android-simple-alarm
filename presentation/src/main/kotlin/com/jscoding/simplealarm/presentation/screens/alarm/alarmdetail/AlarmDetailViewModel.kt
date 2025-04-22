@@ -71,7 +71,7 @@ class AlarmDetailViewModel @Inject constructor(
 
     fun updateAlarm(alarm: Alarm) {
         viewModelScope.launch {
-            updateAlarmUseCase(alarm)
+            updateAlarmUseCase(alarm.copy(enabled = true))
         }
     }
 

@@ -1,6 +1,5 @@
 package com.jddev.simplealarm.service
 
-import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
@@ -22,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Calendar
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -132,23 +132,25 @@ class AlarmKlaxonService : LifecycleService() {
                     // update notification
                     val is24HourFormat = settingsRepository.getIs24HourFormat()
                     val notificationTitle = "Alarm Ringing"
-                    currentAlarm?.let { alarm ->
-                        val notificationContent = getAlarmTimeDisplay(
-                            hour = alarm.hour,
-                            minutes = alarm.minute,
-                            is24HourFormat
-                        )
-                        val notification = notificationHelper.createOngoingAlarmNotification(
-                            notificationTitle,
-                            notificationContent,
-                            alarm.id
-                        )
-                        Timber.d("ACTION_ALARM_RINGING, show notification id: ${alarm.id}, title: $notificationTitle, content: $notificationContent")
-                        startForeground(
-                            NotificationHelper.CHANNEL_ALARM_FOREGROUND_NOTIFICATION_ID,
-                            notification
-                        )
+
+                    val calendar = Calendar.getInstance().apply {
+                        timeInMillis = System.currentTimeMillis()
                     }
+                    val notificationContent = getAlarmTimeDisplay(
+                        hour = calendar.get(Calendar.HOUR_OF_DAY),
+                        minutes = calendar.get(Calendar.MINUTE),
+                        is24HourFormat
+                    )
+                    val notification = notificationHelper.createOngoingAlarmNotification(
+                        notificationTitle,
+                        notificationContent,
+                        alarmId
+                    )
+                    Timber.d("ACTION_ALARM_RINGING, show notification id: $alarmId, title: $notificationTitle, content: $notificationContent")
+                    startForeground(
+                        NotificationHelper.CHANNEL_ALARM_FOREGROUND_NOTIFICATION_ID,
+                        notification
+                    )
                 }
             }
 

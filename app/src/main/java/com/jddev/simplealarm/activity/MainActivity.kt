@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             DevUtilityUi(
                 modifier = Modifier.fillMaxSize(),
-                isEnable = true,
+                isEnable = false,
                 logManager = logManager,
                 devControlPanelContent = { DevControlPanelContent(devUtility) }
             ) {
