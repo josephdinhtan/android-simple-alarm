@@ -2,7 +2,13 @@
 
 **Android Simple Alarm** is a lightweight, open-source alarm clock application for Android. It allows users to set, manage, and customize alarms with ease.
 
-![Alarm Screenshot](screenshot.png) <!-- Replace with actual screenshot path -->
+## 📱 Screenshots
+
+<p align="center">
+  <img src="screenshots/home_alarm_screen.png" width="30%" />
+  <img src="screenshots/settings_first_screen.png" width="30%" />
+  <img src="screenshots/settings_first_screen.png" width="30%" />
+</p>
 
 ---
 
@@ -92,16 +98,6 @@ This project follows modern **Android development best practices** to ensure mai
 - **Immutable UI state**: All screen states are represented by a single `data class`.
 - **Unidirectional data flow**: View triggers an action → ViewModel handles it → State updates → UI re-renders.
 - **Consistent naming and structure**: Easy to scale and onboard contributors.
-
----
-
-## 📱 Screenshots
-
-<p align="center">
-  <img src="screenshots/home_alarm_screen.png" width="30%" />
-  <img src="screenshots/settings_first_screen.png" width="30%" />
-  <img src="screenshots/settings_first_screen.png" width="30%" />
-</p>
 
 ---
 
