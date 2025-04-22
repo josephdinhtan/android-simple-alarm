@@ -1,8 +1,11 @@
 package com.jddev.simplealarm.activity
 
+import android.annotation.SuppressLint
 import android.app.KeyguardManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -15,9 +18,30 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 class RingingActivity : AppCompatActivity() {
+
+    private val internalBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == DISMISS_ACTION) {
+                Timber.d("DISMISS_ACTION")
+                this@RingingActivity.finish()
+            }
+        }
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(
+                internalBroadcastReceiver,
+                IntentFilter(DISMISS_ACTION),
+                RECEIVER_EXPORTED
+            )
+        } else {
+            registerReceiver(internalBroadcastReceiver, IntentFilter(DISMISS_ACTION))
+        }
 
         val alarmId = intent.getLongExtra("alarmId", -1)
         if (alarmId == -1L) {
@@ -34,6 +58,11 @@ class RingingActivity : AppCompatActivity() {
                 }
             )
         }
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(internalBroadcastReceiver)
+        super.onDestroy()
     }
 
     @Suppress("DEPRECATION")
@@ -56,6 +85,9 @@ class RingingActivity : AppCompatActivity() {
     }
 
     companion object {
+
+        private const val DISMISS_ACTION = "com.jddev.simplealarm.ACTION_FINISH_RINGING_ACTIVITY"
+
         fun startActivity(context: Context, alarmId: Long) {
             val intent = Intent(context, RingingActivity::class.java).apply {
                 flags =
@@ -63,6 +95,14 @@ class RingingActivity : AppCompatActivity() {
                 putExtra("alarmId", alarmId)
             }
             context.startActivity(intent)
+        }
+
+        fun dismissActivity(context: Context) {
+            val intent = Intent().apply {
+                action = DISMISS_ACTION
+            }
+            Timber.d("dismissActivity")
+            context.applicationContext.sendBroadcast(intent)
         }
     }
 }

@@ -18,32 +18,59 @@ class NotificationSchedulerImpl @Inject constructor(
     private val context: Context,
 ) : NotificationScheduler {
 
-    override fun schedule(alarmId: Long, hour: Int, minute: Int) {
+    override fun schedule(alarmId: Long, hour: Int, minute: Int, is24HourFormat: Boolean) {
         val triggerTime = calculateTriggerTime(hour, minute)
         val pendingIntent =
-            intentProvider.provideNotificationIntent(alarmId, alarmId.toScheduleId())
+            intentProvider.provideNotificationIntent(
+                alarmId = alarmId,
+                hour = hour,
+                minute = minute,
+                is24HourFormat = is24HourFormat,
+                scheduleId = alarmId.toScheduleId()
+            )
         alarmManagerHelper.schedule(pendingIntent, triggerTime)
     }
 
-    override fun schedule(alarmId: Long, hour: Int, minute: Int, daysOfWeek: List<DayOfWeek>) {
+    override fun schedule(
+        alarmId: Long,
+        hour: Int,
+        minute: Int,
+        daysOfWeek: List<DayOfWeek>,
+        is24HourFormat: Boolean,
+    ) {
         daysOfWeek.forEach { dayOfWeek ->
             val triggerTime = calculateNextTriggerTime(dayOfWeek, hour, minute)
             val pendingIntent =
-                intentProvider.provideNotificationIntent(alarmId, alarmId.toScheduleId(dayOfWeek))
+                intentProvider.provideNotificationIntent(
+                    alarmId = alarmId,
+                    hour = hour,
+                    minute = minute,
+                    is24HourFormat = is24HourFormat,
+                    scheduleId = alarmId.toScheduleId(dayOfWeek)
+                )
             alarmManagerHelper.schedule(pendingIntent, triggerTime)
         }
     }
 
-    override fun cancel(alarmId: Long) {
+    override fun cancel(alarmId: Long, hour: Int, minute: Int, is24HourFormat: Boolean) {
         alarmManagerHelper.cancel(
             intentProvider.provideNotificationIntent(
-                alarmId,
-                alarmId.toScheduleId()
+                alarmId = alarmId,
+                hour = hour,
+                minute = minute,
+                is24HourFormat = is24HourFormat,
+                scheduleId = alarmId.toScheduleId()
             )
         )
         for (dayOfWeek in DayOfWeek.entries) {
             val pendingIntent =
-                intentProvider.provideNotificationIntent(alarmId, alarmId.toScheduleId(dayOfWeek))
+                intentProvider.provideNotificationIntent(
+                    alarmId = alarmId,
+                    hour = hour,
+                    minute = minute,
+                    is24HourFormat = is24HourFormat,
+                    scheduleId = alarmId.toScheduleId(dayOfWeek)
+                )
             alarmManagerHelper.cancel(pendingIntent)
         }
     }

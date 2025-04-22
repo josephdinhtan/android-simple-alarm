@@ -8,11 +8,11 @@ import javax.inject.Inject
 class AlarmRingingControllerImpl @Inject constructor(
     private val context: Context,
 ) : AlarmRingingController {
-    override fun dismissRinging() {
-        AlarmKlaxonService.dismissAlarm(context)
+    override fun dismissRinging(alarmId: Long) {
+        AlarmKlaxonService.dismissAlarm(context, alarmId)
     }
 
-    override fun snoozeRinging() {
-        AlarmKlaxonService.snoozeAlarm(context)
+    override fun snoozeRinging(alarmId: Long) {
+        AlarmKlaxonService.snoozeAlarm(context, alarmId)
     }
 }

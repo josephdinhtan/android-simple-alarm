@@ -21,15 +21,15 @@ class NotificationControllerImpl @Inject constructor(
     override suspend fun showSnoozedNotification(
         notificationId: Int,
         alarmId: Long,
-        alarmHour: Int,
-        alarmMinute: Int,
+        hour: Int,
+        minute: Int,
         snoozeTime: Duration,
     ) {
         val is24HourFormat = settingsRepository.getIs24HourFormat()
         val notificationTitle = "Snoozed alarm"
         val notificationContent = getSnoozedAlarmTimeDisplay(
-            hour = alarmHour,
-            minutes = alarmMinute,
+            hour = hour,
+            minutes = minute,
             snoozeTime = snoozeTime,
             is24HourFormat
         )

@@ -1,10 +1,9 @@
 package com.jscoding.simplealarm.domain.usecase.alarm
 
 import com.jscoding.simplealarm.domain.model.alarm.Alarm
-import com.jscoding.simplealarm.domain.platform.NotificationScheduler
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
+import com.jscoding.simplealarm.domain.platform.NotificationScheduler
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
-import com.jscoding.simplealarm.domain.usecase.SuspendUseCase
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,15 +12,15 @@ class AddAlarmUseCase @Inject constructor(
     private val repository: AlarmRepository,
     private val notificationController: NotificationScheduler,
     private val alarmScheduler: AlarmScheduler,
-) : SuspendUseCase<Alarm, Long> {
-    override suspend operator fun invoke(params: Alarm): Long {
-        val alarmId = repository.insertAlarm(params)
-        if (params.enabled) {
+) {
+    suspend operator fun invoke(alarm: Alarm): Long {
+        val alarmId = repository.insertAlarm(alarm)
+        if (alarm.enabled) {
             // schedule alarm
-            if (params.repeatDays.isEmpty()) {
-                alarmScheduler.schedule(alarmId, params.hour, params.minute)
+            if (alarm.repeatDays.isEmpty()) {
+                alarmScheduler.schedule(alarmId, alarm.hour, alarm.minute)
             } else {
-                alarmScheduler.schedule(alarmId, params.hour, params.minute, params.repeatDays)
+                alarmScheduler.schedule(alarmId, alarm.hour, alarm.minute, alarm.repeatDays)
             }
 
             // schedule pre-alarm notification

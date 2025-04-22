@@ -10,11 +10,14 @@ import com.jscoding.simplealarm.domain.usecase.alarm.SnoozeAlarmUseCase
 import com.jscoding.simplealarm.presentation.utils.toStringTimeDisplay
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
+import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.time.Duration
@@ -41,6 +44,9 @@ class AlarmKlaxonViewmodel @Inject constructor(
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
+    private val _shouldFinish = MutableStateFlow(false)
+    val shouldFinish = _shouldFinish.asStateFlow()
+
     private val _alarmKlaxonState = MutableStateFlow<AlarmKlaxonState>(AlarmKlaxonState.None)
     val alarmKlaxonState = _alarmKlaxonState.asStateFlow()
 
@@ -59,6 +65,10 @@ class AlarmKlaxonViewmodel @Inject constructor(
         }
     }
 
+    fun finish() {
+        _shouldFinish.value = true
+    }
+
     fun dismissAlarm(alarmId: Long) {
         viewModelScope.launch {
             dismissAlarmUseCase(alarmId)
@@ -69,14 +79,25 @@ class AlarmKlaxonViewmodel @Inject constructor(
     fun snoozeAlarm(alarmId: Long) {
         viewModelScope.launch {
             snoozeAlarmUseCase(alarmId)
-            _alarmKlaxonState.value = AlarmKlaxonState.Snoozed(
-                snoozedTimeDisplay = getSnoozedAlarmTimeDisplay(
-                    hour = alarm.value!!.hour,
-                    minutes = alarm.value!!.minute,
-                    snoozeTime = alarm.value!!.snoozeTime,
-                    is24HourFormat = settingsRepository.getIs24HourFormat()
+
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = System.currentTimeMillis()
+            }
+            alarm.value?.let {
+                _alarmKlaxonState.value = AlarmKlaxonState.Snoozed(
+                    snoozedTimeDisplay = getSnoozedAlarmTimeDisplay(
+                        hour = calendar.get(Calendar.HOUR_OF_DAY),
+                        minutes = calendar.get(Calendar.MINUTE),
+                        snoozeTime = it.snoozeTime,
+                        is24HourFormat = settingsRepository.getIs24HourFormat()
+                    )
                 )
-            )
+            } ?: run {
+                Timber.e("Alarm not found for ID $alarmId")
+                _alarmKlaxonState.value = AlarmKlaxonState.Snoozed(
+                    snoozedTimeDisplay = "Unknown alarm"
+                )
+            }
         }
     }
 
@@ -84,7 +105,7 @@ class AlarmKlaxonViewmodel @Inject constructor(
         hour: Int,
         minutes: Int,
         snoozeTime: Duration,
-        is24HourFormat: Boolean
+        is24HourFormat: Boolean,
     ): String {
         val now = LocalDateTime.now()
         var baseTime = now.withHour(hour).withMinute(minutes).withSecond(0).withNano(0)

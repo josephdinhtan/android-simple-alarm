@@ -3,8 +3,8 @@ package com.jscoding.simplealarm.presentation.screens.settings.ringtone
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jscoding.simplealarm.domain.model.alarm.Ringtone
-import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
+import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import com.jscoding.simplealarm.domain.usecase.alarm.GetAlarmByIdUseCase
 import com.jscoding.simplealarm.domain.usecase.alarm.UpdateAlarmUseCase
 import com.jscoding.simplealarm.domain.usecase.others.StartPlayToneUseCase
@@ -15,7 +15,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -52,7 +51,7 @@ class RingtonePickerViewModel @Inject constructor(
     fun onRingtoneSelectedAndPlayTone(ringtone: Ringtone) {
         _selectedRingtone.value = ringtone
         viewModelScope.launch(Dispatchers.Main) {
-            stopPlayToneUseCase(Unit)
+            stopPlayToneUseCase()
             _isTonePlaying.value = false
             delay(100)
             startPlayToneUseCase(ringtone)
@@ -62,14 +61,14 @@ class RingtonePickerViewModel @Inject constructor(
 
     fun stopPlayTone() {
         viewModelScope.launch {
-            stopPlayToneUseCase(Unit)
+            stopPlayToneUseCase()
             _isTonePlaying.value = false
         }
     }
 
     override fun onCleared() {
         viewModelScope.launch {
-            stopPlayToneUseCase(Unit)
+            stopPlayToneUseCase()
             _isTonePlaying.value = false
         }
         super.onCleared()

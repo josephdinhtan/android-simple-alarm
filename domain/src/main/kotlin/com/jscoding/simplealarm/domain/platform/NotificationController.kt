@@ -7,8 +7,8 @@ interface NotificationController {
     suspend fun showSnoozedNotification(
         notificationId: Int,
         alarmId: Long,
-        alarmHour: Int,
-        alarmMinute: Int,
+        hour: Int,
+        minute: Int,
         snoozeTime: Duration,
     )
 }

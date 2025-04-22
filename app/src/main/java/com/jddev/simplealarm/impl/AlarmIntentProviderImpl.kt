@@ -27,10 +27,19 @@ class AlarmIntentProviderImpl @Inject constructor(
         )
     }
 
-    override fun provideNotificationIntent(alarmId: Long, scheduleId: Int): PendingIntent {
+    override fun provideNotificationIntent(
+        alarmId: Long,
+        hour: Int,
+        minute: Int,
+        is24HourFormat: Boolean,
+        scheduleId: Int,
+    ): PendingIntent {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("type", ScheduleType.NOTIFICATION.value)
             putExtra("alarmId", alarmId)
+            putExtra("hour", hour)
+            putExtra("minute", minute)
+            putExtra("is24HourFormat", is24HourFormat)
         }
         return PendingIntent.getBroadcast(
             context,

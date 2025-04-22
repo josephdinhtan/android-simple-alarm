@@ -2,9 +2,8 @@ package com.jscoding.simplealarm.domain.usecase.settings
 
 import com.jscoding.simplealarm.domain.model.alarm.Ringtone
 import com.jscoding.simplealarm.domain.model.settings.ThemeMode
-import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
-import com.jscoding.simplealarm.domain.usecase.SuspendUseCase
+import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.minutes
@@ -14,9 +13,8 @@ import kotlin.time.Duration.Companion.seconds
 class InitializeAppSettingsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val systemSettingsManager: SystemSettingsManager,
-) : SuspendUseCase<Unit, Unit> {
-    override suspend fun invoke(params: Unit) {
-
+) {
+    suspend operator fun invoke() {
         val isFirstTime = settingsRepository.getIsFirstTimeStart()
         if (true) {
             settingsRepository.setIsFirstTimeStart(false)

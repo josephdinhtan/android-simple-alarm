@@ -1,29 +1,36 @@
 package com.jscoding.simplealarm.domain.usecase.alarm
 
 import com.jscoding.simplealarm.domain.model.alarm.Alarm
-import com.jscoding.simplealarm.domain.platform.NotificationScheduler
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
+import com.jscoding.simplealarm.domain.platform.NotificationScheduler
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
-import com.jscoding.simplealarm.domain.usecase.SuspendUseCase
+import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class UpdateAlarmUseCase @Inject constructor(
-    private val repository: AlarmRepository,
+    private val alarmRepository: AlarmRepository,
     private val alarmScheduler: AlarmScheduler,
+    private val settingsRepository: SettingsRepository,
     private val notificationController: NotificationScheduler,
-) : SuspendUseCase<Alarm, Unit> {
-    override suspend operator fun invoke(params: Alarm) {
-        repository.updateAlarm(params)
-        if (params.enabled) {
+) {
+    suspend operator fun invoke(alarm: Alarm) {
+        alarmRepository.updateAlarm(alarm)
+        val is24HourFormat = settingsRepository.getIs24HourFormat()
+        if (alarm.enabled) {
             // schedule alarm
-            alarmScheduler.cancel(params.id)
-            notificationController.cancel(params.id)
-            if (params.repeatDays.isEmpty()) {
-                alarmScheduler.schedule(params.id, params.hour, params.minute)
+            alarmScheduler.cancel(alarm.id)
+            notificationController.cancel(
+                alarm.id,
+                alarm.hour,
+                alarm.minute,
+                is24HourFormat
+            )
+            if (alarm.repeatDays.isEmpty()) {
+                alarmScheduler.schedule(alarm.id, alarm.hour, alarm.minute)
             } else {
-                alarmScheduler.schedule(params.id, params.hour, params.minute, params.repeatDays)
+                alarmScheduler.schedule(alarm.id, alarm.hour, alarm.minute, alarm.repeatDays)
             }
 
             // schedule pre-alarm notification
@@ -38,8 +45,13 @@ class UpdateAlarmUseCase @Inject constructor(
 //                )
 //            }
         } else {
-            alarmScheduler.cancel(params.id)
-            notificationController.cancel(params.id)
+            alarmScheduler.cancel(alarm.id)
+            notificationController.cancel(
+                alarm.id,
+                alarm.hour,
+                alarm.minute,
+                is24HourFormat
+            )
         }
     }
 }

@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class AlarmRepositoryImpl @Inject constructor (
-    private val alarmDao: AlarmDao
+class AlarmRepositoryImpl @Inject constructor(
+    private val alarmDao: AlarmDao,
 ) : AlarmRepository {
 
     override fun getAllAlarms(): Flow<List<Alarm>> {
@@ -27,8 +27,8 @@ class AlarmRepositoryImpl @Inject constructor (
         alarmDao.update(alarm.toEntity())
     }
 
-    override suspend fun deleteAlarm(alarm: Alarm) {
-        alarmDao.delete(alarm.toEntity())
+    override suspend fun deleteAlarm(alarmId: Long) {
+        alarmDao.deleteById(alarmId)
     }
 
     override suspend fun getAlarmById(id: Long): Alarm? {

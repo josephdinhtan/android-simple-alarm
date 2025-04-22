@@ -3,8 +3,8 @@ package com.jscoding.simplealarm.domain.platform
 import com.jscoding.simplealarm.domain.model.DayOfWeek
 
 interface NotificationScheduler {
-    fun schedule(alarmId: Long, hour: Int, minute: Int)
-    fun schedule(alarmId: Long, hour: Int, minute: Int, daysOfWeek: List<DayOfWeek>)
-    fun cancel(alarmId: Long)
+    fun schedule(alarmId: Long, hour: Int, minute: Int, is24HourFormat: Boolean)
+    fun schedule(alarmId: Long, hour: Int, minute: Int, daysOfWeek: List<DayOfWeek>, is24HourFormat: Boolean)
+    fun cancel(alarmId: Long, hour: Int, minute: Int, is24HourFormat: Boolean)
     fun isScheduleNotificationAllowed(): Boolean
 }

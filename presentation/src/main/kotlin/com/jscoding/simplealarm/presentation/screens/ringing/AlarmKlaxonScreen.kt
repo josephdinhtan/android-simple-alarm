@@ -19,9 +19,14 @@ fun AlarmKlaxonScreen(
         viewModel.setupAlarm(alarmId)
     }
     val alarmKlaxonState = viewModel.alarmKlaxonState.collectAsState().value
-
+    val shouldFinish = viewModel.shouldFinish.collectAsState().value
+    LaunchedEffect(shouldFinish) {
+        if (shouldFinish) {
+            onFinished()
+        }
+    }
     AniVisibility(visible = alarmKlaxonState is AlarmKlaxonState.Ringing) {
-        if(alarmKlaxonState is AlarmKlaxonState.Ringing) {
+        if (alarmKlaxonState is AlarmKlaxonState.Ringing) {
             RingingScreen(
                 time = alarmKlaxonState.timeDisplay,
                 onSnooze = { viewModel.snoozeAlarm(alarmId) },
@@ -31,22 +36,23 @@ fun AlarmKlaxonScreen(
     }
 
     AniVisibility(visible = alarmKlaxonState is AlarmKlaxonState.Snoozed) {
-        if(alarmKlaxonState is AlarmKlaxonState.Snoozed) {
-        SnoozedScreen(
-            snoozedTimeDisplay = alarmKlaxonState.snoozedTimeDisplay,
-            onFinished = onFinished)
+        if (alarmKlaxonState is AlarmKlaxonState.Snoozed) {
+            SnoozedScreen(
+                snoozedTimeDisplay = alarmKlaxonState.snoozedTimeDisplay,
+                onFinished = { viewModel.finish() }
+            )
         }
     }
 
     AniVisibility(visible = alarmKlaxonState is AlarmKlaxonState.Dismissed) {
-        DismissScreen(onFinished = onFinished)
+        DismissScreen(onFinished = { viewModel.finish() })
     }
 }
 
 @Composable
 private fun AniVisibility(
     visible: Boolean,
-    content: @Composable() AnimatedVisibilityScope.() -> Unit
+    content: @Composable() AnimatedVisibilityScope.() -> Unit,
 ) {
     AnimatedVisibility(
         visible = visible, enter = fadeIn(),

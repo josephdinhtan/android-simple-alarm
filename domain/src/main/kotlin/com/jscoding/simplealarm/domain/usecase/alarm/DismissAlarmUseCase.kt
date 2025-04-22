@@ -12,7 +12,7 @@ class DismissAlarmUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(alarmId: Long) {
         alarmRepository.getAlarmById(alarmId)?.let { alarm ->
-            alarmRingingController.dismissRinging()
+            alarmRingingController.dismissRinging(alarmId)
             alarmScheduler.cancel(alarmId)
             // TODO: this for dismiss once alarm only, need handle for repeating alarm
             alarmRepository.updateAlarm(alarm.copy(enabled = false))

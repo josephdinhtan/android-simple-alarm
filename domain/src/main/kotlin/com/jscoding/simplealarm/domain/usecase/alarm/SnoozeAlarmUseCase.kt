@@ -16,7 +16,7 @@ class SnoozeAlarmUseCase @Inject constructor(
     suspend operator fun invoke(alarmId: Long) {
         alarmRepository.getAlarmById(alarmId)?.let { alarm ->
             // stop ringing
-            alarmRingingController.snoozeRinging()
+            alarmRingingController.snoozeRinging(alarmId)
 
             // reschedule new snooze alarm
             // TODO: this for dismiss once alarm only, need handle for repeating alarm
@@ -29,12 +29,13 @@ class SnoozeAlarmUseCase @Inject constructor(
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)
             )
+
             // show snooze notification
             notificationController.showSnoozedNotification(
                 alarm.id.toInt(),
                 alarm.id,
-                alarm.hour,
-                alarm.minute,
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
                 alarm.snoozeTime
             )
         }

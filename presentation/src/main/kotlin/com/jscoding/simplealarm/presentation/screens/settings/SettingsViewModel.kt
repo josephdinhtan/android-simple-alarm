@@ -45,13 +45,13 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            initializeAppSettingsUseCase(Unit)
+            initializeAppSettingsUseCase()
         }
         viewModelScope.launch {
-            _maxAlarmVolume.value = getMaxAlarmVolumeUseCase(Unit)
+            _maxAlarmVolume.value = getMaxAlarmVolumeUseCase()
         }
         viewModelScope.launch {
-            _currentAlarmVolume.value = getAlarmVolumeUseCase(Unit)
+            _currentAlarmVolume.value = getAlarmVolumeUseCase()
         }
     }
 
