@@ -12,8 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.jscoding.simplealarm.domain.model.alarm.Ringtone
-import com.jscoding.simplealarm.domain.model.settings.ThemeMode
+import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
+import com.jscoding.simplealarm.domain.entity.settings.ThemeMode
 import com.jddev.simpletouch.ui.customization.settingsui.StSettingsUi
 import com.jddev.simpletouch.ui.customization.settingsui.group.StSettingsGroup
 import com.jddev.simpletouch.ui.customization.settingsui.navigation.StSettingsNavigateItem

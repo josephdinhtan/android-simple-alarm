@@ -1,6 +1,6 @@
 package com.jscoding.simplealarm.domain.usecase.alarm
 
-import com.jscoding.simplealarm.domain.model.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.platform.NotificationScheduler
 import com.jscoding.simplealarm.domain.repository.AlarmRepository

@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
-import com.jscoding.simplealarm.domain.model.settings.ThemeMode
+import com.jscoding.simplealarm.domain.entity.settings.ThemeMode
 import com.jscoding.simplealarm.presentation.screens.settings.SettingsViewModel
 import com.jddev.simpletouch.ui.theme.StUiTheme
 

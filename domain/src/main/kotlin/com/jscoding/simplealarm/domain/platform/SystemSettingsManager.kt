@@ -1,6 +1,6 @@
 package com.jscoding.simplealarm.domain.platform
 
-import com.jscoding.simplealarm.domain.model.alarm.Ringtone
+import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 
 interface SystemSettingsManager {
     fun getMaxAlarmVolume(): Int

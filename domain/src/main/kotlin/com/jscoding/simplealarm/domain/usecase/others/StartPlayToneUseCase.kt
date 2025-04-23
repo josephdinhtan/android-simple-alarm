@@ -1,15 +1,15 @@
 package com.jscoding.simplealarm.domain.usecase.others
 
 import android.net.Uri
-import com.jscoding.simplealarm.domain.model.alarm.Ringtone
-import com.jscoding.simplealarm.domain.platform.MediaPlayer
+import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
+import com.jscoding.simplealarm.domain.platform.TonePlayer
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class StartPlayToneUseCase @Inject constructor(
-    private val mediaPlayer: MediaPlayer,
+    private val mediaPlayer: TonePlayer,
     private val systemSettingsManager: SystemSettingsManager,
 ) {
     operator fun invoke(ringtone: Ringtone) {

@@ -56,7 +56,7 @@ import com.jddev.simpletouch.ui.foundation.topappbar.StUiLargeTopAppBar
 import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBehavior
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
-import com.jscoding.simplealarm.domain.model.alarm.Ringtone
+import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 import com.jscoding.simplealarm.presentation.R
 
 @Composable

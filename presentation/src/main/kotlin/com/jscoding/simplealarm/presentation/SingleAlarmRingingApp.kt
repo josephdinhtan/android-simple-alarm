@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jddev.simpletouch.ui.theme.StUiTheme
-import com.jscoding.simplealarm.domain.model.settings.ThemeMode
-import com.jscoding.simplealarm.presentation.screens.ringing.AlarmKlaxonScreen
+import com.jscoding.simplealarm.domain.entity.settings.ThemeMode
+import com.jscoding.simplealarm.presentation.screens.ringing.AlarmRingingScreen
 import com.jscoding.simplealarm.presentation.screens.settings.SettingsViewModel
 
 @Composable
@@ -26,6 +26,6 @@ fun SingleAlarmRingingApp(
         isDarkTheme = isDarkTheme,
         useDynamicColors = useDynamicColors.value
     ) {
-        AlarmKlaxonScreen(alarmId = alarmId, onFinished = onFinished)
+        AlarmRingingScreen(alarmId = alarmId, onFinished = onFinished)
     }
 }

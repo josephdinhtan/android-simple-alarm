@@ -1,11 +1,9 @@
 package com.jddev.simplealarm.debug
 
 import android.content.Context
-import com.jddev.simplealarm.activity.RingingActivity
 import com.jscoding.simplealarm.data.di.CoroutineScopeIO
-import com.jddev.simplealarm.service.AlarmKlaxonService
-import com.jscoding.simplealarm.domain.model.alarm.Alarm
-import com.jscoding.simplealarm.domain.model.alarm.Ringtone
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.platform.NotificationScheduler
 import kotlinx.coroutines.CoroutineScope
@@ -29,10 +27,6 @@ class DevUtility @Inject constructor(
 //                Alarm.default().copy(label = "Alarm test label")
 //            )
         }
-    }
-
-    fun startRingingForegroundService() {
-        AlarmKlaxonService.startRinging(context, 1)
     }
 
     fun schedulePreAlarmNotificationAfter1Minutes() {
@@ -88,7 +82,7 @@ class DevUtility @Inject constructor(
     }
 
     fun startRingingActivity() {
-        RingingActivity.startActivity(context, 1)
+        com.jddev.simplealarm.platform.activity.RingingActivity.startActivity(context, 1)
     }
 }
 

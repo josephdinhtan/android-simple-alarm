@@ -46,7 +46,7 @@ class PreAlertWorker @AssistedInject constructor(
     }
 
     companion object {
-        const val EXTRA_ALARM_ID = "alarmId"
+        const val EXTRA_ALARM_ID = "alarm_id"
 
         fun buildRequest(alarmId: Long, delayMillis: Long): OneTimeWorkRequest {
             val data = workDataOf(EXTRA_ALARM_ID to alarmId)

@@ -7,8 +7,8 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.jscoding.simplealarm.domain.model.alarm.Ringtone
-import com.jscoding.simplealarm.domain.model.settings.ThemeMode
+import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
+import com.jscoding.simplealarm.domain.entity.settings.ThemeMode
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

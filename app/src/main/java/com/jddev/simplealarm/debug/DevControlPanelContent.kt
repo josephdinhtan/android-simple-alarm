@@ -28,10 +28,6 @@ internal fun DevControlPanelContent(
         }) { Text("Show Alarm notification") }
 
         Button({
-            devUtility.startRingingForegroundService()
-        }) { Text("Start Ringing service") }
-
-        Button({
             devUtility.scheduleAlarmRinging()
         }) { Text("Schedule Alarm Ringing") }
 

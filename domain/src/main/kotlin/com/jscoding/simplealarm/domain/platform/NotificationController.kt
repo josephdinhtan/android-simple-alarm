@@ -1,14 +1,18 @@
 package com.jscoding.simplealarm.domain.platform
 
-import kotlin.time.Duration
+import com.jscoding.simplealarm.domain.entity.alarm.NotificationAction
+import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 
 interface NotificationController {
     fun cancelNotification(notificationId: Int)
-    suspend fun showSnoozedNotification(
+
+    suspend fun showNotification(
         notificationId: Int,
         alarmId: Long,
+        alarmLabel: String,
         hour: Int,
         minute: Int,
-        snoozeTime: Duration,
+        type: NotificationType,
+        actions: List<NotificationAction>,
     )
 }

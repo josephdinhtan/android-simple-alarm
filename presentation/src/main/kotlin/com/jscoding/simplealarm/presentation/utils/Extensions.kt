@@ -1,7 +1,7 @@
 package com.jscoding.simplealarm.presentation.utils
 
-import com.jscoding.simplealarm.domain.model.alarm.Alarm
-import com.jscoding.simplealarm.domain.model.alarm.Ringtone
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 import kotlin.time.Duration.Companion.minutes
 
 fun Alarm.toStringTimeDisplay(is24HourFormat: Boolean): String {
@@ -11,16 +11,19 @@ fun Alarm.toStringTimeDisplay(is24HourFormat: Boolean): String {
         }"
 
         false -> {
-            val period = if (hour < 12) "AM" else "PM"
             val hour12 = when {
                 hour == 0 -> 12
                 hour > 12 -> hour - 12
                 else -> hour
             }
             val minutesStr = minute.toString().padStart(2, '0')
-            "$hour12:$minutesStr $period"
+            "$hour12:$minutesStr"
         }
     }
+}
+
+fun Alarm.toAmPmNotationStr(): String {
+    return if (hour < 12) "AM" else "PM"
 }
 
 fun Alarm.Companion.default(): Alarm {

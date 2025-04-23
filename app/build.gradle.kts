@@ -46,8 +46,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":presentation"))
     implementation(project(":domain"))
+    implementation(project(":presentation"))
+    implementation(project(":platform"))
     implementation(project(":data"))
 
     implementation("com.github.josephdinhtan.android-simple-touch:simpletouch-utils:1.0.0")

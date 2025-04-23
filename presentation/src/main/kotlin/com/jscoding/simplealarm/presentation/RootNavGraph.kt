@@ -29,7 +29,7 @@ fun RootNavGraph(
                 navigateToSettings = { rootNavController.navigate("nav_settings") }
             )
         }
-        alarmDetailNavGraph(navController = rootNavController, route = "nav_alarm_edit/{alarmId}")
+        alarmDetailNavGraph(navController = rootNavController, route = "nav_alarm_edit/{alarm_id}")
         settingsNavGraph("nav_settings", rootNavController)
     }
 }

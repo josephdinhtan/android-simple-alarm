@@ -32,7 +32,7 @@
         android:theme="@style/Theme.SimpleAlarm"
         tools:targetApi="35" >
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/Theme.SimpleAlarm" >
@@ -43,19 +43,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.RingingActivity"
+            android:name=".platform.activity.RingingActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
 
         <service
-            android:name=".service.AlarmKlaxonService"
+            android:name=".platform.service.AlarmKlaxonService"
             android:enabled="true"
             android:exported="false"
             android:directBootAware="true"
             android:foregroundServiceType="shortService|mediaPlayback"
             android:permission="android.permission.FOREGROUND_SERVICE"/>
-        <receiver android:name=".receiver.AlarmReceiver" />
+        <receiver android:name=".platform.receiver.AlarmReceiver" />
     </application>
 
 </manifest>

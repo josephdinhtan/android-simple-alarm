@@ -1,6 +1,6 @@
 package com.jscoding.simplealarm.domain.repository
 
-import com.jscoding.simplealarm.domain.model.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import kotlinx.coroutines.flow.Flow
 
 interface AlarmRepository {

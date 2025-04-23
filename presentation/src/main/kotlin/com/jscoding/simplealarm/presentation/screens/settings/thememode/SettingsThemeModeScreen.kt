@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.jscoding.simplealarm.domain.model.settings.ThemeMode
+import com.jscoding.simplealarm.domain.entity.settings.ThemeMode
 import com.jscoding.simplealarm.presentation.screens.settings.SettingsViewModel
 import com.jddev.simpletouch.ui.customization.settingsui.StSettingsUi
 import com.jddev.simpletouch.ui.customization.settingsui.group.StSettingsGroup

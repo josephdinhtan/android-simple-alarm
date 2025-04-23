@@ -1,7 +1,7 @@
 package com.jscoding.simplealarm.domain.usecase.settings
 
-import com.jscoding.simplealarm.domain.model.alarm.Ringtone
-import com.jscoding.simplealarm.domain.model.settings.ThemeMode
+import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
+import com.jscoding.simplealarm.domain.entity.settings.ThemeMode
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import javax.inject.Inject
@@ -16,7 +16,7 @@ class InitializeAppSettingsUseCase @Inject constructor(
 ) {
     suspend operator fun invoke() {
         val isFirstTime = settingsRepository.getIsFirstTimeStart()
-        if (true) {
+        if (isFirstTime) {
             settingsRepository.setIsFirstTimeStart(false)
 
             // Initialize all default values here

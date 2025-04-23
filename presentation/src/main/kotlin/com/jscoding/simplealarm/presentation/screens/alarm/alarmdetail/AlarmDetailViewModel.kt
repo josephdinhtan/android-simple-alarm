@@ -2,7 +2,7 @@ package com.jscoding.simplealarm.presentation.screens.alarm.alarmdetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jscoding.simplealarm.domain.model.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import com.jscoding.simplealarm.domain.usecase.alarm.AddAlarmUseCase
 import com.jscoding.simplealarm.domain.usecase.alarm.DeleteAlarmUseCase
@@ -11,7 +11,9 @@ import com.jscoding.simplealarm.domain.usecase.alarm.UpdateAlarmUseCase
 import com.jscoding.simplealarm.presentation.utils.default
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -23,11 +25,17 @@ class AlarmDetailViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val addAlarmUseCase: AddAlarmUseCase,
     private val deleteAlarmUseCase: DeleteAlarmUseCase,
-    private val updateAlarmUseCase: UpdateAlarmUseCase
+    private val updateAlarmUseCase: UpdateAlarmUseCase,
 ) : ViewModel() {
 
     private val _alarm = MutableStateFlow<Alarm>(Alarm.default())
     val alarm = _alarm.asStateFlow()
+
+    val is24hFormat = settingsRepository.is24HourFormat.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5_000),
+        true
+    )
 
     fun setupNewAlarm() {
         val calendar = Calendar.getInstance()

@@ -2,7 +2,7 @@ package com.jscoding.simplealarm.presentation.screens.settings.ringtone
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jscoding.simplealarm.domain.model.alarm.Ringtone
+import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import com.jscoding.simplealarm.domain.usecase.alarm.GetAlarmByIdUseCase

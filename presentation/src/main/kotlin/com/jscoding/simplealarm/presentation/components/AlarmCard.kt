@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -29,16 +30,17 @@ import androidx.compose.ui.unit.sp
 import com.jddev.simpletouch.ui.foundation.StUiSwitch
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
-import com.jscoding.simplealarm.domain.model.DayOfWeek
-import com.jscoding.simplealarm.domain.model.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.presentation.utils.default
+import com.jscoding.simplealarm.presentation.utils.toAmPmNotationStr
 import com.jscoding.simplealarm.presentation.utils.toStringTimeDisplay
 
 @Composable
 fun AlarmCard(
     modifier: Modifier = Modifier,
     alarm: Alarm,
-    is24HourFormat: Boolean = true,
+    is24hFormat: Boolean,
     onToggle: (Boolean) -> Unit,
     onClick: () -> Unit,
 ) {
@@ -85,21 +87,36 @@ fun AlarmCard(
             }
             Row(
                 Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = alarm.toStringTimeDisplay(is24HourFormat),
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 48.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .weight(1f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(
+                    modifier = Modifier.padding(end = 16.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Text(
+                        text = alarm.toStringTimeDisplay(is24hFormat),
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 48.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    if (!is24hFormat) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = alarm.toAmPmNotationStr(),
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
+                        )
+                    }
+                }
 
                 StUiSwitch(
                     modifier = Modifier.padding(8.dp),
@@ -133,6 +150,7 @@ private fun Preview() {
                     label = "Test overflow line, Test overflow line, Test overflow line",
                     repeatDays = repeatDayOfWeek
                 ),
+            is24hFormat = true,
             onToggle = {},
             onClick = {})
         Spacer(Modifier.height(16.dp))
@@ -141,6 +159,12 @@ private fun Preview() {
             minute = 57,
             enabled = false,
             repeatDays = repeatDayOfWeek,
-        ), is24HourFormat = false, onToggle = {}, onClick = {})
+        ), is24hFormat = false, onToggle = {}, onClick = {})
+        AlarmCard(alarm = Alarm.default().copy(
+            hour = 0,
+            minute = 0,
+            enabled = false,
+            repeatDays = repeatDayOfWeek,
+        ), is24hFormat = false, onToggle = {}, onClick = {})
     }
 }

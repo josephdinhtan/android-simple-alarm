@@ -1,5 +1,6 @@
 package com.jscoding.simplealarm.domain.usecase.alarm
 
+import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 import com.jscoding.simplealarm.domain.platform.AlarmRingingController
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.platform.NotificationController
@@ -11,7 +12,7 @@ class SnoozeAlarmUseCase @Inject constructor(
     private val alarmRepository: AlarmRepository,
     private val alarmScheduler: AlarmScheduler,
     private val alarmRingingController: AlarmRingingController,
-    private val notificationController: NotificationController,
+    private val showNotificationUseCase: ShowNotificationUseCase,
 ) {
     suspend operator fun invoke(alarmId: Long) {
         alarmRepository.getAlarmById(alarmId)?.let { alarm ->
@@ -31,12 +32,12 @@ class SnoozeAlarmUseCase @Inject constructor(
             )
 
             // show snooze notification
-            notificationController.showSnoozedNotification(
+            showNotificationUseCase(
                 alarm.id.toInt(),
                 alarm.id,
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE),
-                alarm.snoozeTime
+                NotificationType.ALARM_SNOOZE
             )
         }
     }

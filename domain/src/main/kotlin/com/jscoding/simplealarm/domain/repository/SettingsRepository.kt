@@ -1,7 +1,7 @@
 package com.jscoding.simplealarm.domain.repository
 
-import com.jscoding.simplealarm.domain.model.alarm.Ringtone
-import com.jscoding.simplealarm.domain.model.settings.ThemeMode
+import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
+import com.jscoding.simplealarm.domain.entity.settings.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
 

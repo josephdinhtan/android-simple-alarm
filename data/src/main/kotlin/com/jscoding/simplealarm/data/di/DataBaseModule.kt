@@ -6,8 +6,8 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import com.jscoding.simplealarm.data.database.AlarmDatabase
-import com.jscoding.simplealarm.data.database.alarm.AlarmDao
+import com.jscoding.simplealarm.data.local.AlarmDatabase
+import com.jscoding.simplealarm.data.local.alarm.AlarmDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

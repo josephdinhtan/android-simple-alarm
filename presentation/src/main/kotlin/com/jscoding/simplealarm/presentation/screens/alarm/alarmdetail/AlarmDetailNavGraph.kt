@@ -9,16 +9,16 @@ import com.jscoding.simplealarm.presentation.screens.settings.ringtone.RingtoneP
 
 fun NavGraphBuilder.alarmDetailNavGraph(
     navController: NavHostController,
-    route: String = "nav_alarm_edit/{alarmId}",
+    route: String = "nav_alarm_edit/{alarm_id}",
 ) {
     composable(
         route,
-        arguments = listOf(navArgument("alarmId") {
+        arguments = listOf(navArgument("alarm_id") {
             type = NavType.LongType
             defaultValue = -1
         })
     ) {
-        val alarmId = it.arguments?.getLong("alarmId") ?: -1
+        val alarmId = it.arguments?.getLong("alarm_id") ?: -1
         if (alarmId.toInt() == -1) {
             AddNewAlarmRoute(
                 navigateToRingtone = { navController.navigate("nav_detail_alarm_ringtone/$alarmId") },
@@ -35,12 +35,12 @@ fun NavGraphBuilder.alarmDetailNavGraph(
 
     composable(
         "nav_detail_alarm_ringtone/{alarmId}",
-        arguments = listOf(navArgument("alarmId") {
+        arguments = listOf(navArgument("alarm_id") {
             type = NavType.LongType
             defaultValue = -1
         })
     ) {
-        val alarmId = it.arguments?.getLong("alarmId") ?: -1
+        val alarmId = it.arguments?.getLong("alarm_id") ?: -1
         RingtonePickerScreen(
             alarmId = alarmId,
             title = "Alarm ringtone",

@@ -1,9 +1,9 @@
 package com.jscoding.simplealarm.data.repository
 
-import com.jscoding.simplealarm.data.database.alarm.AlarmDao
+import com.jscoding.simplealarm.data.local.alarm.AlarmDao
 import com.jscoding.simplealarm.data.mapper.toDomain
 import com.jscoding.simplealarm.data.mapper.toEntity
-import com.jscoding.simplealarm.domain.model.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

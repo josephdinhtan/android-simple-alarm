@@ -1,6 +1,6 @@
 package com.jscoding.simplealarm.domain.usecase.alarm
 
-import com.jscoding.simplealarm.domain.model.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
 import javax.inject.Inject
 import javax.inject.Singleton

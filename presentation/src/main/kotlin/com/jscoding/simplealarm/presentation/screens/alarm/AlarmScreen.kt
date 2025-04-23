@@ -19,8 +19,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBehavior
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
-import com.jscoding.simplealarm.domain.model.DayOfWeek
-import com.jscoding.simplealarm.domain.model.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.presentation.components.AlarmCard
 import com.jscoding.simplealarm.presentation.utils.default
 
@@ -32,10 +32,11 @@ fun AlarmRoute(
     onEditAlarm: (Alarm) -> Unit,
 ) {
     val alarms by viewModel.alarms.collectAsState()
+    val is24hFormat by viewModel.is24hFormat.collectAsState()
     AlarmScreenContent(
         alarms = alarms, scrollBehavior = scrollBehavior, onUpdate = {
             viewModel.update(it)
-        }, onEditAlarm = onEditAlarm
+        }, is24hFormat = is24hFormat, onEditAlarm = onEditAlarm
     )
 }
 
@@ -43,6 +44,7 @@ fun AlarmRoute(
 @Composable
 fun AlarmScreenContent(
     alarms: List<Alarm>,
+    is24hFormat: Boolean,
     scrollBehavior: TopAppBarScrollBehavior,
     onUpdate: (Alarm) -> Unit,
     onEditAlarm: (Alarm) -> Unit,
@@ -56,11 +58,6 @@ fun AlarmScreenContent(
     ) {
         items(items = alarms, key = { it.id }) { alarm ->
             AlarmCard(
-//                modifier = Modifier.animateItem(
-//                    fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(
-//                        1000
-//                    )
-//                ),
                 modifier = Modifier.animateItem(
                     fadeInSpec = null,
                     fadeOutSpec = null,
@@ -70,6 +67,7 @@ fun AlarmScreenContent(
                     )
                 ),
                 alarm = alarm,
+                is24hFormat = is24hFormat,
                 onToggle = {
                     onUpdate(alarm.copy(enabled = !alarm.enabled))
                 }, onClick = {
@@ -91,6 +89,6 @@ private fun Preview() {
         AlarmScreenContent(alarms = listOf(
             Alarm.default().copy(enabled = true, repeatDays = repeatDayOfWeeK),
             Alarm.default().copy(enabled = false),
-        ), scrollBehavior = stUiLargeTopAppbarScrollBehavior(), {}, {})
+        ), is24hFormat = false, scrollBehavior = stUiLargeTopAppbarScrollBehavior(), {}, {})
     }
 }

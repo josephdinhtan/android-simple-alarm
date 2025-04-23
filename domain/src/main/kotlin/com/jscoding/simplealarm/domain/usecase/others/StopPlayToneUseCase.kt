@@ -1,12 +1,12 @@
 package com.jscoding.simplealarm.domain.usecase.others
 
-import com.jscoding.simplealarm.domain.platform.MediaPlayer
+import com.jscoding.simplealarm.domain.platform.TonePlayer
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class StopPlayToneUseCase @Inject constructor(
-    private val mediaPlayer: MediaPlayer,
+    private val mediaPlayer: TonePlayer,
 ) {
     operator fun invoke() {
         mediaPlayer.stop()
