@@ -1,69 +1,67 @@
-import androidx.compose.foundation.background
+package com.jscoding.simplealarm.presentation.components
+
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
-import kotlin.math.abs
-import kotlin.math.pow
+import timber.log.Timber
+import kotlin.math.absoluteValue
+
+enum class WheelTilt {
+    RIGHT,
+    CENTER,
+    LEFT,
+}
 
 @Composable
 fun WheelPicker(
-    items: List<String>,
-    state: LazyListState,
-    onScrollFinished: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
-    visibleItemsCount: Int = 5,
+    items: List<String>,
+    firstIndex: Int = 2,
+    itemHeight: Int = 50,
+    visibleItemCount: Int = 5,
+    wheelTilt: WheelTilt = WheelTilt.CENTER,
+    onItemSelected: (index: Int) -> Unit,
 ) {
-    val itemHeight = 36.dp
-    val itemHeightPx = with(LocalDensity.current) { itemHeight.toPx() }
-    val fixItems = listOf("","", "") + items + listOf("","", "")
-
-    val snappingFlingBehavior = rememberSnapFlingBehavior(lazyListState = state)
-    val coroutineScope = rememberCoroutineScope()
-
-    // Scroll listener to detect when the center item is snapped
-    LaunchedEffect(state) {
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = firstIndex)
+    val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
+    LaunchedEffect(listState) {
         snapshotFlow {
-            state.isScrollInProgress
+            listState.isScrollInProgress
         }.collect { isScrolling ->
             if (!isScrolling) {
-                val layoutInfo = state.layoutInfo
+                val layoutInfo = listState.layoutInfo
                 val center = layoutInfo.viewportEndOffset / 2
                 val centerItem = layoutInfo.visibleItemsInfo.minByOrNull {
-                    abs((it.offset + it.size / 2) - center)
+                    ((it.offset + it.size / 2) - center).absoluteValue
                 }
+                Timber.d("Joseph centerItem.index: ${centerItem?.index}")
                 centerItem?.let {
-                    val index = it.index - 3 // Remove padding offset
+                    val index = it.index - (visibleItemCount/2 - 1) // Remove padding offset
                     if (index in items.indices) {
-                        onScrollFinished(index)
+                        onItemSelected(index)
                     }
                 }
             }
@@ -72,79 +70,100 @@ fun WheelPicker(
 
     Box(
         modifier = modifier
-            .height(itemHeight * visibleItemsCount)
-            .clipToBounds()
+            .height((itemHeight * visibleItemCount).dp),
+        contentAlignment = Alignment.Center
     ) {
         LazyColumn(
-            state = state,
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy((-8).dp, Alignment.CenterVertically),
-            flingBehavior = snappingFlingBehavior
+            state = listState,
+            flingBehavior = flingBehavior,
+            contentPadding = PaddingValues(vertical = (itemHeight * (visibleItemCount / 2)).dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            itemsIndexed(fixItems) { index, item ->
-                val layoutInfo = state.layoutInfo
-                val center = layoutInfo.viewportEndOffset / 2
-                val itemInfo = layoutInfo.visibleItemsInfo.find { it.index == index }
+            itemsIndexed(items) { index, item ->
+                // Get current layout info
+                val layoutInfo = listState.layoutInfo
+                val itemInfo = layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
+                val centerY = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
+
                 val distance = itemInfo?.let {
-                    abs((it.offset + it.size / 2) - center).toFloat()
+                    val itemCenterY = it.offset + it.size / 2
+                    (itemCenterY - centerY).toFloat()
                 } ?: 0f
 
-                val scale = 1f - (distance / itemHeightPx / 6f).coerceIn(0f, 0.3f)
-                val alpha = 1f - (distance / itemHeightPx / 3f).coerceIn(0f, 0.6f)
+                // Real-time transform
+                val scale = 1f - (distance * distance * 0.0008f * 0.01f).coerceIn(0f, 0.3f)
+                val alpha = 1f - (distance * distance * 0.0008f * 0.01f).coerceIn(0f, 0.6f)
+                val rotationX = (distance * distance * 0.0008f).coerceIn(0f, 90f)
 
-                // New: simulate curvature and compression
-                val maxRotation = 35f
-                val rotationX = (distance / itemHeightPx).coerceIn(0f, 1f) * maxRotation
-                val maxTranslationY = 25f
-                val compressionFactor = (distance / itemHeightPx).coerceIn(0f, 1f)
-                val translationY = maxTranslationY * compressionFactor * compressionFactor
+                val transitionY = (distance * distance * 0.0008f).coerceIn(0f, 100f)
 
-                Box(Modifier
-                    .height(itemHeight)
-                    .graphicsLayer {
-                        this.rotationX =
-                            if (itemInfo != null && (itemInfo.offset + itemInfo.size / 2) < center) -rotationX else rotationX
-                        this.translationY =
-                            if (itemInfo != null && (itemInfo.offset + itemInfo.size / 2) < center) -translationY else translationY
-                        this.scaleX = scale
-                        this.scaleY = scale
-                        this.alpha = alpha
-                        this.cameraDistance = 16 * density
+                val transitionXVolume = (distance * 0.02f).absoluteValue.coerceIn(0f, 10f)
+                val transitionX = when(wheelTilt) {
+                    WheelTilt.RIGHT -> {
+                        transitionXVolume
                     }
-//                    .background(Color.Gray)
+                    WheelTilt.CENTER -> {
+                        0f
+                    }
+                    WheelTilt.LEFT -> {
+                        -transitionXVolume
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .height(itemHeight.dp)
+                        .graphicsLayer {
+                            this.rotationX = if (distance > 0) -rotationX else rotationX
+                            this.translationY = if (distance > 0) -transitionY else transitionY
+                            this.translationX = -transitionX
+                            this.scaleY = scale
+                            this.scaleX = scale
+                            this.alpha = alpha
+                        }
+//                        .background(Color.Gray.copy(alpha = 0.4f))
+                    ,
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = item,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = alpha),
+                        color = MaterialTheme.colorScheme.onSurface/*.copy(alpha = alpha)*/,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.Center)
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
         }
+
+        // Optional center highlight overlay
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(itemHeight.dp)
+//                .align(Alignment.Center)
+//                .background(Color.Gray.copy(alpha = 0.3f))
+//        )
     }
 }
 
 @Composable
 @StUiPreview
 private fun Preview() {
-    val state = rememberLazyListState(initialFirstVisibleItemIndex = 2) // skip 2 padding items
-    val items = (1..100).map { it.toString() }.toList()
-
-    var selected by remember { mutableStateOf("") }
     StUiPreviewWrapper {
-        Text("selected: $selected")
-        WheelPicker(
-            items = items,
-            state = state,
-            onScrollFinished = { selectedIndex ->
-                selected = items[selectedIndex]
-            }
-        )
+        val listItem = (0..100).map { it.toString() }
+        val selectedIndex = remember { mutableStateOf("") }
+        Text(selectedIndex.value)
+        Column {
+            WheelPicker(
+                items = listItem,
+                visibleItemCount = 5,
+                wheelTilt = WheelTilt.LEFT,
+                onItemSelected = { index ->
+                    selectedIndex.value = listItem[index]
+                }
+            )
+        }
     }
 }

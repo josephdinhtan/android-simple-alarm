@@ -1,6 +1,5 @@
 package com.jscoding.simplealarm.presentation.components
 
-import WheelPicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,9 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
@@ -35,11 +30,11 @@ import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
 fun WheelTimePicker(
     initHour: Int,
     initMinute: Int,
-    is24Hour: Boolean = true,
+    is24Hour: Boolean,
     hapticFeedbackEnable: Boolean = false,
     onTimeSelected: (hour: Int, minute: Int) -> Unit,
 ) {
-    val hours = (if (is24Hour) (0..23) else (1..12)).toList()    // 12-hour format
+    val hours = if (is24Hour) (0..23).toList() else (1..12).toList()
     val minutes = (0..59).toList()
     val periods = listOf("AM", "PM")
 
@@ -47,9 +42,6 @@ fun WheelTimePicker(
     var selectedMinute by remember { mutableIntStateOf(initMinute) }
     var selectedPeriod by remember { mutableStateOf("AM") }
 
-    val hourState = rememberLazyListState()
-    val minuteState = rememberLazyListState()
-    val periodState = rememberLazyListState()
     val hapticFeedback = LocalHapticFeedback.current
 
     // Picker Row
@@ -79,39 +71,39 @@ fun WheelTimePicker(
                 // Hours Picker
                 WheelPicker(
                     items = hours.map { it.toString().padStart(2, '0') },
-                    state = hourState,
-                    onScrollFinished = { index ->
+                    onItemSelected = { index ->
                         selectedHour = hours[index]
                         if (hapticFeedbackEnable) {
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         }
                     },
+                    wheelTilt = WheelTilt.LEFT,
                     modifier = Modifier.width(80.dp)
                 )
 
                 // Minutes Picker
                 WheelPicker(
                     items = minutes.map { it.toString().padStart(2, '0') },
-                    state = minuteState,
-                    onScrollFinished = { index ->
+                    onItemSelected = { index ->
                         selectedMinute = minutes[index]
                         if (hapticFeedbackEnable) {
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         }
                     },
+                    wheelTilt = WheelTilt.RIGHT,
                     modifier = Modifier.width(80.dp)
                 )
 
                 if (!is24Hour) {
                     WheelPicker(
                         items = periods,
-                        state = periodState,
-                        onScrollFinished = { index ->
+                        onItemSelected = { index ->
                             selectedPeriod = periods[index]
                             if (hapticFeedbackEnable) {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             }
                         },
+                        wheelTilt = WheelTilt.RIGHT,
                         modifier = Modifier.width(80.dp)
                     )
                 }
