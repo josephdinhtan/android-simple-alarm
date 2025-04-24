@@ -1,5 +1,3 @@
-package com.jscoding.simplealarm.presentation.components
-
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
-import timber.log.Timber
 import kotlin.math.absoluteValue
 
 enum class WheelTilt {
@@ -39,13 +36,13 @@ enum class WheelTilt {
 fun WheelPicker(
     modifier: Modifier = Modifier,
     items: List<String>,
-    firstIndex: Int = 2,
+    initItemIndex: Int = 2,
     itemHeight: Int = 50,
     visibleItemCount: Int = 5,
     wheelTilt: WheelTilt = WheelTilt.CENTER,
     onItemSelected: (index: Int) -> Unit,
 ) {
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = firstIndex)
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = initItemIndex)
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
     LaunchedEffect(listState) {
         snapshotFlow {
@@ -57,7 +54,7 @@ fun WheelPicker(
                 val centerItem = layoutInfo.visibleItemsInfo.minByOrNull {
                     ((it.offset + it.size / 2) - center).absoluteValue
                 }
-                Timber.d("Joseph centerItem.index: ${centerItem?.index}")
+                // TODO: centerItem bị sai cần tính lại centerItem
                 centerItem?.let {
                     val index = it.index - (visibleItemCount/2 - 1) // Remove padding offset
                     if (index in items.indices) {
