@@ -1,6 +1,5 @@
 package com.jscoding.simplealarm.presentation.components
 
-import WheelPicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -35,13 +35,20 @@ fun WheelTimePicker(
     hapticFeedbackEnable: Boolean = false,
     onTimeSelected: (hour: Int, minute: Int) -> Unit,
 ) {
+    LaunchedEffect(Unit) {
+        Timber.d("Joseph initHour: $initHour, initMinute: $initMinute, is24Hour: $is24Hour")
+    }
+
     val hours = (if (is24Hour) (0..23) else (1..12)).toList()    // 12-hour format
     val minutes = (0..59).toList()
     val periods = listOf("AM", "PM")
 
-    var selectedHourIndex by remember { mutableIntStateOf(0) }
-    var selectedMinuteIndex by remember { mutableIntStateOf(0) }
-    var selectedPeriodIndex by remember { mutableIntStateOf(0) }
+    val initHourIndex = if(is24Hour) initHour else initHour % 12
+    val initMinuteIndex = initMinute
+
+    var selectedHourIndex by remember { mutableIntStateOf(initHourIndex) }
+    var selectedMinuteIndex by remember { mutableIntStateOf(initMinuteIndex) }
+    var selectedPeriodIndex by remember { mutableIntStateOf(if(initHourIndex > 11) 1 else 0) }
 
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -78,6 +85,7 @@ fun WheelTimePicker(
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         }
                     },
+                    wheelTilt = WheelTilt.LEFT,
                     modifier = Modifier.width(80.dp)
                 )
 
@@ -90,6 +98,7 @@ fun WheelTimePicker(
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         }
                     },
+                    wheelTilt = WheelTilt.CENTER,
                     modifier = Modifier.width(80.dp)
                 )
 

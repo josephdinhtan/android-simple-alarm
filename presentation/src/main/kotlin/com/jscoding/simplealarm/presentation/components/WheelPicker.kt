@@ -1,3 +1,5 @@
+package com.jscoding.simplealarm.presentation.components
+
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,13 +52,13 @@ fun WheelPicker(
         }.collect { isScrolling ->
             if (!isScrolling) {
                 val layoutInfo = listState.layoutInfo
-                val center = layoutInfo.viewportEndOffset / 2
+                val center = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
                 val centerItem = layoutInfo.visibleItemsInfo.minByOrNull {
                     ((it.offset + it.size / 2) - center).absoluteValue
                 }
-                // TODO: centerItem bị sai cần tính lại centerItem
+
                 centerItem?.let {
-                    val index = it.index - (visibleItemCount/2 - 1) // Remove padding offset
+                    val index = it.index
                     if (index in items.indices) {
                         onItemSelected(index)
                     }
@@ -90,11 +92,11 @@ fun WheelPicker(
                 // Real-time transform
                 val scale = 1f - (distance * distance * 0.0008f * 0.01f).coerceIn(0f, 0.3f)
                 val alpha = 1f - (distance * distance * 0.0008f * 0.01f).coerceIn(0f, 0.6f)
-                val rotationX = (distance * distance * 0.0008f).coerceIn(0f, 90f)
+                val rotationX = (distance * distance * 0.0007f).coerceIn(0f, 90f)
 
-                val transitionY = (distance * distance * 0.0008f).coerceIn(0f, 100f)
+                val transitionY = (distance * distance * 0.0009f).coerceIn(0f, 100f)
 
-                val transitionXVolume = (distance * 0.02f).absoluteValue.coerceIn(0f, 10f)
+                val transitionXVolume = (distance * 0.03f).absoluteValue.coerceIn(0f, 10f)
                 val transitionX = when(wheelTilt) {
                     WheelTilt.RIGHT -> {
                         transitionXVolume
@@ -133,15 +135,6 @@ fun WheelPicker(
                 }
             }
         }
-
-        // Optional center highlight overlay
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(itemHeight.dp)
-//                .align(Alignment.Center)
-//                .background(Color.Gray.copy(alpha = 0.3f))
-//        )
     }
 }
 
@@ -149,7 +142,7 @@ fun WheelPicker(
 @StUiPreview
 private fun Preview() {
     StUiPreviewWrapper {
-        val listItem = (0..100).map { it.toString() }
+        val listItem = (0..50).map { it.toString() }
         val selectedIndex = remember { mutableStateOf("") }
         Text(selectedIndex.value)
         Column {
