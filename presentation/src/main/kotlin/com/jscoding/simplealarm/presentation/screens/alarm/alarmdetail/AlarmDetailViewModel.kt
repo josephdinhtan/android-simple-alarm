@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
+import com.jscoding.simplealarm.domain.entity.exceptions.AlarmAlreadyExistsException
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import com.jscoding.simplealarm.domain.usecase.alarm.AddAlarmUseCase
@@ -17,19 +18,21 @@ import com.jscoding.simplealarm.presentation.utils.default
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class AlarmDetailViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val getAlarmByIdUseCase: GetAlarmByIdUseCase,
     private val settingsRepository: SettingsRepository,
     private val addAlarmUseCase: AddAlarmUseCase,
@@ -40,15 +43,23 @@ class AlarmDetailViewModel @Inject constructor(
     private val stopPlayToneUseCase: StopPlayToneUseCase,
 ) : ViewModel() {
 
-    sealed class UiState {
-        data object Loading : UiState()
-        data class Success(val alarm: Alarm) : UiState()
-        data class Error(val message: String) : UiState()
+    sealed interface AlarmDetailEvent {
+        data object SaveSuccess : AlarmDetailEvent
+        data class Error(val message: String, val needExit: Boolean = false) : AlarmDetailEvent
+    }
+
+    sealed interface UiState {
+        data object Loading : UiState
+        data class Success(val alarm: Alarm, val isNewAlarm: Boolean) : UiState
+        data class Error(val message: String) : UiState
     }
 
     // Alarm Detail screen
     private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
     val uiState = _uiState.asStateFlow()
+
+    private val _eventFlow = MutableSharedFlow<AlarmDetailEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
 
     // Internal alarm model
     private var currentAlarm: Alarm? = null
@@ -60,7 +71,7 @@ class AlarmDetailViewModel @Inject constructor(
     private val _selectedRingtone = MutableStateFlow(Ringtone.Silent)
     val selectedRingtone = _selectedRingtone.asStateFlow()
 
-    private val _isTonePlaying = MutableStateFlow<Boolean>(false)
+    private val _isTonePlaying = MutableStateFlow(false)
     val isTonePlaying = _isTonePlaying.asStateFlow()
 
     val is24hFormat = settingsRepository.is24HourFormat.stateIn(
@@ -74,7 +85,7 @@ class AlarmDetailViewModel @Inject constructor(
         if (alarmId == null || alarmId == -1L) {
             setupNewAlarm()
         } else {
-            editAlarm(alarmId)
+            setupEditAlarm(alarmId)
         }
     }
 
@@ -84,8 +95,7 @@ class AlarmDetailViewModel @Inject constructor(
         val minutes: Int = calendar.get(Calendar.MINUTE)
         viewModelScope.launch(Dispatchers.IO) {
             val defaultRingtone = settingsRepository.getDefaultRingtone()
-            val currentAlarm = Alarm(
-                id = -1L,
+            val newAlarm = Alarm(
                 hour = hour24hrs,
                 minute = minutes,
                 ringtone = defaultRingtone,
@@ -97,23 +107,16 @@ class AlarmDetailViewModel @Inject constructor(
                 preAlarmNotificationDuration = 5.minutes,
                 createdAt = System.currentTimeMillis(),
             )
-            _uiState.value = UiState.Success(currentAlarm)
+            currentAlarm = newAlarm
+            _uiState.value = UiState.Success(newAlarm, true)
         }
     }
 
-    private fun editAlarm(alarmId: Long) {
+    private fun setupEditAlarm(alarmId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             currentAlarm = getAlarmByIdUseCase(alarmId) ?: Alarm.default()
             currentAlarm?.let {
-                _uiState.value = UiState.Success(it)
-            }
-        }
-    }
-
-    fun addNewAlarm() {
-        currentAlarm?.let {
-            viewModelScope.launch(Dispatchers.IO) {
-                addAlarmUseCase(it)
+                _uiState.value = UiState.Success(it, false)
             }
         }
     }
@@ -127,17 +130,41 @@ class AlarmDetailViewModel @Inject constructor(
     }
 
     fun saveAlarm() {
+        val state = uiState.value
+        val alarm = currentAlarm
+
+        if (state !is UiState.Success || alarm == null) return
+
         viewModelScope.launch(Dispatchers.IO) {
-            currentAlarm?.let {
-                updateAlarmUseCase(it.copy(enabled = true))
+            if (state.isNewAlarm) {
+                val result = addAlarmUseCase(alarm)
+                result.onSuccess {
+                    _eventFlow.emit(AlarmDetailEvent.SaveSuccess)
+                }.onFailure { exception ->
+                    if (exception is AlarmAlreadyExistsException) {
+                        _eventFlow.emit(AlarmDetailEvent.Error(exception.message, true))
+                    } else {
+                        _eventFlow.emit(
+                            AlarmDetailEvent.Error(
+                                exception.message ?: "Unknown error", true
+                            )
+                        )
+                    }
+                }
+            } else {
+                updateAlarmUseCase(alarm.copy(enabled = true))
             }
         }
     }
 
     fun onAlarmValueChange(alarm: Alarm) {
         currentAlarm = alarm
-        currentAlarm?.let {
-            _uiState.value = UiState.Success(it)
+        _uiState.update { state ->
+            if (state is UiState.Success) {
+                state.copy(alarm = alarm)
+            } else {
+                state
+            }
         }
     }
 
@@ -146,7 +173,8 @@ class AlarmDetailViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val systemRingtones = systemSettingsManager.getRingtones()
             val defaultRingtone = systemSettingsManager.getDefaultRingtone()
-            val allRingtones = defaultRingtone?.let { listOf(it) + systemRingtones } ?: systemRingtones
+            val allRingtones =
+                defaultRingtone?.let { listOf(it) + systemRingtones } ?: systemRingtones
             _availableRingtones.value = allRingtones
             currentAlarm?.let {
                 _selectedRingtone.value = it.ringtone

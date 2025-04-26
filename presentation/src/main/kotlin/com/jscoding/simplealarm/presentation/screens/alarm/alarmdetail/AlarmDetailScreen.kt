@@ -1,5 +1,6 @@
 package com.jscoding.simplealarm.presentation.screens.alarm.alarmdetail
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,13 +34,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.jddev.simpletouch.ui.customization.settingsui.StSettingsUi
 import com.jddev.simpletouch.ui.customization.settingsui.group.StSettingsGroup
@@ -46,11 +47,11 @@ import com.jddev.simpletouch.ui.customization.settingsui.navigation.StSettingsNa
 import com.jddev.simpletouch.ui.customization.settingsui.switch.StSettingsSwitchItem
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
-import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.presentation.components.WheelTimePicker
 import com.jscoding.simplealarm.presentation.utils.default
-import timber.log.Timber
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DetailAlarmRoute(
@@ -60,13 +61,40 @@ fun DetailAlarmRoute(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val is24hFormat by viewModel.is24hFormat.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collectLatest { state ->
+            when (state) {
+                is AlarmDetailViewModel.AlarmDetailEvent.SaveSuccess -> {
+                    Toast.makeText(
+                        context,
+                        "Alarm saved successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    onBack()
+                }
+                is AlarmDetailViewModel.AlarmDetailEvent.Error -> {
+                    Toast.makeText(
+                        context,
+                        state.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    if(state.needExit) {
+                        onBack()
+                    }
+                }
+            }
+        }
+    }
 
     when (uiState) {
         is AlarmDetailViewModel.UiState.Loading -> {
             Scaffold {
                 Box(
-                    Modifier.padding(it),
-                    contentAlignment = Alignment.Center
+                    Modifier
+                        .fillMaxSize()
+                        .padding(it), contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.width(64.dp),
@@ -79,19 +107,21 @@ fun DetailAlarmRoute(
 
         is AlarmDetailViewModel.UiState.Success -> {
             val alarm = (uiState as AlarmDetailViewModel.UiState.Success).alarm
+            val isNewAlarm = (uiState as AlarmDetailViewModel.UiState.Success).isNewAlarm
             AlarmDetailScreen(alarm = alarm,
                 is24hFormat = is24hFormat,
                 navigateToRingtone = navigateToRingtone,
                 onSave = {
-                    viewModel.addNewAlarm()
-                    onBack()
+                    viewModel.saveAlarm()
                 },
-                onDelete = if (alarm.id != -1L) {
+                onDelete = if (isNewAlarm) {
+                    null
+                } else {
                     {
                         viewModel.deleteAlarm()
                         onBack()
                     }
-                } else null,
+                },
                 onAlarmValueChange = {
                     viewModel.onAlarmValueChange(it)
                 },
@@ -99,13 +129,21 @@ fun DetailAlarmRoute(
         }
 
         is AlarmDetailViewModel.UiState.Error -> {
+            val message = (uiState as AlarmDetailViewModel.UiState.Error).message
+            Toast.makeText(LocalContext.current, message, Toast.LENGTH_SHORT).show()
             Scaffold {
                 Column(
-                    Modifier.padding(it),
+                    Modifier
+                        .fillMaxSize()
+                        .padding(it),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "Error")
+                    Text(
+                        text = "Error",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.error
+                    )
                     Spacer(Modifier.height(16.dp))
                     Text(text = (uiState as AlarmDetailViewModel.UiState.Error).message)
                 }
@@ -214,12 +252,14 @@ private fun AlarmDetailScreen(
                         subTitle = alarm.ringtone.title,
                         onClick = navigateToRingtone
                     )
-                    StSettingsSwitchItem(title = "Vibrate",
+                    StSettingsSwitchItem(
+                        title = "Vibrate",
                         checked = alarm.vibration,
                         onCheckedChange = {
                             onAlarmValueChange(alarm.copy(vibration = it))
                         })
-                    StSettingsSwitchItem(title = "Snooze",
+                    StSettingsSwitchItem(
+                        title = "Snooze",
                         checked = alarm.vibration,
                         onCheckedChange = {})
                 }
