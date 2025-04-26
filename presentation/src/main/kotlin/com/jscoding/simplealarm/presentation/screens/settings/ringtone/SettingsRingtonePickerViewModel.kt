@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RingtonePickerViewModel @Inject constructor(
+class SettingsRingtonePickerViewModel @Inject constructor(
     private val systemSettingsManager: SystemSettingsManager,
     private val settingsRepository: SettingsRepository,
     private val getAlarmByIdUseCase: GetAlarmByIdUseCase,

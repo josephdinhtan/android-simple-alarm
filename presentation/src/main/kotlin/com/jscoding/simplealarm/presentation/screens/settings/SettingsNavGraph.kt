@@ -10,7 +10,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.jscoding.simplealarm.presentation.screens.settings.ringtone.RingtonePickerScreen
+import com.jddev.simpletouch.ui.navigation.navigateSingleTop
+import com.jscoding.simplealarm.presentation.screens.settings.ringtone.SettingsRingtonePickerRoute
 import com.jscoding.simplealarm.presentation.screens.settings.thememode.SettingsThemeModeScreen
 
 fun NavGraphBuilder.settingsNavGraph(
@@ -26,10 +27,10 @@ fun NavGraphBuilder.settingsNavGraph(
             SettingsScreen(
                 settingsViewModel = viewModel,
                 navigateToThemeMode = {
-                    navController.navigate("nav_settings_theme_mode")
+                    navController.navigateSingleTop("nav_settings_theme_mode")
                 },
                 navigateToRingtone = {
-                    navController.navigate("nav_settings_ringtone")
+                    navController.navigateSingleTop("nav_settings_ringtone")
                 },
                 onBack = { navController.navigateUp() }
             )
@@ -44,8 +45,7 @@ fun NavGraphBuilder.settingsNavGraph(
         }
 
         composable("nav_settings_ringtone") {
-            RingtonePickerScreen(
-                title = "Default ringtone",
+            SettingsRingtonePickerRoute(
                 onBack = { navController.navigateUp() },
             )
         }
@@ -53,7 +53,7 @@ fun NavGraphBuilder.settingsNavGraph(
 }
 
 @Composable
-inline fun <reified T : ViewModel> NavBackStackEntry.sharedSettingsViewModel(navController: NavController): T {
+private inline fun <reified T : ViewModel> NavBackStackEntry.sharedSettingsViewModel(navController: NavController): T {
     val navGraphRoute = destination.parent?.route ?: return hiltViewModel()
     val parentEntry = remember(this) {
         navController.getBackStackEntry(navGraphRoute)

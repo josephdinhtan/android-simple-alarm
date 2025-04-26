@@ -26,8 +26,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,7 +34,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -59,51 +56,9 @@ import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 import com.jscoding.simplealarm.presentation.R
 
-@Composable
-fun RingtonePickerScreen(
-    title: String,
-    alarmId: Long = -1L,
-    ringtonePickerViewModel: RingtonePickerViewModel = hiltViewModel(),
-    onBack: () -> Unit,
-) {
-    val isFromAlarmEditScreen = alarmId != -1L
-    LaunchedEffect(Unit) {
-        if (isFromAlarmEditScreen) {
-            ringtonePickerViewModel.getAlarmSelectedRingtone(alarmId)
-        } else {
-            ringtonePickerViewModel.getDefaultRingtone()
-        }
-    }
-    RingtonePickerScreen(
-        screenTitle = title,
-        ringtones = ringtonePickerViewModel.availableRingtones.collectAsState().value,
-        isTonePlaying = ringtonePickerViewModel.isTonePlaying.collectAsState().value,
-        selectedRingtone = ringtonePickerViewModel.selectedRingtone.collectAsState().value,
-        onRingtoneSelected = { ringtonePickerViewModel.onRingtoneSelectedAndPlayTone(it) },
-        onStopPlaying = { ringtonePickerViewModel.stopPlayTone() },
-        onSave = {
-            if (isFromAlarmEditScreen) {
-                ringtonePickerViewModel.setAlarmRingtone(
-                    ringtonePickerViewModel.selectedRingtone.value, alarmId
-                )
-            } else {
-                ringtonePickerViewModel.setDefaultRingtone(
-                    ringtonePickerViewModel.selectedRingtone.value
-                )
-            }
-            ringtonePickerViewModel.stopPlayTone()
-            onBack()
-        },
-        onBack = {
-            ringtonePickerViewModel.stopPlayTone()
-            onBack()
-        },
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RingtonePickerScreen(
+fun RingtonePickerScreen(
     screenTitle: String,
     ringtones: List<Ringtone>,
     selectedRingtone: Ringtone,
@@ -162,7 +117,7 @@ private fun RingtonePickerScreen(
                         Icon(
                             Icons.Outlined.NotificationsActive,
                             "Tone",
-                            Modifier.size(32.dp),
+                            Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
                         )
                         Text(

@@ -1,50 +1,61 @@
 package com.jscoding.simplealarm.presentation.screens.alarm.alarmdetail
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
-import com.jscoding.simplealarm.presentation.screens.settings.ringtone.RingtonePickerScreen
 
 fun NavGraphBuilder.alarmDetailNavGraph(
+    route: String = "nav_alarm_detail_graph/{alarm_id}",
     navController: NavHostController,
-    route: String = "nav_alarm_edit/{alarm_id}",
 ) {
-    composable(
-        route,
-        arguments = listOf(navArgument("alarm_id") {
-            type = NavType.LongType
-            defaultValue = -1
-        })
+    navigation(
+        route = route,
+        startDestination = "nav_detail_alarm_home",
+        arguments = listOf(
+            navArgument("alarm_id") {
+                type = NavType.LongType
+            }
+        )
     ) {
-        val alarmId = it.arguments?.getLong("alarm_id") ?: -1
-        if (alarmId.toInt() == -1) {
-            AddNewAlarmRoute(
-                navigateToRingtone = { navController.navigate("nav_detail_alarm_ringtone/$alarmId") },
-                onBack = { navController.navigateUp() }
-            )
-        } else {
-            EditAlarmRoute(
-                alarmId = alarmId,
-                navigateToRingtone = { navController.navigate("nav_detail_alarm_ringtone/$alarmId") },
+        composable("nav_detail_alarm_home") {
+            val viewModel = it.sharedAlarmDetailViewModel<AlarmDetailViewModel>(navController)
+            DetailAlarmRoute(
+                viewModel = viewModel,
+                navigateToRingtone = {
+                    navController.navigate("nav_detail_alarm_ringtone")
+                },
                 onBack = { navController.navigateUp() }
             )
         }
-    }
 
-    composable(
-        "nav_detail_alarm_ringtone/{alarmId}",
-        arguments = listOf(navArgument("alarm_id") {
-            type = NavType.LongType
-            defaultValue = -1
-        })
-    ) {
-        val alarmId = it.arguments?.getLong("alarm_id") ?: -1
-        RingtonePickerScreen(
-            alarmId = alarmId,
-            title = "Alarm ringtone",
-            onBack = { navController.navigateUp() },
-        )
+        composable("nav_detail_alarm_ringtone") {
+            val viewModel = it.sharedAlarmDetailViewModel<AlarmDetailViewModel>(navController)
+            LaunchedEffect(Unit) {
+                viewModel.setupRingtoneScreen()
+            }
+            AlarmRingtonePickerRoute(
+                viewModel = viewModel,
+                onBack = { navController.navigateUp() },
+            )
+        }
     }
+}
+
+@Composable
+private inline fun <reified T : ViewModel> NavBackStackEntry.sharedAlarmDetailViewModel(navController: NavController): T {
+    val navGraphRoute = destination.parent?.route ?: return hiltViewModel()
+    val parentEntry = remember(this) {
+        navController.getBackStackEntry(navGraphRoute)
+    }
+    return hiltViewModel(parentEntry)
 }
