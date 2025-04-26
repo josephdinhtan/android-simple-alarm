@@ -1,6 +1,7 @@
 package com.jscoding.simplealarm.presentation.utils
 
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 import kotlin.time.Duration.Companion.minutes
 
@@ -40,4 +41,21 @@ fun Alarm.Companion.default(): Alarm {
         preAlarmNotificationDuration = 5.minutes,
         createdAt = System.currentTimeMillis(),
     )
+}
+
+fun List<DayOfWeek>.toDisplayString(prefixStr: String = ""): String {
+    return if (this.isEmpty()) {
+        "Once, no repeat"
+    } else {
+        val sortedDays = this.sortedBy { it.value }
+        var str = sortedDays.joinToString(", ") { it.name.take(3).toFirstCapital() }
+        if (prefixStr.isNotEmpty()) {
+            str = "$prefixStr $str"
+        }
+        str
+    }
+}
+
+fun String.toFirstCapital(): String {
+    return this.lowercase().replaceFirstChar { it.uppercase() }
 }

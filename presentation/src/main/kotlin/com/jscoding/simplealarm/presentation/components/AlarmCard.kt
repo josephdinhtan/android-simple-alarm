@@ -30,10 +30,11 @@ import androidx.compose.ui.unit.sp
 import com.jddev.simpletouch.ui.foundation.StUiSwitch
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
-import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.presentation.utils.default
 import com.jscoding.simplealarm.presentation.utils.toAmPmNotationStr
+import com.jscoding.simplealarm.presentation.utils.toDisplayString
 import com.jscoding.simplealarm.presentation.utils.toStringTimeDisplay
 
 @Composable
@@ -75,9 +76,7 @@ fun AlarmCard(
             if (alarm.repeatDays.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = alarm.repeatDays.joinToString(", ") {
-                        it.toString().take(3)
-                    },
+                    text = alarm.repeatDays.toDisplayString(),
                     style = MaterialTheme.typography.labelSmall,
                     color = repeatDayColor.copy(alpha = textAlpha),
                     modifier = Modifier.padding(end = 16.dp),

@@ -153,6 +153,7 @@ class AlarmDetailViewModel @Inject constructor(
                 }
             } else {
                 updateAlarmUseCase(alarm.copy(enabled = true))
+                _eventFlow.emit(AlarmDetailEvent.SaveSuccess)
             }
         }
     }

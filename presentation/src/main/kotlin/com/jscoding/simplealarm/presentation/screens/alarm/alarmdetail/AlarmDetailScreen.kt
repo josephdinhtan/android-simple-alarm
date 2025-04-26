@@ -15,11 +15,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.MoreTime
+import androidx.compose.material.icons.outlined.NotificationsActive
+import androidx.compose.material.icons.outlined.Vibration
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,9 +43,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.jddev.simpletouch.ui.customization.settingsui.StSettingsUi
 import com.jddev.simpletouch.ui.customization.settingsui.group.StSettingsGroup
@@ -51,6 +65,7 @@ import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.presentation.components.WheelTimePicker
 import com.jscoding.simplealarm.presentation.utils.default
+import com.jscoding.simplealarm.presentation.utils.toDisplayString
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -68,19 +83,16 @@ fun DetailAlarmRoute(
             when (state) {
                 is AlarmDetailViewModel.AlarmDetailEvent.SaveSuccess -> {
                     Toast.makeText(
-                        context,
-                        "Alarm saved successfully",
-                        Toast.LENGTH_SHORT
+                        context, "Alarm saved successfully", Toast.LENGTH_SHORT
                     ).show()
                     onBack()
                 }
+
                 is AlarmDetailViewModel.AlarmDetailEvent.Error -> {
                     Toast.makeText(
-                        context,
-                        state.message,
-                        Toast.LENGTH_SHORT
+                        context, state.message, Toast.LENGTH_SHORT
                     ).show()
-                    if(state.needExit) {
+                    if (state.needExit) {
                         onBack()
                     }
                 }
@@ -193,79 +205,121 @@ private fun AlarmDetailScreen(
             ),
         )
     }) { padding ->
-        Column(
-            modifier = Modifier.padding(padding)
+        var repeatLabel by remember { mutableStateOf(alarm.repeatDays.toDisplayString("Every")) }
+        StSettingsUi(
+            modifier = Modifier.padding(padding), scrollBehavior = scrollBehavior
         ) {
-            WheelTimePicker(initHour = alarm.hour,
-                initMinute = alarm.minute,
-                is24Hour = is24hFormat,
-                onTimeSelected = { hour, minute ->
-                    onAlarmValueChange(alarm.copy(hour = hour, minute = minute))
-                })
+            item {
+                WheelTimePicker(initHour = alarm.hour,
+                    initMinute = alarm.minute,
+                    is24Hour = is24hFormat,
+                    onTimeSelected = { hour, minute ->
+                        onAlarmValueChange(alarm.copy(hour = hour, minute = minute))
+                    })
+            }
+            item {
+                AlarmNameTextField(
+                    alarmName = alarm.label,
+                    onAlarmNameChange = { onAlarmValueChange(alarm.copy(label = it)) },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                )
+            }
 
-            StSettingsUi(
-                scrollBehavior = scrollBehavior
+            // Repeat days
+            StSettingsGroup(
+                header = repeatLabel,
             ) {
-                item {
-                    OutlinedTextField(modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
-                        value = alarm.label,
-                        onValueChange = { onAlarmValueChange(alarm.copy(label = it)) },
-                        label = { Text("Label") },
-                        //                    shape = CircleShape,
-                        singleLine = true,
-                        leadingIcon = {
-                            Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null)
-                        })
-                }
-
-                // Repeat days
-                StSettingsGroup(
-                    header = "Repeat",
+                FlowRow(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    FlowRow(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        DayOfWeek.entries.forEach { day ->
-                            FilterChip(selected = alarm.repeatDays.contains(day),
-                                shape = CircleShape,
-                                colors = FilterChipDefaults.filterChipColors().copy(
-                                    selectedContainerColor = MaterialTheme.colorScheme.tertiary,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onTertiary,
-                                ),
-                                onClick = {
-                                    val repeatDays = alarm.repeatDays.toMutableSet().apply {
-                                        if (contains(day)) remove(day) else add(day)
-                                    }.toList()
-                                    onAlarmValueChange(alarm.copy(repeatDays = repeatDays))
-                                },
-                                label = { Text(day.name.take(3)) })
-                        }
+                    DayOfWeek.entries.forEach { day ->
+                        FilterChip(selected = alarm.repeatDays.contains(day),
+                            shape = CircleShape,
+                            colors = FilterChipDefaults.filterChipColors().copy(
+                                selectedContainerColor = MaterialTheme.colorScheme.tertiary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onTertiary,
+                            ),
+                            onClick = {
+                                val repeatDays = alarm.repeatDays.toMutableSet().apply {
+                                    if (contains(day)) remove(day) else add(day)
+                                }.toList()
+                                repeatLabel = repeatDays.toDisplayString("Every")
+                                onAlarmValueChange(alarm.copy(repeatDays = repeatDays))
+                            },
+                            label = { Text(day.name.take(3)) })
                     }
                 }
+            }
 
-                StSettingsGroup {
-                    StSettingsNavigateItem(
-                        title = "Ringtone",
-                        subTitle = alarm.ringtone.title,
-                        onClick = navigateToRingtone
-                    )
-                    StSettingsSwitchItem(
-                        title = "Vibrate",
-                        checked = alarm.vibration,
-                        onCheckedChange = {
-                            onAlarmValueChange(alarm.copy(vibration = it))
-                        })
-                    StSettingsSwitchItem(
-                        title = "Snooze",
-                        checked = alarm.vibration,
-                        onCheckedChange = {})
-                }
+            StSettingsGroup {
+                StSettingsNavigateItem(
+                    title = "Ringtone",
+                    leadingImageVector = Icons.Outlined.NotificationsActive,
+                    subTitle = alarm.ringtone.title,
+                    onClick = navigateToRingtone
+                )
+                StSettingsSwitchItem(title = "Vibrate",
+                    leadingImageVector = Icons.Outlined.Vibration,
+                    checked = alarm.vibration,
+                    onCheckedChange = {
+                        onAlarmValueChange(alarm.copy(vibration = it))
+                    })
+                StSettingsSwitchItem(title = "Snooze",
+                    leadingImageVector = Icons.Outlined.MoreTime,
+                    checked = alarm.vibration,
+                    onCheckedChange = {})
             }
         }
     }
+}
+
+@Composable
+private fun AlarmNameTextField(
+    modifier: Modifier = Modifier,
+    alarmName: String,
+    onAlarmNameChange: (String) -> Unit,
+    isError: Boolean = false,
+) {
+    var isFocused by remember { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    OutlinedTextField(value = alarmName,
+        onValueChange = { newValue ->
+            if (newValue.length <= 30) { // Limit to 30 characters
+                onAlarmNameChange(newValue)
+            }
+        },
+        modifier = modifier
+            .semantics { contentDescription = "Alarm name input field" },
+        label = { Text("Alarm name") },
+        placeholder = {
+            Text(
+                "Enter alarm name", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+            )
+        },
+        singleLine = true,
+        isError = isError,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(onDone = {
+            keyboardController?.hide()
+        }),
+        trailingIcon = {
+            if (alarmName.isNotEmpty()) {
+                IconButton(onClick = { onAlarmNameChange("") },
+                    modifier = Modifier.semantics { contentDescription = "Clear alarm name" }) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        },
+        shape = RoundedCornerShape(8.dp)
+    )
 }
 
 @StUiPreview
