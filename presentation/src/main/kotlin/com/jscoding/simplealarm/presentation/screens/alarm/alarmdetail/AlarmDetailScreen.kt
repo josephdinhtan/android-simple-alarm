@@ -281,7 +281,6 @@ private fun AlarmNameTextField(
     onAlarmNameChange: (String) -> Unit,
     isError: Boolean = false,
 ) {
-    var isFocused by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     OutlinedTextField(value = alarmName,

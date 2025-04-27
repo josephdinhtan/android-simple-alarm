@@ -30,8 +30,8 @@ fun AlarmRingingScreen(
             RingingScreen(
                 time = alarmKlaxonState.timeDisplay,
                 label = alarmKlaxonState.label,
-                onSnooze = { viewModel.snoozeAlarm(alarmId) },
-                onDismiss = { viewModel.dismissAlarm(alarmId) }
+                onSnooze = { viewModel.snoozeAlarm() },
+                onDismiss = { viewModel.dismissAlarm() }
             )
         }
     }

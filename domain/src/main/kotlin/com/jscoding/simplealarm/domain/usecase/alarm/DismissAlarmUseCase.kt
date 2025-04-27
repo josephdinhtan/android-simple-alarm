@@ -1,5 +1,6 @@
 package com.jscoding.simplealarm.domain.usecase.alarm
 
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.platform.AlarmRingingController
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
@@ -10,11 +11,10 @@ class DismissAlarmUseCase @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val alarmRingingController: AlarmRingingController,
 ) {
-    suspend operator fun invoke(alarmId: Long) {
-        alarmRepository.getAlarmById(alarmId)?.let { alarm ->
-            alarmRingingController.dismissRinging(alarmId)
-            alarmScheduler.cancel(alarmId)
-            // TODO: this for dismiss once alarm only, need handle for repeating alarm
+    suspend operator fun invoke(alarm: Alarm) {
+        alarmRingingController.dismissRinging(alarm)
+        alarmScheduler.cancel(alarm)
+        if(alarm.repeatDays.isEmpty()) {
             alarmRepository.updateAlarm(alarm.copy(enabled = false))
         }
     }

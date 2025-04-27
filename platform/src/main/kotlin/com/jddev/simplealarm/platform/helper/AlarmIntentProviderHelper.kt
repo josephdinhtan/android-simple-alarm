@@ -27,6 +27,7 @@ class AlarmIntentProvider @Inject constructor(
 
     fun provideNotificationIntent(
         alarmId: Long,
+        label: String,
         hour: Int,
         minute: Int,
         is24HourFormat: Boolean,
@@ -36,6 +37,7 @@ class AlarmIntentProvider @Inject constructor(
             putExtra(EXTRA_TYPE, ScheduleType.NOTIFICATION.value)
             putExtra(EXTRA_ALARM_ID, alarmId)
             putExtra(EXTRA_HOUR, hour)
+            putExtra(EXTRA_LABEL, label)
             putExtra(EXTRA_MINUTE, minute)
             putExtra(EXTRA_IS_24H, is24HourFormat)
         }
@@ -52,6 +54,7 @@ class AlarmIntentProvider @Inject constructor(
         const val EXTRA_ALARM_ID = "alarm_id"
         const val EXTRA_IS_24H = "is_24h"
         const val EXTRA_HOUR = "hour"
+        const val EXTRA_LABEL = "label"
         const val EXTRA_MINUTE = "minute"
         const val EXTRA_TYPE = "type"
     }

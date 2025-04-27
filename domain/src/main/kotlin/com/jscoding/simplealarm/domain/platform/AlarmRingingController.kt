@@ -1,6 +1,8 @@
 package com.jscoding.simplealarm.domain.platform
 
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
+
 interface AlarmRingingController {
-    fun dismissRinging(alarmId: Long)
-    fun snoozeRinging(alarmId: Long)
+    fun dismissRinging(alarm: Alarm)
+    fun snoozeRinging(alarm: Alarm)
 }

@@ -24,7 +24,7 @@ class RingingActivity : AppCompatActivity() {
     private val internalBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == DISMISS_ACTION) {
-                Timber.d("DISMISS_ACTION")
+                Timber.d("${intent.action}")
                 this@RingingActivity.finish()
             }
         }

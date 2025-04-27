@@ -2,75 +2,46 @@ package com.jddev.simplealarm.platform.impl
 
 import com.jddev.simplealarm.platform.helper.NotificationHelper
 import com.jddev.simplealarm.platform.utils.getAlarmTimeDisplay
-import com.jddev.simplealarm.platform.utils.getSnoozedAlarmTimeDisplay
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationAction
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
-import com.jscoding.simplealarm.domain.platform.NotificationController
-import com.jscoding.simplealarm.domain.repository.SettingsRepository
+import com.jscoding.simplealarm.domain.platform.AlarmNotificationController
 import timber.log.Timber
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.util.Calendar
-import java.util.Locale
 import javax.inject.Inject
-import kotlin.time.Duration
 
 class NotificationControllerImpl @Inject constructor(
     private val notificationHelper: NotificationHelper,
-    private val settingsRepository: SettingsRepository,
-) : NotificationController {
+) : AlarmNotificationController {
 
-    override fun cancelNotification(notificationId: Int) {
-        Timber.d("Cancel notification id: $notificationId")
-        notificationHelper.cancelNotification(notificationId)
+    override fun cancelAlarmNotification(alarm: Alarm) {
+        Timber.d("Cancel notification alarm: ${alarm.label}, id: ${alarm.id}")
+        notificationHelper.cancelNotification(alarm.id.toInt())
     }
 
-    override suspend fun showNotification(
-        notificationId: Int,
-        alarmId: Long,
-        alarmLabel: String,
-        hour: Int,
-        minute: Int,
+    override fun showAlarmNotification(
+        title: String,
+        alarm: Alarm,
+        is24HourFormat: Boolean,
         type: NotificationType,
         actions: List<NotificationAction>,
     ) {
-        Timber.d("Show notification id: $notificationId")
-        val is24HourFormat = settingsRepository.getIs24HourFormat()
-        val notificationTitle = when (type) {
-            NotificationType.ALARM_UPCOMING -> {
-                "Upcoming alarm"
-            }
-
-            NotificationType.ALARM_FIRING -> {
-                "Alarm"
-            }
-
-            NotificationType.ALARM_SNOOZE -> {
-                "Snoozed alarm"
-            }
-
-            NotificationType.ALARM_MISSED -> {
-                "Missed alarm"
-            }
-        }
         val notificationContent = getAlarmTimeDisplay(
-            hour = hour,
-            minutes = minute,
+            hour = alarm.hour,
+            minutes = alarm.hour,
             is24HourFormat,
         )
 
-        Timber.d("Show notification id: ${notificationId}, title: $notificationTitle, content: $notificationContent")
+        Timber.d("Show notification alarm: ${alarm.label}, id: ${alarm.id}, title: $title, content: $notificationContent")
         val notification = notificationHelper.createAlarmNotification(
-            notificationTitle,
+            title,
             notificationContent,
-            notificationId.toLong(),
+            alarm.id,
             type,
             actions
         )
         // safe in background, no need withContext here
         notificationHelper.showNotification(
-            notificationId,
+            alarm.id.toInt(),
             notification
         )
     }

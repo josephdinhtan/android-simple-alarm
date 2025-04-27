@@ -11,7 +11,7 @@ import com.jddev.simplealarm.platform.impl.TonePlayerImpl
 import com.jddev.simplealarm.platform.impl.NotificationSchedulerImpl
 import com.jddev.simplealarm.platform.impl.SystemSettingsManagerImpl
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
-import com.jscoding.simplealarm.domain.platform.NotificationScheduler
+import com.jscoding.simplealarm.domain.platform.AlarmNotificationScheduler
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
 import dagger.Binds
 import dagger.Module
@@ -78,7 +78,7 @@ abstract class DataSystemModule {
     @Binds
     abstract fun bindsNotificationController(
         impl: NotificationSchedulerImpl,
-    ): NotificationScheduler
+    ): AlarmNotificationScheduler
 
     @Singleton
     @Binds

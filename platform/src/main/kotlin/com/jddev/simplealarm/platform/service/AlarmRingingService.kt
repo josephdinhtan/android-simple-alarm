@@ -10,6 +10,7 @@ import android.os.Vibrator
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import com.jddev.simplealarm.platform.activity.RingingActivity
 import com.jddev.simplealarm.platform.helper.AlarmIntentProvider.Companion.EXTRA_ALARM_ID
 import com.jddev.simplealarm.platform.helper.MediaPlayerHelper
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
@@ -23,6 +24,7 @@ import com.jscoding.simplealarm.domain.usecase.alarm.SnoozeAlarmUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -33,7 +35,7 @@ import javax.annotation.Nullable
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AlarmKlaxonService : LifecycleService() {
+class AlarmRingingService : LifecycleService() {
 
     @Inject
     lateinit var mediaPlayerHelper: MediaPlayerHelper
@@ -65,7 +67,6 @@ class AlarmKlaxonService : LifecycleService() {
     private lateinit var notificationManager: NotificationManager
 
     private var isForegroundStarted = false
-    private var currentAlarm: Alarm? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -77,104 +78,85 @@ class AlarmKlaxonService : LifecycleService() {
         Timber.d("onStartCommand: ${intent?.action}")
 
         startForegroundPlaceHolder()
-        if (intent == null || intent.action.isNullOrEmpty()) {
-            Timber.e("Intent is null, do nothing")
+        intent ?: run {
+            Timber.e("Intent is invalid, finish")
+            stopSelf()
             return START_NOT_STICKY
         }
+
         val alarmId = intent.getLongExtra(EXTRA_ALARM_ID, -1)
+        val intentAction = intent.action
 
-        when (intent.action) {
-            ACTION_DISMISS_ALARM_FROM_NOTIFICATION -> {
-                if (alarmId == -1L) {
-                    Timber.e("ACTION_SNOOZE_ALARM_FROM_NOTIFICATION Invalid alarm")
-                    return START_NOT_STICKY
-                }
-                com.jddev.simplealarm.platform.activity.RingingActivity.dismissActivity(this.applicationContext)
-                lifecycleScope.launch(Dispatchers.IO) {
-                    dismissAlarmUseCase(alarmId)
-                }
-            }
+        if (alarmId == -1L || intentAction == null) {
+            Timber.e("Invalid alarm ID")
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
-            ACTION_DISMISS_ALARM -> {
-                if (alarmId == -1L) {
-                    Timber.e("Invalid alarm ID")
-                    stopSelf()
-                    return START_NOT_STICKY
-                }
-                Timber.d("ACTION_DISMISS_ALARM, alarmId: $alarmId")
-                notificationHelper.cancelNotification(alarmId.toInt())
-                stopAlarmRingtone()
-                cleanupAndFinishService()
-                return START_NOT_STICKY
+        lifecycleScope.launch(Dispatchers.IO) {
+            val alarm = alarmRepository.getAlarmById(alarmId) ?: run {
+                Timber.e("Alarm not found for ID $alarmId")
+                stopSelf()
+                return@launch
             }
-
-            ACTION_SNOOZE_ALARM_FROM_NOTIFICATION -> {
-                if (alarmId == -1L) {
-                    Timber.e("ACTION_SNOOZE_ALARM_FROM_NOTIFICATION Invalid alarm")
-                    return START_NOT_STICKY
-                }
-                com.jddev.simplealarm.platform.activity.RingingActivity.dismissActivity(this.applicationContext)
-                lifecycleScope.launch(Dispatchers.IO) {
-                    snoozeAlarmUseCase(alarmId)
-                }
-            }
-
-            ACTION_SNOOZE_ALARM -> {
-                stopAlarmRingtone()
-                cleanupAndFinishService()
-                return START_NOT_STICKY
-            }
-
-            ACTION_ALARM_RINGING -> {
-                Timber.d("ACTION_ALARM_RINGING: alarmId $alarmId")
-                if (alarmId == -1L) {
-                    Timber.e("Invalid alarm ID")
-                    stopSelf()
-                    return START_NOT_STICKY
-                }
-                notificationHelper.cancelNotification(alarmId.toInt())
-                stopAlarmRingtone()
-                lifecycleScope.launch(Dispatchers.IO) {
-                    currentAlarm = alarmRepository.getAlarmById(alarmId)
-                    if (currentAlarm == null) {
-                        Timber.e("Alarm not found for ID $alarmId")
-                        stopSelf()
-                        return@launch
-                    }
-                    startRingingAndVibrateAlarm(alarmId)
-                    // update notification
-                    val is24HourFormat = settingsRepository.getIs24HourFormat()
-                    val notificationTitle = "Alarm"
-                    val calendar = Calendar.getInstance().apply {
-                        timeInMillis = System.currentTimeMillis()
-                    }
-                    val notificationContent = getAlarmTimeDisplay(
-                        hour = calendar.get(Calendar.HOUR_OF_DAY),
-                        minutes = calendar.get(Calendar.MINUTE),
-                        is24HourFormat
-                    )
-                    val notification = notificationHelper.createAlarmNotification(
-                        notificationTitle,
-                        notificationContent,
-                        alarmId,
-                        NotificationType.ALARM_FIRING,
-                        listOf(NotificationAction.SNOOZE, NotificationAction.DISMISS)
-                    )
-                    Timber.d("ACTION_ALARM_RINGING, show notification id: $alarmId, title: $notificationTitle, content: $notificationContent")
-                    startForeground(
-                        com.jddev.simplealarm.platform.helper.NotificationHelper.CHANNEL_ALARM_FOREGROUND_NOTIFICATION_ID,
-                        notification
-                    )
-                }
-            }
-
-            else -> {
-                Timber.e("Invalid action: ${intent.action}")
-                return START_NOT_STICKY
-            }
+            handleRequests(intentAction, alarm)
         }
 
         return START_STICKY
+    }
+
+    private suspend fun handleRequests(action: String, alarm: Alarm) {
+        when (action) {
+
+            ACTION_DISMISS_ALARM, ACTION_SNOOZE_ALARM -> {
+                notificationHelper.cancelNotification(alarm.id.toInt())
+                stopAlarmRingtone()
+                cleanupAndFinishService()
+            }
+
+            ACTION_DISMISS_ALARM_FROM_NOTIFICATION -> {
+                RingingActivity.dismissActivity(this.applicationContext)
+                dismissAlarmUseCase(alarm)
+            }
+
+            ACTION_SNOOZE_ALARM_FROM_NOTIFICATION -> {
+                RingingActivity.dismissActivity(this.applicationContext)
+                snoozeAlarmUseCase(alarm)
+            }
+
+            ACTION_ALARM_RINGING -> {
+                notificationHelper.cancelNotification(alarm.id.toInt())
+                stopAlarmRingtone()
+                startRingingAndVibrateAlarm(alarm)
+                // update notification
+                val is24HourFormat = settingsRepository.getIs24HourFormat()
+                val notificationTitle = "Alarm"
+                val calendar = Calendar.getInstance().apply {
+                    timeInMillis = System.currentTimeMillis()
+                }
+                val notificationContent = getAlarmTimeDisplay(
+                    hour = calendar.get(Calendar.HOUR_OF_DAY),
+                    minutes = calendar.get(Calendar.MINUTE),
+                    is24HourFormat
+                )
+                val notification = notificationHelper.createAlarmNotification(
+                    notificationTitle,
+                    notificationContent,
+                    alarm.id,
+                    NotificationType.ALARM_FIRING,
+                    listOf(NotificationAction.SNOOZE, NotificationAction.DISMISS)
+                )
+                Timber.d("ACTION_ALARM_RINGING, show notification alarm label: ${alarm.label} id: ${alarm.id}, title: $notificationTitle, content: $notificationContent")
+                startForeground(
+                    com.jddev.simplealarm.platform.helper.NotificationHelper.CHANNEL_ALARM_FOREGROUND_NOTIFICATION_ID,
+                    notification
+                )
+            }
+
+            else -> {
+                Timber.e("Invalid action: $action")
+            }
+        }
     }
 
     private fun startForegroundPlaceHolder() {
@@ -203,17 +185,8 @@ class AlarmKlaxonService : LifecycleService() {
         vibrator?.cancel()
     }
 
-    private fun startRingingAndVibrateAlarm(alarmId: Long) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            val alarm = alarmRepository.getAlarmById(alarmId)
-
-            if (alarm == null) {
-                Timber.e("Alarm not found for ID $alarmId")
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                stopSelf()
-                return@launch
-            }
-
+    private suspend fun startRingingAndVibrateAlarm(alarm: Alarm) {
+        withContext(Dispatchers.Main) {
             // Play sound
             if (alarm.ringtone.uri != Uri.EMPTY) {
                 val currentVolume = systemSettingsManager.getAlarmVolume().toFloat()
@@ -227,14 +200,14 @@ class AlarmKlaxonService : LifecycleService() {
                 )
             }
 
+            // Vibration
             if (alarm.vibration) {
                 vibrator?.vibrate(
                     VibrationEffect.createWaveform(longArrayOf(0, 500, 500), 0)
                 )
             }
-
             // Wake up screen
-            wakeUpScreen(this@AlarmKlaxonService.applicationContext)
+            wakeUpScreen(this@AlarmRingingService.applicationContext)
         }
     }
 
@@ -281,25 +254,25 @@ class AlarmKlaxonService : LifecycleService() {
         const val ACTION_ALARM_RINGING = "com.jddev.simplealarm.ACTION_ALARM_RINGING"
 
         fun startRinging(context: Context, alarmId: Long) {
-            val intent = Intent(context, AlarmKlaxonService::class.java).apply {
+            val intent = Intent(context, AlarmRingingService::class.java).apply {
                 action = ACTION_ALARM_RINGING
                 putExtra(EXTRA_ALARM_ID, alarmId)
             }
             ContextCompat.startForegroundService(context, intent)
         }
 
-        fun dismissAlarm(context: Context, alarmId: Long) {
-            val intent = Intent(context, AlarmKlaxonService::class.java).apply {
+        fun dismissAlarm(context: Context, alarm: Alarm) {
+            val intent = Intent(context, AlarmRingingService::class.java).apply {
                 action = ACTION_DISMISS_ALARM
-                putExtra(EXTRA_ALARM_ID, alarmId)
+                putExtra(EXTRA_ALARM_ID, alarm.id)
             }
             ContextCompat.startForegroundService(context, intent)
         }
 
-        fun snoozeAlarm(context: Context, alarmId: Long) {
-            val intent = Intent(context, AlarmKlaxonService::class.java).apply {
+        fun snoozeAlarm(context: Context, alarm: Alarm) {
+            val intent = Intent(context, AlarmRingingService::class.java).apply {
                 action = ACTION_SNOOZE_ALARM
-                putExtra(EXTRA_ALARM_ID, alarmId)
+                putExtra(EXTRA_ALARM_ID, alarm.id)
             }
             ContextCompat.startForegroundService(context, intent)
         }

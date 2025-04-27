@@ -1,26 +1,27 @@
 package com.jscoding.simplealarm.domain.usecase.alarm
 
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
+import com.jscoding.simplealarm.domain.platform.AlarmNotificationScheduler
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
-import com.jscoding.simplealarm.domain.platform.NotificationScheduler
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration
 
 @Singleton
 class DeleteAlarmUseCase @Inject constructor(
     private val alarmRepository: AlarmRepository,
     private val alarmScheduler: AlarmScheduler,
-    private val settingsRepository: SettingsRepository,
-    private val notificationController: NotificationScheduler,
+    private val notificationController: AlarmNotificationScheduler,
 ) {
-    suspend operator fun invoke(alarmId: Long) {
-        alarmRepository.deleteAlarm(alarmId)
-        alarmScheduler.cancel(alarmId)
+    suspend operator fun invoke(alarm: Alarm): Result<Unit> {
 
-        alarmRepository.getAlarmById(alarmId)?.let { alarm ->
-            val is24HourFormat = settingsRepository.getIs24HourFormat()
-            notificationController.cancel(alarm.id, alarm.hour, alarm.minute, is24HourFormat)
-        }
+        alarmRepository.deleteAlarm(alarm)
+        alarmScheduler.cancel(alarm)
+        notificationController.cancel(alarm)
+
+        // TODO hard code success
+        return Result.success(Unit)
     }
 }

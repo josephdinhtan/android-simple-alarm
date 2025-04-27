@@ -1,25 +1,21 @@
 package com.jscoding.simplealarm.domain.usecase.alarm
 
-
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationAction
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
-import com.jscoding.simplealarm.domain.platform.NotificationController
-import com.jscoding.simplealarm.domain.repository.AlarmRepository
+import com.jscoding.simplealarm.domain.platform.AlarmNotificationController
+import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import javax.inject.Inject
 
 class ShowNotificationUseCase @Inject constructor(
-    private val notificationController: NotificationController,
-    private val alarmRepository: AlarmRepository,
+    private val notificationController: AlarmNotificationController,
+    private val settingsRepository: SettingsRepository
 ) {
     suspend operator fun invoke(
-        notificationId: Int,
-        alarmId: Long,
-        hour: Int,
-        minute: Int,
+        alarm: Alarm,
+        title: String,
         type: NotificationType,
     ) {
-        val alarm = alarmRepository.getAlarmById(alarmId) ?: return
-
         val actions = when (type) {
             NotificationType.ALARM_UPCOMING -> listOf(
                 NotificationAction.DISMISS,
@@ -31,18 +27,10 @@ class ShowNotificationUseCase @Inject constructor(
                 NotificationAction.SNOOZE
             )
 
-            NotificationType.ALARM_SNOOZE -> listOf(NotificationAction.SNOOZE)
+            NotificationType.ALARM_SNOOZE -> listOf(NotificationAction.DISMISS)
             NotificationType.ALARM_MISSED -> emptyList()
         }
-
-        notificationController.showNotification(
-            notificationId = notificationId,
-            alarmId = alarmId,
-            alarmLabel = alarm.label,
-            hour = hour,
-            minute = minute,
-            type = type,
-            actions = actions,
-        )
+        val is24hFormat = settingsRepository.getIs24HourFormat()
+        notificationController.showAlarmNotification(title, alarm, is24hFormat, type, actions)
     }
 }

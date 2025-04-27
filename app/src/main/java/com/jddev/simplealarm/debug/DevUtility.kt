@@ -5,7 +5,7 @@ import com.jscoding.simplealarm.data.di.CoroutineScopeIO
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
-import com.jscoding.simplealarm.domain.platform.NotificationScheduler
+import com.jscoding.simplealarm.domain.platform.AlarmNotificationScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.minutes
 
 @Singleton
 class DevUtility @Inject constructor(
-    private val notificationController: NotificationScheduler,
+    private val notificationController: AlarmNotificationScheduler,
     private val alarmScheduler: AlarmScheduler,
     private val context: Context,
     @CoroutineScopeIO private val coroutineScopeIO: CoroutineScope,
@@ -60,11 +60,11 @@ class DevUtility @Inject constructor(
         }
 
         coroutineScopeIO.launch {
-            alarmScheduler.schedule(
-                1,
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE)
-            )
+//            alarmScheduler.schedule(
+//                1,
+//                calendar.get(Calendar.HOUR_OF_DAY),
+//                calendar.get(Calendar.MINUTE)
+//            )
         }
     }
 

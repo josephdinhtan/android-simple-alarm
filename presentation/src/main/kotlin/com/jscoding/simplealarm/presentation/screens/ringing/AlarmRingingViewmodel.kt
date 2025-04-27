@@ -9,10 +9,10 @@ import com.jscoding.simplealarm.domain.usecase.alarm.GetAlarmByIdUseCase
 import com.jscoding.simplealarm.domain.usecase.alarm.SnoozeAlarmUseCase
 import com.jscoding.simplealarm.presentation.utils.toStringTimeDisplay
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -68,35 +68,29 @@ class AlarmRingingViewmodel @Inject constructor(
         _shouldFinish.value = true
     }
 
-    fun dismissAlarm(alarmId: Long) {
+    fun dismissAlarm() {
+        val targetAlarm = alarm.value ?: return
         viewModelScope.launch {
-            dismissAlarmUseCase(alarmId)
+            dismissAlarmUseCase(targetAlarm)
             _alarmKlaxonState.value = AlarmKlaxonState.Dismissed
         }
     }
 
-    fun snoozeAlarm(alarmId: Long) {
-        viewModelScope.launch {
-            snoozeAlarmUseCase(alarmId)
-
+    fun snoozeAlarm() {
+        val targetAlarm = alarm.value ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            snoozeAlarmUseCase(targetAlarm)
             val calendar = Calendar.getInstance().apply {
                 timeInMillis = System.currentTimeMillis()
             }
-            alarm.value?.let {
-                _alarmKlaxonState.value = AlarmKlaxonState.Snoozed(
-                    snoozedTimeDisplay = getSnoozedAlarmTimeDisplay(
-                        hour = calendar.get(Calendar.HOUR_OF_DAY),
-                        minutes = calendar.get(Calendar.MINUTE),
-                        snoozeTime = it.snoozeTime,
-                        is24HourFormat = settingsRepository.getIs24HourFormat()
-                    )
+            _alarmKlaxonState.value = AlarmKlaxonState.Snoozed(
+                snoozedTimeDisplay = getSnoozedAlarmTimeDisplay(
+                    hour = calendar.get(Calendar.HOUR_OF_DAY),
+                    minutes = calendar.get(Calendar.MINUTE),
+                    snoozeTime = targetAlarm.snoozeTime,
+                    is24HourFormat = settingsRepository.getIs24HourFormat()
                 )
-            } ?: run {
-                Timber.e("Alarm not found for ID $alarmId")
-                _alarmKlaxonState.value = AlarmKlaxonState.Snoozed(
-                    snoozedTimeDisplay = "Unknown alarm"
-                )
-            }
+            )
         }
     }
 

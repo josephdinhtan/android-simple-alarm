@@ -49,7 +49,7 @@
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
 
         <service
-            android:name=".platform.service.AlarmKlaxonService"
+            android:name=".platform.service.AlarmRingingService"
             android:enabled="true"
             android:exported="false"
             android:directBootAware="true"

@@ -14,7 +14,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.jddev.simplealarm.platform.R
 import com.jddev.simplealarm.platform.helper.AlarmIntentProvider.Companion.EXTRA_ALARM_ID
-import com.jddev.simplealarm.platform.service.AlarmKlaxonService
+import com.jddev.simplealarm.platform.service.AlarmRingingService
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationAction
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 import timber.log.Timber
@@ -123,7 +123,7 @@ class NotificationHelper @Inject constructor(
                         getActionPendingIntent(
                             context,
                             alarmId,
-                            AlarmKlaxonService.ACTION_DISMISS_ALARM_FROM_NOTIFICATION
+                            AlarmRingingService.ACTION_DISMISS_ALARM_FROM_NOTIFICATION
                         )
                     )
                 }
@@ -132,7 +132,7 @@ class NotificationHelper @Inject constructor(
                     notificationBuilder.addAction(
                         0,
                         "Snooze",
-                        getActionPendingIntent(context, alarmId, AlarmKlaxonService.ACTION_SNOOZE_ALARM_FROM_NOTIFICATION)
+                        getActionPendingIntent(context, alarmId, AlarmRingingService.ACTION_SNOOZE_ALARM_FROM_NOTIFICATION)
                     )
                 }
             }
@@ -186,13 +186,13 @@ class NotificationHelper @Inject constructor(
             getActionPendingIntent(
                 context,
                 alarmId,
-                AlarmKlaxonService.ACTION_DISMISS_ALARM_FROM_NOTIFICATION
+                AlarmRingingService.ACTION_DISMISS_ALARM_FROM_NOTIFICATION
             )
         val snoozePendingIntent =
             getActionPendingIntent(
                 context,
                 alarmId,
-                AlarmKlaxonService.ACTION_SNOOZE_ALARM_FROM_NOTIFICATION
+                AlarmRingingService.ACTION_SNOOZE_ALARM_FROM_NOTIFICATION
             )
 
         return NotificationCompat.Builder(context, FIRING_NOTIFICATION_CHANNEL_ID)
@@ -234,7 +234,7 @@ class NotificationHelper @Inject constructor(
         actionStr: String,
     ): PendingIntent {
         val intent =
-            Intent(context, AlarmKlaxonService::class.java).apply {
+            Intent(context, AlarmRingingService::class.java).apply {
                 action = actionStr
                 putExtra(EXTRA_ALARM_ID, alarmId)
             }

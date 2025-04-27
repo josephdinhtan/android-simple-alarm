@@ -27,8 +27,8 @@ class AlarmRepositoryImpl @Inject constructor(
         alarmDao.update(alarm.toEntity())
     }
 
-    override suspend fun deleteAlarm(alarmId: Long) {
-        alarmDao.deleteById(alarmId)
+    override suspend fun deleteAlarm(alarm: Alarm) {
+        alarmDao.deleteById(alarm.id)
     }
 
     override suspend fun getAlarmById(id: Long): Alarm? {
