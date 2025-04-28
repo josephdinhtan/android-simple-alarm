@@ -32,9 +32,7 @@ This project uses a layered architecture inspired by **Clean Architecture** and 
 android-simple-alarm/
 │
 ├── app/                      # Main application module
-│   ├── activity/             # Android activities
-│   ├── receiver/             # Android receivers
-│   └── service/              # Android services (e.g., AlarmKlaxonService)
+│   └── MainActivity.kt       # App entry point
 │
 ├── domain/                   # Core business logic (pure Kotlin, platform-independent)
 │   ├── model/                # Data models used in domain layer
@@ -46,6 +44,12 @@ android-simple-alarm/
 │   ├── local/                # Room DB, DataStore, etc.
 │   ├── system/               # Interfaces to Android system services
 │   └── repository/impl/      # Actual implementations of domain repositories
+│
+├── platform/                 # Implementation platform apis and Android components
+│   ├── activity/             # Android activities
+│   ├── receiver/             # Android receivers
+│   ├── service/              # Android services (e.g., AlarmRingingService)
+│   └── impl/                 # Actual implementations of domain platform APIs
 │
 ├── presentation/             # UI logic and Android components
 │   ├── alarm/                # Alarm-related screens
@@ -109,4 +113,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 📧 Contact
 
-For any inquiries or feedback, please contact [josephdinhtan](mailto:josephdinhtan@example.com).
+For any inquiries or feedback, please contact [josephdinhtan](mailto:josephdinhtan@gmail.com).
