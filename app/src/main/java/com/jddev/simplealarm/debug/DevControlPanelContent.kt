@@ -24,8 +24,8 @@ internal fun DevControlPanelContent(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Button({
-            devUtility.showAlarmNotification()
-        }) { Text("Show Alarm notification") }
+            devUtility.showAlarmSnoozeNotification()
+        }) { Text("Show Alarm Snooze notification") }
 
         Button({
             devUtility.scheduleAlarmRinging()

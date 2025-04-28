@@ -10,7 +10,7 @@ import com.jddev.simplealarm.platform.service.AlarmRingingService
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
-import com.jscoding.simplealarm.domain.usecase.alarm.ShowNotificationUseCase
+import com.jscoding.simplealarm.domain.usecase.others.ShowNotificationUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable

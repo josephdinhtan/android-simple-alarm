@@ -3,8 +3,8 @@ package com.jscoding.simplealarm.data.mapper
 import android.net.Uri
 import com.jscoding.simplealarm.data.local.alarm.AlarmEntity
 import com.jscoding.simplealarm.data.utils.of
-import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 import kotlin.time.Duration.Companion.seconds
 

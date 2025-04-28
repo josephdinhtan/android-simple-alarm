@@ -4,10 +4,8 @@ import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.platform.AlarmNotificationScheduler
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
-import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.Duration
 
 @Singleton
 class DeleteAlarmUseCase @Inject constructor(

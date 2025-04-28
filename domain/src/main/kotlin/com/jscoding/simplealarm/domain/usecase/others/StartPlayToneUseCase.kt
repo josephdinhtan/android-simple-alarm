@@ -2,8 +2,8 @@ package com.jscoding.simplealarm.domain.usecase.others
 
 import android.net.Uri
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
-import com.jscoding.simplealarm.domain.platform.TonePlayer
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
+import com.jscoding.simplealarm.domain.platform.TonePlayer
 import javax.inject.Inject
 import javax.inject.Singleton
 

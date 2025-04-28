@@ -8,6 +8,7 @@ import com.jddev.simplealarm.platform.di.CoroutineScopeMain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.time.Duration
 
@@ -35,8 +36,15 @@ class MediaPlayerHelper @Inject constructor(
     }
 
     fun stop() {
-        mediaPlayer.stop()
-        mediaPlayer.reset()
+        try {
+            if (mediaPlayer.isPlaying) {
+                mediaPlayer.stop()
+            }
+            mediaPlayer.reset() // Safe to call in any state
+        } catch (e: IllegalStateException) {
+            // Log the error for debugging, but don't crash
+            Timber.e("Error stopping MediaPlayer: ${e.message}")
+        }
     }
 
     private suspend fun fadeInVolume(player: MediaPlayer, durationMillis: Long) {

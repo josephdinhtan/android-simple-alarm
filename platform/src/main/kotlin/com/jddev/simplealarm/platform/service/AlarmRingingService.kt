@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.jddev.simplealarm.platform.activity.RingingActivity
 import com.jddev.simplealarm.platform.helper.AlarmIntentProvider.Companion.EXTRA_ALARM_ID
 import com.jddev.simplealarm.platform.helper.MediaPlayerHelper
+import com.jddev.simplealarm.platform.helper.NotificationHelper
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationAction
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
@@ -21,6 +22,7 @@ import com.jscoding.simplealarm.domain.repository.AlarmRepository
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import com.jscoding.simplealarm.domain.usecase.alarm.DismissAlarmUseCase
 import com.jscoding.simplealarm.domain.usecase.alarm.SnoozeAlarmUseCase
+import com.jscoding.simplealarm.domain.usecase.others.CancelNotificationUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,7 +52,7 @@ class AlarmRingingService : LifecycleService() {
     lateinit var systemSettingsManager: SystemSettingsManager
 
     @Inject
-    lateinit var notificationHelper: com.jddev.simplealarm.platform.helper.NotificationHelper
+    lateinit var notificationHelper: NotificationHelper
 
     @Inject
     @JvmField
@@ -64,6 +66,9 @@ class AlarmRingingService : LifecycleService() {
     @Inject
     lateinit var snoozeAlarmUseCase: SnoozeAlarmUseCase
 
+    @Inject
+    lateinit var cancelNotificationUseCase: CancelNotificationUseCase
+
     private lateinit var notificationManager: NotificationManager
 
     private var isForegroundStarted = false
@@ -76,8 +81,6 @@ class AlarmRingingService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         Timber.d("onStartCommand: ${intent?.action}")
-
-        startForegroundPlaceHolder()
         intent ?: run {
             Timber.e("Intent is invalid, finish")
             stopSelf()
@@ -93,6 +96,8 @@ class AlarmRingingService : LifecycleService() {
             return START_NOT_STICKY
         }
 
+        startForegroundPlaceHolder(alarmId)
+
         lifecycleScope.launch(Dispatchers.IO) {
             val alarm = alarmRepository.getAlarmById(alarmId) ?: run {
                 Timber.e("Alarm not found for ID $alarmId")
@@ -107,25 +112,25 @@ class AlarmRingingService : LifecycleService() {
 
     private suspend fun handleRequests(action: String, alarm: Alarm) {
         when (action) {
-
             ACTION_DISMISS_ALARM, ACTION_SNOOZE_ALARM -> {
-                notificationHelper.cancelNotification(alarm.id.toInt())
                 stopAlarmRingtone()
                 cleanupAndFinishService()
             }
 
             ACTION_DISMISS_ALARM_FROM_NOTIFICATION -> {
+                cancelNotificationUseCase(alarm)
                 RingingActivity.dismissActivity(this.applicationContext)
                 dismissAlarmUseCase(alarm)
             }
 
             ACTION_SNOOZE_ALARM_FROM_NOTIFICATION -> {
+                cancelNotificationUseCase(alarm)
                 RingingActivity.dismissActivity(this.applicationContext)
                 snoozeAlarmUseCase(alarm)
             }
 
             ACTION_ALARM_RINGING -> {
-                notificationHelper.cancelNotification(alarm.id.toInt())
+                cancelNotificationUseCase(alarm)
                 stopAlarmRingtone()
                 startRingingAndVibrateAlarm(alarm)
                 // update notification
@@ -147,8 +152,8 @@ class AlarmRingingService : LifecycleService() {
                     listOf(NotificationAction.SNOOZE, NotificationAction.DISMISS)
                 )
                 Timber.d("ACTION_ALARM_RINGING, show notification alarm label: ${alarm.label} id: ${alarm.id}, title: $notificationTitle, content: $notificationContent")
-                startForeground(
-                    com.jddev.simplealarm.platform.helper.NotificationHelper.CHANNEL_ALARM_FOREGROUND_NOTIFICATION_ID,
+                notificationManager.notify(
+                    getNotificationId(alarm.id),
                     notification
                 )
             }
@@ -159,13 +164,13 @@ class AlarmRingingService : LifecycleService() {
         }
     }
 
-    private fun startForegroundPlaceHolder() {
+    private fun startForegroundPlaceHolder(alarmId: Long) {
         if (isForegroundStarted) return
         isForegroundStarted = true
         val placeholderNotification =
             notificationHelper.createTemporaryRingingNotification(this.applicationContext)
         startForeground(
-            com.jddev.simplealarm.platform.helper.NotificationHelper.CHANNEL_ALARM_FOREGROUND_NOTIFICATION_ID,
+            getNotificationId(alarmId),
             placeholderNotification
         )
     }
@@ -242,6 +247,10 @@ class AlarmRingingService : LifecycleService() {
         }
 
         return "$dayOfWeek ${baseTime.format(timeFormatter)}"
+    }
+
+    private fun getNotificationId(alarmId: Long): Int {
+        return (alarmId * 100 + 10).toInt()
     }
 
     companion object {

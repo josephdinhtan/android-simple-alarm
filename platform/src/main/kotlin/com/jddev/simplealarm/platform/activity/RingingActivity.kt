@@ -103,7 +103,7 @@ class RingingActivity : AppCompatActivity() {
             val intent = Intent().apply {
                 action = DISMISS_ACTION
             }
-            Timber.d("dismissActivity")
+            Timber.d("try dismiss Ringing Activity")
             context.applicationContext.sendBroadcast(intent)
         }
     }

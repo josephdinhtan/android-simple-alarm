@@ -13,25 +13,14 @@ class AlarmRepositoryImpl @Inject constructor(
     private val alarmDao: AlarmDao,
 ) : AlarmRepository {
 
-    override fun getAllAlarms(): Flow<List<Alarm>> {
-        return alarmDao.getAllAlarms().map { list ->
-            list.map { it.toDomain() }
-        }
-    }
+    override fun getAllAlarms(): Flow<List<Alarm>> =
+        alarmDao.getAllAlarms().map { list -> list.map { it.toDomain() } }
 
-    override suspend fun insertAlarm(alarm: Alarm): Long {
-        return alarmDao.insert(alarm.toEntity())
-    }
+    override suspend fun insertAlarm(alarm: Alarm): Long = alarmDao.insert(alarm.toEntity())
 
-    override suspend fun updateAlarm(alarm: Alarm) {
-        alarmDao.update(alarm.toEntity())
-    }
+    override suspend fun updateAlarm(alarm: Alarm) = alarmDao.update(alarm.toEntity())
 
-    override suspend fun deleteAlarm(alarm: Alarm) {
-        alarmDao.deleteById(alarm.id)
-    }
+    override suspend fun deleteAlarm(alarm: Alarm) = alarmDao.deleteById(alarm.id)
 
-    override suspend fun getAlarmById(id: Long): Alarm? {
-        return alarmDao.getById(id)?.toDomain()
-    }
+    override suspend fun getAlarmById(id: Long): Alarm? = alarmDao.getById(id)?.toDomain()
 }

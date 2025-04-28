@@ -21,18 +21,18 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.time.Duration
 
-sealed interface AlarmKlaxonState {
-    data object None : AlarmKlaxonState
-    data object Dismissed : AlarmKlaxonState
+sealed interface AlarmRingingState {
+    data object None : AlarmRingingState
+    data object Dismissed : AlarmRingingState
 
     data class Snoozed(
         val snoozedTimeDisplay: String,
-    ) : AlarmKlaxonState
+    ) : AlarmRingingState
 
     data class Ringing(
         val timeDisplay: String,
         val label: String,
-    ) : AlarmKlaxonState
+    ) : AlarmRingingState
 }
 
 @HiltViewModel
@@ -46,8 +46,8 @@ class AlarmRingingViewmodel @Inject constructor(
     private val _shouldFinish = MutableStateFlow(false)
     val shouldFinish = _shouldFinish.asStateFlow()
 
-    private val _alarmKlaxonState = MutableStateFlow<AlarmKlaxonState>(AlarmKlaxonState.None)
-    val alarmKlaxonState = _alarmKlaxonState.asStateFlow()
+    private val _alarmRingingState = MutableStateFlow<AlarmRingingState>(AlarmRingingState.None)
+    val alarmRingingState = _alarmRingingState.asStateFlow()
 
     private val _alarm = MutableStateFlow<Alarm?>(null)
     val alarm = _alarm.asStateFlow()
@@ -57,7 +57,7 @@ class AlarmRingingViewmodel @Inject constructor(
             _alarm.value = getAlarmByIdUseCase(alarmId)
             _alarm.value?.let {
                 val is24HourFormat = settingsRepository.getIs24HourFormat()
-                _alarmKlaxonState.value = AlarmKlaxonState.Ringing(
+                _alarmRingingState.value = AlarmRingingState.Ringing(
                     timeDisplay = it.toStringTimeDisplay(is24HourFormat), label = it.label
                 )
             }
@@ -72,7 +72,7 @@ class AlarmRingingViewmodel @Inject constructor(
         val targetAlarm = alarm.value ?: return
         viewModelScope.launch {
             dismissAlarmUseCase(targetAlarm)
-            _alarmKlaxonState.value = AlarmKlaxonState.Dismissed
+            _alarmRingingState.value = AlarmRingingState.Dismissed
         }
     }
 
@@ -83,7 +83,7 @@ class AlarmRingingViewmodel @Inject constructor(
             val calendar = Calendar.getInstance().apply {
                 timeInMillis = System.currentTimeMillis()
             }
-            _alarmKlaxonState.value = AlarmKlaxonState.Snoozed(
+            _alarmRingingState.value = AlarmRingingState.Snoozed(
                 snoozedTimeDisplay = getSnoozedAlarmTimeDisplay(
                     hour = calendar.get(Calendar.HOUR_OF_DAY),
                     minutes = calendar.get(Calendar.MINUTE),

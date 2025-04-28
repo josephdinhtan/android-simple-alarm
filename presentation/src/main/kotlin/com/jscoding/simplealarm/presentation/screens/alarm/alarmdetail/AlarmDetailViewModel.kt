@@ -16,6 +16,7 @@ import com.jscoding.simplealarm.domain.usecase.others.StartPlayToneUseCase
 import com.jscoding.simplealarm.domain.usecase.others.StopPlayToneUseCase
 import com.jscoding.simplealarm.presentation.utils.default
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -93,7 +94,7 @@ class AlarmDetailViewModel @Inject constructor(
         val calendar = Calendar.getInstance()
         val hour24hrs: Int = calendar.get(Calendar.HOUR_OF_DAY)
         val minutes: Int = calendar.get(Calendar.MINUTE)
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launchIo {
             val defaultRingtone = settingsRepository.getDefaultRingtone()
             val newAlarm = Alarm(
                 hour = hour24hrs,
@@ -113,7 +114,7 @@ class AlarmDetailViewModel @Inject constructor(
     }
 
     private fun setupEditAlarm(alarmId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launchIo {
             currentAlarm = getAlarmByIdUseCase(alarmId) ?: Alarm.default()
             currentAlarm?.let {
                 _uiState.value = UiState.Success(it, false)
@@ -123,7 +124,7 @@ class AlarmDetailViewModel @Inject constructor(
 
     fun deleteAlarm() {
         currentAlarm?.let {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launchIo {
                 deleteAlarmUseCase(it)
             }
         }
@@ -135,7 +136,7 @@ class AlarmDetailViewModel @Inject constructor(
 
         if (state !is UiState.Success || alarm == null) return
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launchIo {
             if (state.isNewAlarm) {
                 val result = addAlarmUseCase(alarm)
                 result.onSuccess {
@@ -171,7 +172,7 @@ class AlarmDetailViewModel @Inject constructor(
 
     // Ringtone Screen
     fun setupRingtoneScreen() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launchIo {
             val systemRingtones = systemSettingsManager.getRingtones()
             val defaultRingtone = systemSettingsManager.getDefaultRingtone()
             val allRingtones =
@@ -191,7 +192,7 @@ class AlarmDetailViewModel @Inject constructor(
 
     fun onRingtoneSelectedAndPlayTone(ringtone: Ringtone) {
         _selectedRingtone.value = ringtone
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launchIo {
             stopPlayToneUseCase()
             delay(100)
             startPlayToneUseCase(ringtone)
@@ -202,5 +203,11 @@ class AlarmDetailViewModel @Inject constructor(
     fun stopPlayTone() {
         stopPlayToneUseCase()
         _isTonePlaying.value = false
+    }
+
+    private fun CoroutineScope.launchIo(block: suspend ()  -> Unit) {
+        launch(Dispatchers.IO) {
+            block()
+        }
     }
 }

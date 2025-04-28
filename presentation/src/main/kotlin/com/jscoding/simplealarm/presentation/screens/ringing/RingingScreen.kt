@@ -88,21 +88,6 @@ fun RingingScreen(
     }
 }
 
-//class VibratorCompat(private val context: Context) {
-//    fun vibrate() {
-//        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-//        vibrator?.let {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                it.vibrate(
-//                    VibrationEffect.createWaveform(longArrayOf(0, 500, 500), 0)
-//                )
-//            } else {
-//                it.vibrate(longArrayOf(0, 500, 500), 0)
-//            }
-//        }
-//    }
-//}
-
 @Composable
 fun SlideActionTrack(
     modifier: Modifier = Modifier,
@@ -138,7 +123,6 @@ fun SlideActionTrack(
             Modifier
                 .width(trackWidth)
                 .height(ballHeight)
-                .padding(6.dp)
                 .pointerInput(Unit) {
                     coroutineScope {
                         detectDragGestures(onDragEnd = {
@@ -176,6 +160,7 @@ fun SlideActionTrack(
                 Modifier
                     .height(ballHeight)
                     .width(ballWidth)
+                    .padding(6.dp)
                     .offset { IntOffset(offsetX.value.toInt(), 0) }
                     .background(Color(0xFFEAA421), shape)
             ) {

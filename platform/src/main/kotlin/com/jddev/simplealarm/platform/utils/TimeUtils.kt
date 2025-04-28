@@ -1,7 +1,7 @@
 package com.jddev.simplealarm.platform.utils
 
-import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
+import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle

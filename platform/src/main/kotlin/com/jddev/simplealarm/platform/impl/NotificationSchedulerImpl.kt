@@ -89,10 +89,10 @@ class NotificationSchedulerImpl @Inject constructor(
     }
 
     private fun Long.toScheduleId(dayOfWeek: DayOfWeek): Int {
-        return this.toInt() * 1000 + dayOfWeek.value
+        return this.toInt() * 100 + 51 + dayOfWeek.value
     }
 
     private fun Long.toScheduleId(): Int {
-        return this.toInt() * 1000
+        return this.toInt() * 100 + 50
     }
 }

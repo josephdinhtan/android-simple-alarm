@@ -14,8 +14,9 @@ class NotificationControllerImpl @Inject constructor(
 ) : AlarmNotificationController {
 
     override fun cancelAlarmNotification(alarm: Alarm) {
-        Timber.d("Cancel notification alarm: ${alarm.label}, id: ${alarm.id}")
-        notificationHelper.cancelNotification(alarm.id.toInt())
+        val notificationId = alarm.id.toInt()
+        Timber.d("Cancel notification alarm: ${alarm.label}, id: ${alarm.id}, notificationId: $notificationId")
+        notificationHelper.cancelNotification(notificationId)
     }
 
     override fun showAlarmNotification(
@@ -25,9 +26,10 @@ class NotificationControllerImpl @Inject constructor(
         type: NotificationType,
         actions: List<NotificationAction>,
     ) {
+        val notificationId = alarm.id.toInt()
         val notificationContent = getAlarmTimeDisplay(
             hour = alarm.hour,
-            minutes = alarm.hour,
+            minutes = alarm.minute,
             is24HourFormat,
         )
 
@@ -41,7 +43,7 @@ class NotificationControllerImpl @Inject constructor(
         )
         // safe in background, no need withContext here
         notificationHelper.showNotification(
-            alarm.id.toInt(),
+            notificationId,
             notification
         )
     }

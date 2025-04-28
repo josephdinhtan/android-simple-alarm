@@ -45,10 +45,10 @@ class AlarmSchedulerImpl @Inject constructor(
     }
 
     private fun Long.toScheduleId(dayOfWeek: DayOfWeek): Int {
-        return this.toInt() * 10 + dayOfWeek.value
+        return this.toInt() * 100 + dayOfWeek.value + 1
     }
 
     private fun Long.toScheduleId(): Int {
-        return this.toInt() * 10
+        return this.toInt() * 100
     }
 }

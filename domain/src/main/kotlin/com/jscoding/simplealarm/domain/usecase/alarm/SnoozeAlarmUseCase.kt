@@ -4,6 +4,7 @@ import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 import com.jscoding.simplealarm.domain.platform.AlarmRingingController
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
+import com.jscoding.simplealarm.domain.usecase.others.ShowNotificationUseCase
 import java.util.Calendar
 import javax.inject.Inject
 import kotlin.time.Duration
@@ -34,7 +35,7 @@ class SnoozeAlarmUseCase @Inject constructor(
 
         // show snooze notification
         showNotificationUseCase(
-            alarm,
+            snoozeAlarm,
             "Alarm snoozed",
             NotificationType.ALARM_SNOOZE
         )

@@ -1,4 +1,4 @@
-package com.jscoding.simplealarm.domain.usecase.alarm
+package com.jscoding.simplealarm.domain.usecase.others
 
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationAction

@@ -7,11 +7,11 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import com.jddev.simplealarm.platform.impl.AlarmSchedulerImpl
-import com.jddev.simplealarm.platform.impl.TonePlayerImpl
 import com.jddev.simplealarm.platform.impl.NotificationSchedulerImpl
 import com.jddev.simplealarm.platform.impl.SystemSettingsManagerImpl
-import com.jscoding.simplealarm.domain.platform.AlarmScheduler
+import com.jddev.simplealarm.platform.impl.TonePlayerImpl
 import com.jscoding.simplealarm.domain.platform.AlarmNotificationScheduler
+import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
 import dagger.Binds
 import dagger.Module

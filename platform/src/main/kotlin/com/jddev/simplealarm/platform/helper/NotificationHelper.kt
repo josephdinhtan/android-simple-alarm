@@ -32,7 +32,7 @@ class NotificationHelper @Inject constructor(
         NotificationManager.IMPORTANCE_HIGH
     ).also {
         it.setSound(null, null)
-        it.enableVibration(true)
+        it.enableVibration(false)
         it.enableLights(true)
         it.setShowBadge(false)
         it.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
@@ -162,56 +162,6 @@ class NotificationHelper @Inject constructor(
         with(NotificationManagerCompat.from(context)) {
             cancel(notificationId)
         }
-    }
-
-    fun createOngoingAlarmNotification(
-        title: String,
-        contentText: String,
-        alarmId: Long,
-    ): Notification {
-        // show ringing activity
-        val fullScreenIntent = Intent(
-            context,
-            com.jddev.simplealarm.platform.activity.RingingActivity::class.java
-        ).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra("alarmId", alarmId)
-        }
-        val fullScreenPendingIntent = PendingIntent.getActivity(
-            context, 0, fullScreenIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        val dismissPendingIntent =
-            getActionPendingIntent(
-                context,
-                alarmId,
-                AlarmRingingService.ACTION_DISMISS_ALARM_FROM_NOTIFICATION
-            )
-        val snoozePendingIntent =
-            getActionPendingIntent(
-                context,
-                alarmId,
-                AlarmRingingService.ACTION_SNOOZE_ALARM_FROM_NOTIFICATION
-            )
-
-        return NotificationCompat.Builder(context, FIRING_NOTIFICATION_CHANNEL_ID)
-            .setContentTitle(title)
-            .setContentText(contentText)
-            .setSmallIcon(R.drawable.ic_alarm_clock_2)
-            .setOngoing(true)
-            .setCategory(NotificationCompat.CATEGORY_ALARM) // treated as alarm
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setFullScreenIntent(fullScreenPendingIntent, true)
-            .setContentIntent(fullScreenPendingIntent)
-            .setAutoCancel(false)
-            .addAction(0, "Dismiss", dismissPendingIntent)
-            .addAction(0, "Snooze", snoozePendingIntent)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .build().apply {
-                flags = flags or Notification.FLAG_NO_CLEAR
-            }
     }
 
     fun createTemporaryRingingNotification(context: Context): Notification {

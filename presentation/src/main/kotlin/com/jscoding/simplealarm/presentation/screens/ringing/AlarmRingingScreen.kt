@@ -18,34 +18,34 @@ fun AlarmRingingScreen(
     LaunchedEffect(alarmId) {
         viewModel.setupAlarm(alarmId)
     }
-    val alarmKlaxonState = viewModel.alarmKlaxonState.collectAsState().value
+    val alarmRingingState = viewModel.alarmRingingState.collectAsState().value
     val shouldFinish = viewModel.shouldFinish.collectAsState().value
     LaunchedEffect(shouldFinish) {
         if (shouldFinish) {
             onFinished()
         }
     }
-    AniVisibility(visible = alarmKlaxonState is AlarmKlaxonState.Ringing) {
-        if (alarmKlaxonState is AlarmKlaxonState.Ringing) {
+    AniVisibility(visible = alarmRingingState is AlarmRingingState.Ringing) {
+        if (alarmRingingState is AlarmRingingState.Ringing) {
             RingingScreen(
-                time = alarmKlaxonState.timeDisplay,
-                label = alarmKlaxonState.label,
+                time = alarmRingingState.timeDisplay,
+                label = alarmRingingState.label,
                 onSnooze = { viewModel.snoozeAlarm() },
                 onDismiss = { viewModel.dismissAlarm() }
             )
         }
     }
 
-    AniVisibility(visible = alarmKlaxonState is AlarmKlaxonState.Snoozed) {
-        if (alarmKlaxonState is AlarmKlaxonState.Snoozed) {
+    AniVisibility(visible = alarmRingingState is AlarmRingingState.Snoozed) {
+        if (alarmRingingState is AlarmRingingState.Snoozed) {
             SnoozedScreen(
-                snoozedTimeDisplay = alarmKlaxonState.snoozedTimeDisplay,
+                snoozedTimeDisplay = alarmRingingState.snoozedTimeDisplay,
                 onFinished = { viewModel.finish() }
             )
         }
     }
 
-    AniVisibility(visible = alarmKlaxonState is AlarmKlaxonState.Dismissed) {
+    AniVisibility(visible = alarmRingingState is AlarmRingingState.Dismissed) {
         DismissScreen(onFinished = { viewModel.finish() })
     }
 }
