@@ -2,6 +2,7 @@ package com.jscoding.simplealarm.domain.usecase.alarm
 
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.exceptions.AlarmAlreadyExistsException
+import com.jscoding.simplealarm.domain.entity.exceptions.NotificationNotAllowException
 import com.jscoding.simplealarm.domain.platform.AlarmNotificationScheduler
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
@@ -19,17 +20,23 @@ class AddAlarmUseCase @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
 ) {
     suspend operator fun invoke(alarm: Alarm): Result<Unit> {
+        if (!notificationController.isScheduleNotificationAllowed()) {
+            return Result.failure(NotificationNotAllowException())
+        }
+
         // Check whether alarm is duplicated or not, if already existed no adding new Alarm
         val alarms = repository.getAllAlarms().firstOrNull()
         if (alarms != null && alarms.any { it.isSameAlarm(alarm) }) {
             return Result.failure(AlarmAlreadyExistsException())
         }
-        val alarmId = repository.insertAlarm(alarm)
+        val result = repository.insertAlarm(alarm)
+        val alarmId =
+            result.getOrNull() ?: return Result.failure(Exception("Failed to insert alarm"))
 
         if (alarm.enabled) {
             val scheduleAlarm = alarm.copy(id = alarmId)
             alarmScheduler.schedule(scheduleAlarm)
-            if(alarm.preAlarmNotificationDuration != Duration.ZERO) {
+            if (alarm.preAlarmNotificationDuration != Duration.ZERO) {
                 val is24HourFormat = settingsRepository.getIs24HourFormat()
                 notificationController.schedule(scheduleAlarm, is24HourFormat)
             }

@@ -16,11 +16,51 @@ class AlarmRepositoryImpl @Inject constructor(
     override fun getAllAlarms(): Flow<List<Alarm>> =
         alarmDao.getAllAlarms().map { list -> list.map { it.toDomain() } }
 
-    override suspend fun insertAlarm(alarm: Alarm): Long = alarmDao.insert(alarm.toEntity())
+    override suspend fun insertAlarm(alarm: Alarm) =
+        try {
+            val insertedId = alarmDao.insert(alarm.toEntity())
+            if (insertedId > 0) {
+                Result.success(insertedId)
+            } else {
+                Result.failure(Exception("Failed to insert alarm"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 
-    override suspend fun updateAlarm(alarm: Alarm) = alarmDao.update(alarm.toEntity())
+    override suspend fun updateAlarm(alarm: Alarm) =
+        try {
+            val updatedRows = alarmDao.update(alarm.toEntity())
+            if (updatedRows > 0) {
+                Result.success(updatedRows)
+            } else {
+                Result.failure(Exception("Failed to update alarm"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 
-    override suspend fun deleteAlarm(alarm: Alarm) = alarmDao.deleteById(alarm.id)
+    override suspend fun deleteAlarm(alarm: Alarm) =
+        try {
+            val deletedRows = alarmDao.delete(alarm.toEntity())
+            if (deletedRows > 0) {
+                Result.success(deletedRows)
+            } else {
+                Result.failure(Exception("Failed to delete alarm"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 
-    override suspend fun getAlarmById(id: Long): Alarm? = alarmDao.getById(id)?.toDomain()
+    override suspend fun getAlarmById(id: Long) =
+        try {
+            val alarmEntity = alarmDao.getById(id)
+            if (alarmEntity != null) {
+                Result.success(alarmEntity.toDomain())
+            } else {
+                Result.failure(Exception("Alarm not found"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 }

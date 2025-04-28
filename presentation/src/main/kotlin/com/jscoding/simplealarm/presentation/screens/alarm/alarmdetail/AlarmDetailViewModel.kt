@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 import com.jscoding.simplealarm.domain.entity.exceptions.AlarmAlreadyExistsException
+import com.jscoding.simplealarm.domain.entity.exceptions.NotificationNotAllowException
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import com.jscoding.simplealarm.domain.usecase.alarm.AddAlarmUseCase
@@ -46,6 +47,7 @@ class AlarmDetailViewModel @Inject constructor(
 
     sealed interface AlarmDetailEvent {
         data object SaveSuccess : AlarmDetailEvent
+        data object NotificationNotAllow : AlarmDetailEvent
         data class Error(val message: String, val needExit: Boolean = false) : AlarmDetailEvent
     }
 
@@ -116,6 +118,7 @@ class AlarmDetailViewModel @Inject constructor(
     private fun setupEditAlarm(alarmId: Long) {
         viewModelScope.launchIo {
             currentAlarm = getAlarmByIdUseCase(alarmId) ?: Alarm.default()
+
             currentAlarm?.let {
                 _uiState.value = UiState.Success(it, false)
             }
@@ -142,14 +145,22 @@ class AlarmDetailViewModel @Inject constructor(
                 result.onSuccess {
                     _eventFlow.emit(AlarmDetailEvent.SaveSuccess)
                 }.onFailure { exception ->
-                    if (exception is AlarmAlreadyExistsException) {
-                        _eventFlow.emit(AlarmDetailEvent.Error(exception.message, true))
-                    } else {
-                        _eventFlow.emit(
-                            AlarmDetailEvent.Error(
-                                exception.message ?: "Unknown error", true
+                    when (exception) {
+                        is AlarmAlreadyExistsException -> {
+                            _eventFlow.emit(AlarmDetailEvent.Error(exception.message, true))
+                        }
+
+                        is NotificationNotAllowException -> {
+                            _eventFlow.emit(AlarmDetailEvent.NotificationNotAllow)
+                        }
+
+                        else -> {
+                            _eventFlow.emit(
+                                AlarmDetailEvent.Error(
+                                    exception.message ?: "Unknown error", true
+                                )
                             )
-                        )
+                        }
                     }
                 }
             } else {
@@ -205,7 +216,7 @@ class AlarmDetailViewModel @Inject constructor(
         _isTonePlaying.value = false
     }
 
-    private fun CoroutineScope.launchIo(block: suspend ()  -> Unit) {
+    private fun CoroutineScope.launchIo(block: suspend () -> Unit) {
         launch(Dispatchers.IO) {
             block()
         }

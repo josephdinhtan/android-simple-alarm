@@ -17,13 +17,13 @@ interface AlarmDao {
     suspend fun insert(alarm: AlarmEntity): Long
 
     @Delete
-    suspend fun delete(alarm: AlarmEntity)
+    suspend fun delete(alarm: AlarmEntity): Int
 
     @Query("DELETE FROM alarms WHERE id = :alarmId")
-    suspend fun deleteById(alarmId: Long)
+    suspend fun deleteById(alarmId: Long): Int
 
     @Update
-    suspend fun update(alarm: AlarmEntity)
+    suspend fun update(alarm: AlarmEntity): Int
 
     @Query("SELECT * FROM alarms WHERE id = :id")
     suspend fun getById(id: Long): AlarmEntity?

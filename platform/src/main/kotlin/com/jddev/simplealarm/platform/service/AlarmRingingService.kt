@@ -99,7 +99,8 @@ class AlarmRingingService : LifecycleService() {
         startForegroundPlaceHolder(alarmId)
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val alarm = alarmRepository.getAlarmById(alarmId) ?: run {
+            val result = alarmRepository.getAlarmById(alarmId)
+            val alarm = result.getOrNull() ?: run {
                 Timber.e("Alarm not found for ID $alarmId")
                 stopSelf()
                 return@launch

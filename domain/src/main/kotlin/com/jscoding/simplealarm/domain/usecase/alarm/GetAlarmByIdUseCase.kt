@@ -10,6 +10,7 @@ class GetAlarmByIdUseCase @Inject constructor(
     private val repository: AlarmRepository,
 ) {
     suspend operator fun invoke(alarmId: Long): Alarm? {
-        return repository.getAlarmById(alarmId)
+        val result = repository.getAlarmById(alarmId)
+        return result.getOrNull()
     }
 }

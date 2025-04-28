@@ -4,12 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.jscoding.simplealarm.presentation.screens.HomeScreen
-import com.jscoding.simplealarm.presentation.screens.alarm.alarmdetail.alarmDetailNavGraph
-import com.jscoding.simplealarm.presentation.screens.settings.settingsNavGraph
 import com.jddev.simpletouch.ui.foundation.StUiDoubleBackHandler
 import com.jddev.simpletouch.ui.navigation.StUiNavHost
 import com.jddev.simpletouch.ui.navigation.navigateSingleTop
+import com.jscoding.simplealarm.presentation.screens.HomeScreen
+import com.jscoding.simplealarm.presentation.screens.alarm.alarmdetail.alarmDetailNavGraph
+import com.jscoding.simplealarm.presentation.screens.settings.settingsNavGraph
 
 @Composable
 fun RootNavGraph(

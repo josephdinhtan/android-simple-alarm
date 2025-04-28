@@ -1,6 +1,9 @@
 package com.jscoding.simplealarm.presentation.screens.alarm.alarmdetail
 
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -78,6 +81,16 @@ fun DetailAlarmRoute(
     val is24hFormat by viewModel.is24hFormat.collectAsState()
     val context = LocalContext.current
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(context, "Notification permission granted", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Notification permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collectLatest { state ->
             when (state) {
@@ -94,6 +107,12 @@ fun DetailAlarmRoute(
                     ).show()
                     if (state.needExit) {
                         onBack()
+                    }
+                }
+
+                is AlarmDetailViewModel.AlarmDetailEvent.NotificationNotAllow -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                     }
                 }
             }
