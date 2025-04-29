@@ -62,6 +62,11 @@ dependencies {
     // Lottie animation
     implementation(libs.lottie)
 
+    // Glace Widget
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.appwidget.preview)
+    implementation(libs.androidx.glance.preview)
+
     implementation(libs.timber)
 
     implementation(libs.androidx.lifecycle.runtime.ktx)

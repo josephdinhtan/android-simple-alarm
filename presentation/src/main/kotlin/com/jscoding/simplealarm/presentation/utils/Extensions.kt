@@ -3,6 +3,7 @@ package com.jscoding.simplealarm.presentation.utils
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
+import com.jscoding.simplealarm.presentation.widget.model.AlarmWidgetModel
 import kotlin.time.Duration.Companion.minutes
 
 fun Alarm.toStringTimeDisplay(is24HourFormat: Boolean): String {
@@ -23,7 +24,29 @@ fun Alarm.toStringTimeDisplay(is24HourFormat: Boolean): String {
     }
 }
 
+fun AlarmWidgetModel.toStringTimeDisplay(is24HourFormat: Boolean): String {
+    return when (is24HourFormat) {
+        true -> "${hour.toString().padStart(2, '0')}:${
+            minute.toString().padStart(2, '0')
+        }"
+
+        false -> {
+            val hour12 = when {
+                hour == 0 -> 12
+                hour > 12 -> hour - 12
+                else -> hour
+            }
+            val minutesStr = minute.toString().padStart(2, '0')
+            "$hour12:$minutesStr"
+        }
+    }
+}
+
 fun Alarm.toAmPmNotationStr(): String {
+    return if (hour < 12) "AM" else "PM"
+}
+
+fun AlarmWidgetModel.toAmPmNotationStr(): String {
     return if (hour < 12) "AM" else "PM"
 }
 

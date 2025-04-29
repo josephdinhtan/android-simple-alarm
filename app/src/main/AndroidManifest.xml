@@ -42,20 +42,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".platform.activity.RingingActivity"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
-
-        <service
-            android:name=".platform.service.AlarmRingingService"
-            android:enabled="true"
-            android:exported="false"
-            android:directBootAware="true"
-            android:foregroundServiceType="shortService|mediaPlayback"
-            android:permission="android.permission.FOREGROUND_SERVICE"/>
-        <receiver android:name=".platform.receiver.AlarmReceiver" />
     </application>
-
 </manifest>
