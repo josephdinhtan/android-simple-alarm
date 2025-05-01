@@ -13,4 +13,5 @@ interface AlarmNotificationController {
         type: NotificationType,
         actions: List<NotificationAction>,
     )
+    fun isNotificationAllowed(): Boolean
 }

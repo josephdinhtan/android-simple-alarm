@@ -14,7 +14,7 @@ import com.jddev.simplealarm.platform.utils.calculateNextTriggerTime
 import com.jddev.simplealarm.platform.utils.calculateTriggerTime
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
-import com.jscoding.simplealarm.domain.platform.AlarmNotificationScheduler
+import com.jscoding.simplealarm.domain.platform.AlarmPreNotificationScheduler
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -22,7 +22,7 @@ import javax.inject.Inject
 class NotificationSchedulerImpl @Inject constructor(
     private val alarmManagerHelper: AlarmManagerHelper,
     private val context: Context,
-) : AlarmNotificationScheduler {
+) : AlarmPreNotificationScheduler {
 
     override fun schedule(alarm: Alarm) {
         if (alarm.repeatDays.isEmpty()) {

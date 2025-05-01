@@ -2,7 +2,7 @@ package com.jscoding.simplealarm.domain.usecase.alarm
 
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.exceptions.NotificationNotAllowException
-import com.jscoding.simplealarm.domain.platform.AlarmNotificationScheduler
+import com.jscoding.simplealarm.domain.platform.AlarmPreNotificationScheduler
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
@@ -14,8 +14,7 @@ import kotlin.time.Duration
 class UpdateAlarmUseCase @Inject constructor(
     private val alarmRepository: AlarmRepository,
     private val alarmScheduler: AlarmScheduler,
-    private val settingsRepository: SettingsRepository,
-    private val notificationController: AlarmNotificationScheduler,
+    private val notificationController: AlarmPreNotificationScheduler,
 ) {
     suspend operator fun invoke(alarm: Alarm): Result<Unit> {
         if (!notificationController.isScheduleNotificationAllowed()) {
