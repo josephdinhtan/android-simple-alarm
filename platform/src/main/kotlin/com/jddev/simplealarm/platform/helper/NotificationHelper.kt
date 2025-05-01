@@ -59,11 +59,22 @@ class NotificationHelper @Inject constructor(
         it.enableLights(true)
         it.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
     }
+    private val channelMissedAlarmsNotification = NotificationChannel(
+        ALARM_MISSED_NOTIFICATION_CHANNEL_ID,
+        "Missed alarms",
+        NotificationManager.IMPORTANCE_DEFAULT
+    ).also {
+        it.setSound(null, null)
+        it.enableVibration(false)
+        it.enableLights(false)
+        it.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+    }
 
     fun createNotificationChannels() {
         notificationManager.createNotificationChannel(channelFiringAlarmNotification)
         notificationManager.createNotificationChannel(channelSnoozedAlarmNotification)
         notificationManager.createNotificationChannel(channelUpcomingAlarmNotification)
+        notificationManager.createNotificationChannel(channelMissedAlarmsNotification)
     }
 
     fun showNotification(notificationChannelId: Int, notification: Notification) {

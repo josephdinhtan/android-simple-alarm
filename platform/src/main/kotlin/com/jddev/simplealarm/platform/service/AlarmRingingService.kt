@@ -8,6 +8,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import com.jddev.simplealarm.platform.activity.AlarmRingingActivity
 import com.jddev.simplealarm.platform.dto.AlarmDto
 import com.jddev.simplealarm.platform.helper.MediaPlayerHelper
@@ -18,7 +19,13 @@ import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationAction
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
+import com.jscoding.simplealarm.domain.usecase.others.CancelNotificationUseCase
+import com.jscoding.simplealarm.domain.usecase.others.ShowNotificationUseCase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import timber.log.Timber
@@ -29,6 +36,7 @@ import java.util.Locale
 import javax.annotation.Nullable
 import javax.inject.Inject
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
@@ -44,10 +52,14 @@ internal class AlarmRingingService : LifecycleService() {
     lateinit var notificationHelper: NotificationHelper
 
     @Inject
+    lateinit var showNotificationUseCase: ShowNotificationUseCase
+
+    @Inject
     @JvmField
     @field:Nullable
     var vibrator: Vibrator? = null
 
+    private var alarmFiringTimeOutJob: Job? = null
     private var isAlarmRinging = false
 
     override fun onCreate() {
@@ -137,8 +149,18 @@ internal class AlarmRingingService : LifecycleService() {
             }
         }
 
-    private fun missedAlarm() {
+    override fun onDestroy() {
+        super.onDestroy()
+        Timber.d("onDestroy")
+        alarmFiringTimeOutJob?.cancel()
+    }
+
+    private fun missedAlarm(alarm: Alarm) {
+        Timber.d("missedAlarm alarm: ${alarm.label}, id: ${alarm.id}")
         // show missedAlarm notification
+        lifecycleScope.launch(Dispatchers.IO) {
+            showNotificationUseCase(alarm, "Missed Alarm", NotificationType.ALARM_MISSED)
+        }
     }
 
     private fun cleanupAndFinishService() {
@@ -172,6 +194,16 @@ internal class AlarmRingingService : LifecycleService() {
         }
         // Wake up screen
         wakeUpScreen(this@AlarmRingingService.applicationContext)
+
+        // Timeout monitor
+        alarmFiringTimeOutJob?.cancel()
+        alarmFiringTimeOutJob = lifecycleScope.launch(Dispatchers.IO) {
+            delay(5.minutes.inWholeMilliseconds)
+            missedAlarm(alarm)
+            delay(100)
+            stopAlarmRingtone()
+            cleanupAndFinishService()
+        }
     }
 
     private fun wakeUpScreen(context: Context) {
