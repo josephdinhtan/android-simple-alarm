@@ -6,7 +6,10 @@ import com.jscoding.simplealarm.domain.entity.exceptions.NotificationNotAllowExc
 import com.jscoding.simplealarm.domain.platform.AlarmPreNotificationScheduler
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
+import com.jscoding.simplealarm.domain.utils.getNextTriggerTime
+import com.jscoding.simplealarm.domain.utils.getPreAlarmNotificationTime
 import kotlinx.coroutines.flow.firstOrNull
+import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration
@@ -16,6 +19,7 @@ class AddAlarmUseCase @Inject constructor(
     private val repository: AlarmRepository,
     private val notificationController: AlarmPreNotificationScheduler,
     private val alarmScheduler: AlarmScheduler,
+    private val preNotificationScheduler: AlarmPreNotificationScheduler,
 ) {
     suspend operator fun invoke(alarm: Alarm): Result<Unit> {
         if (!notificationController.isScheduleNotificationAllowed()) {
@@ -33,9 +37,11 @@ class AddAlarmUseCase @Inject constructor(
 
         if (alarm.enabled) {
             val scheduleAlarm = alarm.copy(id = alarmId)
-            alarmScheduler.schedule(scheduleAlarm)
-            if (alarm.preAlarmNotificationDuration != Duration.ZERO) {
-                notificationController.schedule(scheduleAlarm)
+            val nextAlarmTrigger = scheduleAlarm.getNextTriggerTime(LocalDateTime.now())
+            alarmScheduler.schedule(scheduleAlarm, nextAlarmTrigger)
+
+            scheduleAlarm.getPreAlarmNotificationTime(LocalDateTime.now())?.let {
+                preNotificationScheduler.schedule(scheduleAlarm, it)
             }
         }
         return Result.success(Unit)

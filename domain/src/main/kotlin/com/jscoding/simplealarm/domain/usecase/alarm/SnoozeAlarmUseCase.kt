@@ -5,6 +5,7 @@ import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 import com.jscoding.simplealarm.domain.platform.AlarmRingingController
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.usecase.others.ShowNotificationUseCase
+import com.jscoding.simplealarm.domain.utils.getNextTriggerTime
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
@@ -33,7 +34,7 @@ class SnoozeAlarmUseCase @Inject constructor(
         )
         Timber.d("Snooze alarm: ${snoozeAlarm.label}, id: ${snoozeAlarm.id}")
 
-        alarmScheduler.schedule(snoozeAlarm)
+        alarmScheduler.schedule(snoozeAlarm, snoozeAlarm.getNextTriggerTime())
 
         // show snooze notification
         showNotificationUseCase(

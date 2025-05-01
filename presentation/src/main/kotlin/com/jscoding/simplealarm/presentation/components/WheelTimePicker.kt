@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,7 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.jddev.simpletouch.ui.utils.StUiPreview
 import com.jddev.simpletouch.ui.utils.StUiPreviewWrapper
 import timber.log.Timber
@@ -75,7 +79,6 @@ fun WheelTimePicker(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Hours Picker
@@ -94,8 +97,10 @@ fun WheelTimePicker(
                         }
                     },
                     wheelTilt = WheelTilt.LEFT,
-                    modifier = Modifier.width(80.dp)
+                    modifier = Modifier.width(80.dp).weight(1f)
                 )
+
+                Text(":", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold))
 
                 // Minutes Picker
                 TextWheelPicker(
@@ -112,8 +117,8 @@ fun WheelTimePicker(
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         }
                     },
-                    wheelTilt = WheelTilt.CENTER,
-                    modifier = Modifier.width(80.dp)
+                    wheelTilt = WheelTilt.RIGHT,
+                    modifier = Modifier.width(80.dp).weight(1f)
                 )
 
                 if (!is24Hour) {
@@ -133,7 +138,7 @@ fun WheelTimePicker(
                         },
                         wheelTilt = WheelTilt.RIGHT,
                         visibleItemCount = 3,
-                        modifier = Modifier.width(80.dp)
+                        modifier = Modifier.width(80.dp).weight(1f)
                     )
                 }
             }
@@ -166,7 +171,7 @@ private fun getHourMilitary(hourIndex: Int, is24Hour: Boolean, isPm: Boolean = f
 @StUiPreview
 private fun Preview() {
     StUiPreviewWrapper {
-        WheelTimePicker(initHour = 9, initMinute = 0, is24Hour = false, onTimeSelected = { _, _ ->
+        WheelTimePicker(initHour = 9, initMinute = 30, is24Hour = false, onTimeSelected = { _, _ ->
         })
     }
 }

@@ -15,6 +15,8 @@ import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import timber.log.Timber
+import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 
 class AlarmSchedulerImpl @Inject constructor(
@@ -22,31 +24,19 @@ class AlarmSchedulerImpl @Inject constructor(
     private val context: Context,
 ) : AlarmScheduler {
 
-    override fun schedule(alarm: Alarm) {
-        if (alarm.repeatDays.isEmpty()) {
-            val triggerTime = calculateTriggerTime(alarm.hour, alarm.minute)
-            val pendingIntent = provideAlarmIntent(
-                context,
-                alarm.toDto(),
-                alarm.id.toScheduleId()
-            )
-            Timber.d("Alarm scheduled for id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, time: ${alarm.hour}:${alarm.minute}")
-            alarmManagerHelper.schedule(pendingIntent, triggerTime)
-        } else {
-            alarm.repeatDays.forEach { dayOfWeek ->
-                val triggerTime = calculateNextTriggerTime(dayOfWeek, alarm.hour, alarm.minute)
-                val pendingIntent = provideAlarmIntent(
-                    context,
-                    alarm.toDto(),
-                    alarm.id.toScheduleId(dayOfWeek)
-                )
-                Timber.d("Alarm scheduled for id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, time: ${alarm.hour}:${alarm.minute}, dayOfWeek: $dayOfWeek")
-                alarmManagerHelper.schedule(pendingIntent, triggerTime)
-            }
-        }
+    override fun schedule(alarm: Alarm, triggerAt: LocalDateTime) {
+        val triggerAtMillis = triggerAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val pendingIntent = provideAlarmIntent(
+            context,
+            alarm.toDto(),
+            alarm.id.toScheduleId()
+        )
+        Timber.d("Alarm scheduled for id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, time: ${alarm.hour}:${alarm.minute}")
+        alarmManagerHelper.schedule(pendingIntent, triggerAtMillis)
     }
 
     override fun cancel(alarm: Alarm) {
+        Timber.d("Cancel Alarm id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, time: ${alarm.hour}:${alarm.minute}")
         alarmManagerHelper.cancel(
             provideAlarmIntent(
                 context,
@@ -54,16 +44,6 @@ class AlarmSchedulerImpl @Inject constructor(
                 alarm.id.toScheduleId()
             )
         )
-
-        Timber.d("Cancel Alarm id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, time: ${alarm.hour}:${alarm.minute}")
-        for (dayOfWeek in DayOfWeek.entries) {
-            val pendingIntent = provideAlarmIntent(
-                context,
-                alarm.toDto(),
-                alarm.id.toScheduleId(dayOfWeek)
-            )
-            alarmManagerHelper.cancel(pendingIntent)
-        }
     }
 
     private fun provideAlarmIntent(
@@ -84,9 +64,9 @@ class AlarmSchedulerImpl @Inject constructor(
         )
     }
 
-    private fun Long.toScheduleId(dayOfWeek: DayOfWeek): Int {
-        return this.toInt() * 100 + dayOfWeek.value + 1
-    }
+//    private fun Long.toScheduleId(dayOfWeek: DayOfWeek): Int {
+//        return this.toInt() * 100 + dayOfWeek.value + 1
+//    }
 
     private fun Long.toScheduleId(): Int {
         return this.toInt() * 100

@@ -17,6 +17,8 @@ import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.domain.platform.AlarmPreNotificationScheduler
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 
 class NotificationSchedulerImpl @Inject constructor(
@@ -24,26 +26,14 @@ class NotificationSchedulerImpl @Inject constructor(
     private val context: Context,
 ) : AlarmPreNotificationScheduler {
 
-    override fun schedule(alarm: Alarm) {
-        if (alarm.repeatDays.isEmpty()) {
-            val triggerTime = calculateTriggerTime(alarm.hour, alarm.minute)
-            val pendingIntent = provideNotificationIntent(
-                context = context,
-                alarmDto = alarm.toDto(),
-                scheduleId = alarm.id.toScheduleId()
-            )
-            alarmManagerHelper.schedule(pendingIntent, triggerTime)
-        } else {
-            alarm.repeatDays.forEach { dayOfWeek ->
-                val triggerTime = calculateNextTriggerTime(dayOfWeek, alarm.hour, alarm.minute)
-                val pendingIntent = provideNotificationIntent(
-                    context = context,
-                    alarmDto = alarm.toDto(),
-                    scheduleId = alarm.id.toScheduleId(dayOfWeek)
-                )
-                alarmManagerHelper.schedule(pendingIntent, triggerTime)
-            }
-        }
+    override fun schedule(alarm: Alarm, triggerAt: LocalDateTime) {
+        val triggerAtMillis = triggerAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val pendingIntent = provideNotificationIntent(
+            context = context,
+            alarmDto = alarm.toDto(),
+            scheduleId = alarm.id.toScheduleId()
+        )
+        alarmManagerHelper.schedule(pendingIntent, triggerAtMillis)
     }
 
     override fun cancel(alarm: Alarm) {
@@ -54,14 +44,6 @@ class NotificationSchedulerImpl @Inject constructor(
                 scheduleId = alarm.id.toScheduleId()
             )
         )
-        for (dayOfWeek in DayOfWeek.entries) {
-            val pendingIntent = provideNotificationIntent(
-                context = context,
-                alarmDto = alarm.toDto(),
-                scheduleId = alarm.id.toScheduleId(dayOfWeek)
-            )
-            alarmManagerHelper.cancel(pendingIntent)
-        }
     }
 
     override fun isScheduleNotificationAllowed(): Boolean {
@@ -91,10 +73,6 @@ class NotificationSchedulerImpl @Inject constructor(
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-    }
-
-    private fun Long.toScheduleId(dayOfWeek: DayOfWeek): Int {
-        return this.toInt() * 100 + 51 + dayOfWeek.value
     }
 
     private fun Long.toScheduleId(): Int {
