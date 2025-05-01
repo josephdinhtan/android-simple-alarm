@@ -70,6 +70,7 @@ import com.jscoding.simplealarm.presentation.components.WheelTimePicker
 import com.jscoding.simplealarm.presentation.utils.default
 import com.jscoding.simplealarm.presentation.utils.toDisplayString
 import kotlinx.coroutines.flow.collectLatest
+import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun DetailAlarmRoute(
@@ -194,6 +195,8 @@ private fun AlarmDetailScreen(
     onDelete: ((Alarm?) -> Unit)? = null,
     onCancel: () -> Unit,
 ) {
+    var showAlarmSnoozeLengthDialog by remember { mutableStateOf(false) }
+
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     Scaffold(contentWindowInsets = WindowInsets.safeDrawing, topBar = {
         CenterAlignedTopAppBar(
@@ -240,7 +243,9 @@ private fun AlarmDetailScreen(
                 AlarmNameTextField(
                     alarmName = alarm.label,
                     onAlarmNameChange = { onAlarmValueChange(alarm.copy(label = it)) },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
                 )
             }
 
@@ -284,13 +289,26 @@ private fun AlarmDetailScreen(
                     onCheckedChange = {
                         onAlarmValueChange(alarm.copy(vibration = it))
                     })
-                StSettingsSwitchItem(title = "Snooze",
+                StSettingsNavigateItem(title = "Snooze length",
                     leadingImageVector = Icons.Outlined.MoreTime,
-                    checked = alarm.vibration,
-                    onCheckedChange = {})
+                    subTitle = "${alarm.snoozeTime.inWholeMinutes} minutes",
+                    onClick = {
+                        showAlarmSnoozeLengthDialog = true
+                    }
+                )
             }
         }
     }
+
+    AlarmSnoozeLengthDialog(
+        showDialog = showAlarmSnoozeLengthDialog,
+        selectedSnoozeLength = alarm.snoozeTime.inWholeMinutes.toInt(),
+        onDismissRequest = { showAlarmSnoozeLengthDialog = false },
+        onSelected = {
+            onAlarmValueChange(alarm.copy(snoozeTime = it.minutes))
+            showAlarmSnoozeLengthDialog = false
+        }
+    )
 }
 
 @Composable
@@ -302,7 +320,8 @@ private fun AlarmNameTextField(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    OutlinedTextField(value = alarmName,
+    OutlinedTextField(
+        value = alarmName,
         onValueChange = { newValue ->
             if (newValue.length <= 30) { // Limit to 30 characters
                 onAlarmNameChange(newValue)

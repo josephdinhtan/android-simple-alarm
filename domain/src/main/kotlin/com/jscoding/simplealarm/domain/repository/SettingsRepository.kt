@@ -18,6 +18,7 @@ interface SettingsRepository {
     val volumeFadeDuration: Flow<Duration>
     val themeSetting: Flow<ThemeMode>
     val isUseDynamicColors: Flow<Boolean>
+    val ringingTimeLimit: Flow<Duration>
 
     // One-time reads for domain use cases
     suspend fun getIs24HourFormat(): Boolean
@@ -27,6 +28,7 @@ interface SettingsRepository {
     suspend fun getVolumeFadeDuration(): Duration
     suspend fun getIsFirstTimeStart(): Boolean
     suspend fun getDefaultRingtone(): Ringtone
+    suspend fun getRingingTimeLimit(): Duration
 
     // Setters
     suspend fun set24HourFormat(enabled: Boolean)
@@ -40,4 +42,5 @@ interface SettingsRepository {
     suspend fun setThemeSetting(themeMode: ThemeMode)
     suspend fun setUseDynamicColors(enabled: Boolean)
     suspend fun setIsFirstTimeStart(value: Boolean)
+    suspend fun setRingingTimeLimit(duration: Duration)
 }

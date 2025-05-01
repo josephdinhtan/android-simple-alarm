@@ -27,7 +27,7 @@ internal class AlarmScheduledReceiver : BroadcastReceiver() {
     lateinit var showNotificationUseCase: ShowNotificationUseCase
 
     @Inject
-    lateinit var ringingAlarmUseCase: FiringAlarmUseCase
+    lateinit var firingAlarmUseCase: FiringAlarmUseCase
 
     @Inject
     @CoroutineScopeIO
@@ -43,7 +43,7 @@ internal class AlarmScheduledReceiver : BroadcastReceiver() {
         when (intent.action) {
             ACTION_FIRING_ALARM -> {
                 coroutineScopeIo.launch(NonCancellable) {
-                    ringingAlarmUseCase(alarm)
+                    firingAlarmUseCase(alarm)
                 }
             }
 

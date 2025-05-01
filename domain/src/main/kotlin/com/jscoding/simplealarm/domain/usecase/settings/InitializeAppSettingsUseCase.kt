@@ -37,6 +37,7 @@ class InitializeAppSettingsUseCase @Inject constructor(
             settingsRepository.setVolumeFadeDuration(10.seconds)
             settingsRepository.setThemeSetting(ThemeMode.SYSTEM)
             settingsRepository.setUseDynamicColors(true)
+            settingsRepository.setRingingTimeLimit(5.minutes)
         }
     }
 }

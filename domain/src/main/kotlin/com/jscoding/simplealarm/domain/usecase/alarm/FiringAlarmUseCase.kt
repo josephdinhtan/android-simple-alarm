@@ -12,6 +12,12 @@ class FiringAlarmUseCase @Inject constructor(
     suspend operator fun invoke(alarm: Alarm) {
         val is24HourFormat = settingsRepository.getIs24HourFormat()
         val volumeFadeDuration = settingsRepository.getVolumeFadeDuration()
-        alarmRingingController.startFiringAlarm(alarm, is24HourFormat, volumeFadeDuration)
+        val ringingTimeLimit = settingsRepository.getRingingTimeLimit()
+        alarmRingingController.startFiringAlarm(
+            alarm,
+            is24HourFormat,
+            volumeFadeDuration,
+            ringingTimeLimit
+        )
     }
 }

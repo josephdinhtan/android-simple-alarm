@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -36,6 +38,9 @@ class SettingsViewModel @Inject constructor(
 
     val defaultRingtone = settingsRepository.defaultRingtone
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), Ringtone.Silent)
+
+    val ringingTimeLimit = settingsRepository.ringingTimeLimit
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 5.minutes)
 
     private val _maxAlarmVolume = MutableStateFlow<Int>(10)
     val maxAlarmVolume = _maxAlarmVolume.asStateFlow()
@@ -80,5 +85,11 @@ class SettingsViewModel @Inject constructor(
             setAlarmVolumeUseCase(volume)
         }
         // TODO: consider play sound
+    }
+
+    fun setRingingTimeLimit(duration: Duration) {
+        viewModelScope.launch {
+            settingsRepository.setRingingTimeLimit(duration)
+        }
     }
 }

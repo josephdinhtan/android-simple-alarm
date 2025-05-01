@@ -101,7 +101,7 @@ internal class AlarmRingingService : LifecycleService() {
                     Timber.d("Alarm is not Ringing state, so ignore, finish")
                     stopSelf()
                 } else {
-                    if(action == ACTION_DISMISS_ALARM) {
+                    if (action == ACTION_DISMISS_ALARM) {
                         AlarmRingingActivity.dismiss(this.applicationContext)
                     } else {
                         AlarmRingingActivity.snooze(this.applicationContext)
@@ -119,7 +119,13 @@ internal class AlarmRingingService : LifecycleService() {
                 val is24HourFormat = intent.getBooleanExtra(EXTRA_IS_24H, false)
                 val volumeFadeDuration =
                     intent.getLongExtra(EXTRA_VOLUME_FADE_DURATION, 0)
-                startRingingAndVibrateAlarm(alarm, volumeFadeDuration.seconds)
+                val ringingTimeLimit = intent.getLongExtra(EXTRA_RINGING_LIMIT_DURATION, 5)
+                startRingingAndVibrateAlarm(
+                    alarm,
+                    volumeFadeDuration.seconds,
+                    ringingTimeLimit.minutes
+                )
+
 
                 // update notification
                 val notificationContent = getAlarmTimeDisplay(
@@ -174,7 +180,11 @@ internal class AlarmRingingService : LifecycleService() {
         vibrator?.cancel()
     }
 
-    private fun startRingingAndVibrateAlarm(alarm: Alarm, volumeDuration: Duration) {
+    private fun startRingingAndVibrateAlarm(
+        alarm: Alarm,
+        volumeDuration: Duration,
+        ringingTimeLimit: Duration,
+    ) {
         // Play sound
         if (alarm.ringtone.uri != Uri.EMPTY) {
             val currentVolume = systemSettingsManager.getAlarmVolume().toFloat()
@@ -197,12 +207,16 @@ internal class AlarmRingingService : LifecycleService() {
 
         // Timeout monitor
         alarmFiringTimeOutJob?.cancel()
-        alarmFiringTimeOutJob = lifecycleScope.launch(Dispatchers.IO) {
-            delay(5.minutes.inWholeMilliseconds)
-            missedAlarm(alarm)
-            delay(100)
-            stopAlarmRingtone()
-            cleanupAndFinishService()
+        if(ringingTimeLimit.inWholeMinutes < 0) {
+            Timber.d("If there no action, it'll ringing forever, no limit")
+        } else {
+            alarmFiringTimeOutJob = lifecycleScope.launch(Dispatchers.IO) {
+                delay(ringingTimeLimit)
+                missedAlarm(alarm)
+                delay(100)
+                stopAlarmRingtone()
+                cleanupAndFinishService()
+            }
         }
     }
 
@@ -245,6 +259,7 @@ internal class AlarmRingingService : LifecycleService() {
         const val EXTRA_ALARM = "alarm_dto"
         const val EXTRA_IS_24H = "is_24h"
         const val EXTRA_VOLUME_FADE_DURATION = "volume_fade_duration"
+        const val EXTRA_RINGING_LIMIT_DURATION = "ringing_limit_duration"
 
         const val ACTION_ALARM_RINGING = "com.jddev.simplealarm.ACTION_ALARM_RINGING"
         const val ACTION_DISMISS_ALARM = "com.jddev.simplealarm.ACTION_DISMISS_ALARM"
@@ -255,6 +270,7 @@ internal class AlarmRingingService : LifecycleService() {
             alarm: Alarm,
             is24h: Boolean,
             volumeFadeDuration: Duration,
+            ringingTimeLimit: Duration,
         ) {
             val jsonAlarmDto = Json.encodeToString(alarm.toDto())
             val intent = Intent(context, AlarmRingingService::class.java).apply {
@@ -264,6 +280,10 @@ internal class AlarmRingingService : LifecycleService() {
                 putExtra(
                     EXTRA_VOLUME_FADE_DURATION,
                     volumeFadeDuration.inWholeSeconds
+                )
+                putExtra(
+                    EXTRA_RINGING_LIMIT_DURATION,
+                    ringingTimeLimit.inWholeMinutes
                 )
             }
             ContextCompat.startForegroundService(context, intent)

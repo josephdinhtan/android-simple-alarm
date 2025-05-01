@@ -66,6 +66,10 @@ class SettingsRepositoryImpl @Inject constructor(
     override val isUseDynamicColors: Flow<Boolean> = dataStorePreferences.data.map { preferences ->
         preferences[SettingsPreferencesKeys.useDynamicColors] ?: true
     }
+    override val ringingTimeLimit: Flow<Duration> = dataStorePreferences.data.map { preferences ->
+        val durationMinutes = preferences[SettingsPreferencesKeys.ringingTimeLimit] ?: 5
+        durationMinutes.minutes
+    }
 
     override suspend fun getIs24HourFormat(): Boolean = withContext(Dispatchers.IO) {
         dataStorePreferences.data.first()[SettingsPreferencesKeys.is24HourFormat] ?: true
@@ -111,6 +115,12 @@ class SettingsRepositoryImpl @Inject constructor(
         } else {
             Ringtone.Silent
         }
+    }
+
+    override suspend fun getRingingTimeLimit(): Duration {
+        val durationMinutes =
+            dataStorePreferences.data.first()[SettingsPreferencesKeys.ringingTimeLimit] ?: 5
+        return durationMinutes.minutes
     }
 
     override suspend fun set24HourFormat(enabled: Boolean) = withContext(Dispatchers.IO) {
@@ -190,6 +200,13 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setIsFirstTimeStart(value: Boolean) = withContext(Dispatchers.IO) {
         dataStorePreferences.edit { preferences ->
             preferences[SettingsPreferencesKeys.isFirstTime] = value
+        }
+        Unit
+    }
+
+    override suspend fun setRingingTimeLimit(duration: Duration) = withContext(Dispatchers.IO) {
+        dataStorePreferences.edit { preferences ->
+            preferences[SettingsPreferencesKeys.ringingTimeLimit] = duration.inWholeMinutes.toInt()
         }
         Unit
     }

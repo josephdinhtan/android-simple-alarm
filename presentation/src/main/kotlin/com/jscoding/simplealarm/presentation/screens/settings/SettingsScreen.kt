@@ -10,6 +10,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
@@ -21,6 +25,9 @@ import com.jddev.simpletouch.ui.customization.settingsui.slider.StSettingsSlider
 import com.jddev.simpletouch.ui.customization.settingsui.switch.StSettingsSwitchItem
 import com.jddev.simpletouch.ui.foundation.topappbar.StUiLargeTopAppBar
 import com.jddev.simpletouch.ui.foundation.topappbar.stUiLargeTopAppbarScrollBehavior
+import com.jscoding.simplealarm.presentation.screens.settings.silenceafter.SilenceAfterDialog
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun SettingsScreen(
@@ -40,11 +47,13 @@ fun SettingsScreen(
         defaultRingtone = defaultRingtone.value,
         alarmVolume = settingsViewModel.currentAlarmVolume.collectAsState().value,
         maxAlarmVolume = settingsViewModel.maxAlarmVolume.collectAsState().value,
+        ringingTimeLimit = settingsViewModel.ringingTimeLimit.collectAsState().value,
         setAlarmVolume = { settingsViewModel.setAlarmVolume(it) },
         navigateToThemeMode = navigateToThemeMode,
         navigateToRingtone = navigateToRingtone,
         on24hFormatChange = { settingsViewModel.on24hFormatChange(it) },
         onUseDynamicColorsChange = { settingsViewModel.setUseDynamicColors(it) },
+        onRingingTimeLimitChange = { settingsViewModel.setRingingTimeLimit(it.minutes) },
         onBack = onBack,
     )
 }
@@ -59,13 +68,17 @@ private fun SettingsScreen(
     defaultRingtone: Ringtone,
     alarmVolume: Int,
     maxAlarmVolume: Int,
+    ringingTimeLimit: Duration,
     setAlarmVolume: (Int) -> Unit,
     navigateToThemeMode: () -> Unit,
     navigateToRingtone: () -> Unit,
     on24hFormatChange: (Boolean) -> Unit,
     onUseDynamicColorsChange: (Boolean) -> Unit,
+    onRingingTimeLimitChange: (minutes: Int) -> Unit,
     onBack: () -> Unit,
 ) {
+    var showSilenceAfterDialog by remember { mutableStateOf(false) }
+
     val scrollBehavior = stUiLargeTopAppbarScrollBehavior()
     Scaffold(
         topBar = {
@@ -105,13 +118,14 @@ private fun SettingsScreen(
                 header = "Alarms",
             ) {
                 StSettingsNavigateItem(
-                    title = "Silent after",
-                    subTitle = "10 minutes",
-                    onClick = {})
+                    title = "Silence after",
+                    subTitle = if(ringingTimeLimit.inWholeMinutes == -1L) "Never" else "${ringingTimeLimit.inWholeMinutes} minutes",
+                    onClick = { showSilenceAfterDialog = true })
                 StSettingsNavigateItem(
                     title = "Default ringtone",
                     subTitle = defaultRingtone.title,
-                    onClick = navigateToRingtone)
+                    onClick = navigateToRingtone
+                )
                 StSettingsSliderItem(
                     title = "Alarm volume $alarmVolume",
                     leadingImageVector = Icons.Outlined.Alarm,
@@ -161,6 +175,16 @@ private fun SettingsScreen(
             }
         }
     }
+
+    SilenceAfterDialog(
+        showDialog = showSilenceAfterDialog,
+        onDismissRequest = { showSilenceAfterDialog = false },
+        selectedSilenceAfterValue = ringingTimeLimit.inWholeMinutes.toInt(),
+        onSelected = {
+            showSilenceAfterDialog = false
+            onRingingTimeLimitChange(it)
+        }
+    )
 }
 
 //@Preview(

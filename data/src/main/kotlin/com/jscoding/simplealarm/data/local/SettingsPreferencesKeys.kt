@@ -17,4 +17,5 @@ internal object SettingsPreferencesKeys {
     val volumeFadeDuration = intPreferencesKey("volume_fade_duration") // in seconds
     val themeStyle = stringPreferencesKey("theme_style")
     val isFirstTime = booleanPreferencesKey("is_first_time")
+    val ringingTimeLimit = intPreferencesKey("ringing_time_limit")
 }

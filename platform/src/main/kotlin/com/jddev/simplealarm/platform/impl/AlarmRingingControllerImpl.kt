@@ -11,12 +11,18 @@ class AlarmRingingControllerImpl @Inject constructor(
     private val context: Context,
 ) : AlarmRingingController {
 
-    override fun startFiringAlarm(alarm: Alarm, is24h: Boolean, volumeFadeDuration: Duration) {
+    override fun startFiringAlarm(
+        alarm: Alarm,
+        is24h: Boolean,
+        volumeFadeDuration: Duration,
+        ringingTimeLimit: Duration,
+    ) {
         AlarmRingingService.startRinging(
             context,
             alarm,
             is24h,
-            volumeFadeDuration
+            volumeFadeDuration,
+            ringingTimeLimit
         )
     }
 
