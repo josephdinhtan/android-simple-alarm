@@ -3,9 +3,7 @@ package com.jscoding.simplealarm.presentation.screens.ringing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
-import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import com.jscoding.simplealarm.domain.usecase.alarm.DismissAlarmUseCase
-import com.jscoding.simplealarm.domain.usecase.alarm.GetAlarmByIdUseCase
 import com.jscoding.simplealarm.domain.usecase.alarm.SnoozeAlarmUseCase
 import com.jscoding.simplealarm.presentation.utils.toStringTimeDisplay
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,8 +37,6 @@ sealed interface AlarmRingingState {
 class AlarmRingingViewmodel @Inject constructor(
     private val dismissAlarmUseCase: DismissAlarmUseCase,
     private val snoozeAlarmUseCase: SnoozeAlarmUseCase,
-    private val getAlarmByIdUseCase: GetAlarmByIdUseCase,
-    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     private val _shouldFinish = MutableStateFlow(false)
@@ -49,14 +45,16 @@ class AlarmRingingViewmodel @Inject constructor(
     private val _alarmRingingState = MutableStateFlow<AlarmRingingState>(AlarmRingingState.None)
     val alarmRingingState = _alarmRingingState.asStateFlow()
 
-    private val _alarm = MutableStateFlow<Alarm?>(null)
-    val alarm = _alarm.asStateFlow()
+    private val _alarmState = MutableStateFlow<Alarm?>(null)
+    val alarmState = _alarmState.asStateFlow()
 
-    fun setupAlarm(alarmId: Long) {
+    private var is24h = false
+
+    fun setupAlarm(alarm: Alarm, is24HourFormat: Boolean) {
+        is24h = is24HourFormat
         viewModelScope.launch {
-            _alarm.value = getAlarmByIdUseCase(alarmId)
-            _alarm.value?.let {
-                val is24HourFormat = settingsRepository.getIs24HourFormat()
+            _alarmState.value = alarm
+            alarmState.value?.let {
                 _alarmRingingState.value = AlarmRingingState.Ringing(
                     timeDisplay = it.toStringTimeDisplay(is24HourFormat), label = it.label
                 )
@@ -69,7 +67,7 @@ class AlarmRingingViewmodel @Inject constructor(
     }
 
     fun dismissAlarm() {
-        val targetAlarm = alarm.value ?: return
+        val targetAlarm = alarmState.value ?: return
         viewModelScope.launch {
             dismissAlarmUseCase(targetAlarm)
             _alarmRingingState.value = AlarmRingingState.Dismissed
@@ -77,7 +75,7 @@ class AlarmRingingViewmodel @Inject constructor(
     }
 
     fun snoozeAlarm() {
-        val targetAlarm = alarm.value ?: return
+        val targetAlarm = alarmState.value ?: return
         viewModelScope.launch(Dispatchers.IO) {
             snoozeAlarmUseCase(targetAlarm)
             val calendar = Calendar.getInstance().apply {
@@ -88,7 +86,7 @@ class AlarmRingingViewmodel @Inject constructor(
                     hour = calendar.get(Calendar.HOUR_OF_DAY),
                     minutes = calendar.get(Calendar.MINUTE),
                     snoozeTime = targetAlarm.snoozeTime,
-                    is24HourFormat = settingsRepository.getIs24HourFormat()
+                    is24HourFormat = is24h
                 )
             )
         }

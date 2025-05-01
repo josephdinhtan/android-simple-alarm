@@ -6,10 +6,13 @@ import android.os.Bundle
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class AlarmWidgetReceiver : GlanceAppWidgetReceiver() {
+
+//    @Inject
+//    lateinit var getAlarmByIdUseCase: GetAlarmByIdUseCase
+
     override val glanceAppWidget: GlanceAppWidget = AlarmAppWidget()
 
 //    @Inject

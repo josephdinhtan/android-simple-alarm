@@ -13,10 +13,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.jddev.simplealarm.platform.R
-import com.jddev.simplealarm.platform.helper.AlarmIntentProvider.Companion.EXTRA_ALARM_ID
-import com.jddev.simplealarm.platform.service.AlarmRingingService
+import com.jddev.simplealarm.platform.activity.AlarmRingingActivity
+import com.jddev.simplealarm.platform.mapper.toDto
+import com.jddev.simplealarm.platform.receiver.AlarmActionReceiver
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationAction
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -91,12 +95,13 @@ class NotificationHelper @Inject constructor(
     fun createAlarmNotification(
         title: String,
         contentText: String,
-        alarmId: Long,
+        alarm: Alarm,
+        is24h: Boolean,
         type: NotificationType,
         actions: List<NotificationAction>,
     ): Notification {
 
-        val chanelId = when(type) {
+        val chanelId = when (type) {
             NotificationType.ALARM_SNOOZE -> ALARM_SNOOZE_NOTIFICATION_CHANNEL_ID
             NotificationType.ALARM_UPCOMING -> ALARM_UPCOMING_NOTIFICATION_CHANNEL_ID
             NotificationType.ALARM_MISSED -> ALARM_MISSED_NOTIFICATION_CHANNEL_ID
@@ -120,10 +125,10 @@ class NotificationHelper @Inject constructor(
                     notificationBuilder.addAction(
                         0,
                         "Dismiss",
-                        getActionPendingIntent(
+                        getAlarmActionPendingIntent(
                             context,
-                            alarmId,
-                            AlarmRingingService.ACTION_DISMISS_ALARM_FROM_NOTIFICATION
+                            alarm,
+                            AlarmActionReceiver.ACTION_DISMISS_ALARM_FROM_NOTIFICATION
                         )
                     )
                 }
@@ -132,20 +137,18 @@ class NotificationHelper @Inject constructor(
                     notificationBuilder.addAction(
                         0,
                         "Snooze",
-                        getActionPendingIntent(context, alarmId, AlarmRingingService.ACTION_SNOOZE_ALARM_FROM_NOTIFICATION)
+                        getAlarmActionPendingIntent(
+                            context,
+                            alarm,
+                            AlarmActionReceiver.ACTION_SNOOZE_ALARM_FROM_NOTIFICATION
+                        )
                     )
                 }
             }
         }
 
-        if(type == NotificationType.ALARM_FIRING) {
-            val fullScreenIntent = Intent(
-                context,
-                com.jddev.simplealarm.platform.activity.RingingActivity::class.java
-            ).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                putExtra(EXTRA_ALARM_ID, alarmId)
-            }
+        if (type == NotificationType.ALARM_FIRING) {
+            val fullScreenIntent = AlarmRingingActivity.getStartActivityIntent(context, alarm, is24h)
             val fullScreenPendingIntent = PendingIntent.getActivity(
                 context, 0, fullScreenIntent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -178,20 +181,21 @@ class NotificationHelper @Inject constructor(
             }
     }
 
-    private fun getActionPendingIntent(
+    private fun getAlarmActionPendingIntent(
         context: Context,
-        alarmId: Long,
+        alarm: Alarm,
         actionStr: String,
     ): PendingIntent {
+        val jsonAlarmDto = Json.encodeToString(alarm.toDto())
         val intent =
-            Intent(context, AlarmRingingService::class.java).apply {
+            Intent(context, AlarmActionReceiver::class.java).apply {
                 action = actionStr
-                putExtra(EXTRA_ALARM_ID, alarmId)
+                putExtra(AlarmActionReceiver.EXTRA_ALARM, jsonAlarmDto)
             }
 
-        val pendingIntent = PendingIntent.getService(
+        val pendingIntent = PendingIntent.getBroadcast(
             context,
-            0,
+            alarm.id.toInt(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

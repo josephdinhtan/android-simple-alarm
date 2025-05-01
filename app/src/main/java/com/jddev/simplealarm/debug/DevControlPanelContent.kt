@@ -28,23 +28,7 @@ internal fun DevControlPanelContent(
         }) { Text("Show Alarm Snooze notification") }
 
         Button({
-            devUtility.scheduleAlarmRinging()
-        }) { Text("Schedule Alarm Ringing") }
-
-        Button({
-            devUtility.schedulePreAlarmNotificationAfter1Minutes()
-        }) { Text("Schedule PreAlarm notification") }
-
-        Button({
-            devUtility.cancelSchedulePreAlarmNotification()
-        }) { Text("Cancel Schedule PreAlarm notification") }
-
-        Button({
-            devUtility.cancelAllSchedulePreAlarmNotification()
-        }) { Text("Cancel All Schedule PreAlarm notification") }
-
-        Button({
             devUtility.startRingingActivity()
-        }) { Text("Show ringing activity") }
+        }) { Text("Show test ringing activity") }
     }
 }

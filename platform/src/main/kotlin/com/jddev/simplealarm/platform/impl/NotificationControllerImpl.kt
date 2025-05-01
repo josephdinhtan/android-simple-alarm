@@ -22,7 +22,7 @@ class NotificationControllerImpl @Inject constructor(
     override fun showAlarmNotification(
         title: String,
         alarm: Alarm,
-        is24HourFormat: Boolean,
+        is24hFormat: Boolean,
         type: NotificationType,
         actions: List<NotificationAction>,
     ) {
@@ -30,14 +30,15 @@ class NotificationControllerImpl @Inject constructor(
         val notificationContent = getAlarmTimeDisplay(
             hour = alarm.hour,
             minutes = alarm.minute,
-            is24HourFormat,
+            is24hFormat,
         )
 
-        Timber.d("Show notification alarm: ${alarm.label}, id: ${alarm.id}, title: $title, content: $notificationContent")
+        Timber.d("Showed notification alarm: ${alarm.label}, id: ${alarm.id}, title: $title, content: $notificationContent, type: $type")
         val notification = notificationHelper.createAlarmNotification(
             title,
             notificationContent,
-            alarm.id,
+            alarm,
+            is24hFormat,
             type,
             actions
         )

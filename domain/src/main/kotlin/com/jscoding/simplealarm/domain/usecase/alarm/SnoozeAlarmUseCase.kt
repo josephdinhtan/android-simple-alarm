@@ -5,6 +5,7 @@ import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 import com.jscoding.simplealarm.domain.platform.AlarmRingingController
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import com.jscoding.simplealarm.domain.usecase.others.ShowNotificationUseCase
+import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import kotlin.time.Duration
@@ -19,7 +20,7 @@ class SnoozeAlarmUseCase @Inject constructor(
         alarmRingingController.snoozeRinging(alarm)
 
         // reschedule new snooze alarm
-        val snoozeTime = calculateSnoozeTime(alarm.snoozeTime)
+        val snoozeTime = calculateSnoozeTimeFromNow(alarm.snoozeTime)
         val snoozeHour = snoozeTime.first
         val snoozeMinute = snoozeTime.second
 
@@ -30,6 +31,7 @@ class SnoozeAlarmUseCase @Inject constructor(
             preAlarmNotificationDuration = Duration.ZERO,
             enabled = true,
         )
+        Timber.d("Snooze alarm: ${snoozeAlarm.label}, id: ${snoozeAlarm.id}")
 
         alarmScheduler.schedule(snoozeAlarm)
 
@@ -41,7 +43,7 @@ class SnoozeAlarmUseCase @Inject constructor(
         )
     }
 
-    private fun calculateSnoozeTime(snoozeDuration: Duration): Pair<Int, Int> {
+    private fun calculateSnoozeTimeFromNow(snoozeDuration: Duration): Pair<Int, Int> {
         val currentTimeMillis = System.currentTimeMillis()
         val snoozeTimeMillis = currentTimeMillis + snoozeDuration.inWholeMilliseconds
         val calendar = Calendar.getInstance().apply {

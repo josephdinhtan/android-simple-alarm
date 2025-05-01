@@ -6,18 +6,24 @@
 
     <application>
         <activity
-            android:name=".activity.RingingActivity"
+            android:name=".activity.AlarmRingingActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
 
         <service
             android:name=".service.AlarmRingingService"
+            android:directBootAware="true"
             android:enabled="true"
             android:exported="false"
-            android:directBootAware="true"
             android:foregroundServiceType="shortService|mediaPlayback"
-            android:permission="android.permission.FOREGROUND_SERVICE"/>
-        <receiver android:name=".receiver.AlarmReceiver" />
+            android:permission="android.permission.FOREGROUND_SERVICE" />
+
+        <receiver
+            android:name=".receiver.AlarmRingingReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".receiver.AlarmActionReceiver"
+            android:exported="false" />
     </application>
 </manifest>

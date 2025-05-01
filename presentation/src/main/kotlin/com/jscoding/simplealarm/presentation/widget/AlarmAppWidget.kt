@@ -26,12 +26,8 @@ import com.jscoding.simplealarm.presentation.widget.ui.AlarmWidget
 import com.jscoding.simplealarm.presentation.widget.ui.AlarmZeroState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class AlarmAppWidget : GlanceAppWidget() {
-
-    @Inject
-    lateinit var getAlarmByIdUseCase: GetAlarmByIdUseCase
+class AlarmAppWidget() : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val widgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
@@ -55,9 +51,9 @@ class AlarmAppWidget : GlanceAppWidget() {
 
         LaunchedEffect(alarmId) {
             if (alarmId == null) return@LaunchedEffect
-            getAlarmByIdUseCase(alarmId.toLong())?.let { alarm ->
-                alarmWidgetModel = alarm.toAlarmWidgetModel()
-            }
+//            getAlarmByIdUseCase(alarmId.toLong())?.let { alarm ->
+//                alarmWidgetModel = alarm.toAlarmWidgetModel()
+//            }
         }
 
         if (alarmId == null || alarmWidgetModel == null) {

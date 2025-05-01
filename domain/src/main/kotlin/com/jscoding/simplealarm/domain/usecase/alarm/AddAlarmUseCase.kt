@@ -37,8 +37,7 @@ class AddAlarmUseCase @Inject constructor(
             val scheduleAlarm = alarm.copy(id = alarmId)
             alarmScheduler.schedule(scheduleAlarm)
             if (alarm.preAlarmNotificationDuration != Duration.ZERO) {
-                val is24HourFormat = settingsRepository.getIs24HourFormat()
-                notificationController.schedule(scheduleAlarm, is24HourFormat)
+                notificationController.schedule(scheduleAlarm)
             }
         }
         return Result.success(Unit)

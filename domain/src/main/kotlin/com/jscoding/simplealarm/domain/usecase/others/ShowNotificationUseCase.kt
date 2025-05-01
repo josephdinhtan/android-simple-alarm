@@ -5,6 +5,7 @@ import com.jscoding.simplealarm.domain.entity.alarm.NotificationAction
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 import com.jscoding.simplealarm.domain.platform.AlarmNotificationController
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
+import timber.log.Timber
 import javax.inject.Inject
 
 class ShowNotificationUseCase @Inject constructor(

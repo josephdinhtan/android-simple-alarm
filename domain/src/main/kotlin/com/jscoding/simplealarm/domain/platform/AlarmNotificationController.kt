@@ -9,7 +9,7 @@ interface AlarmNotificationController {
     fun showAlarmNotification(
         title: String,
         alarm: Alarm,
-        is24HourFormat: Boolean,
+        is24hFormat: Boolean,
         type: NotificationType,
         actions: List<NotificationAction>,
     )

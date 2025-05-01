@@ -27,7 +27,6 @@ class UpdateAlarmUseCase @Inject constructor(
             return Result.failure(result.exceptionOrNull() ?: Exception("Failed to update alarm"))
         }
 
-        val is24HourFormat = settingsRepository.getIs24HourFormat()
         if (alarm.enabled) {
             // schedule alarm
             alarmScheduler.cancel(alarm)
@@ -35,7 +34,7 @@ class UpdateAlarmUseCase @Inject constructor(
             notificationController.cancel(alarm)
 
             if (alarm.preAlarmNotificationDuration != Duration.ZERO) {
-                notificationController.schedule(alarm, is24HourFormat)
+                notificationController.schedule(alarm)
             }
         } else {
             alarmScheduler.cancel(alarm)

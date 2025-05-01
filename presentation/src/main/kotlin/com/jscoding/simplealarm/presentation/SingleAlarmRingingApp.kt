@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jddev.simpletouch.ui.theme.StUiTheme
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.settings.ThemeMode
 import com.jscoding.simplealarm.presentation.screens.ringing.AlarmRingingScreen
 import com.jscoding.simplealarm.presentation.screens.settings.SettingsViewModel
@@ -12,7 +13,8 @@ import com.jscoding.simplealarm.presentation.screens.settings.SettingsViewModel
 @Composable
 fun SingleAlarmRingingApp(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
-    alarmId: Long,
+    alarm: Alarm,
+    is24h: Boolean,
     onFinished: () -> Unit,
 ) {
     val themeMode = settingsViewModel.themeMode.collectAsStateWithLifecycle()
@@ -26,6 +28,10 @@ fun SingleAlarmRingingApp(
         isDarkTheme = isDarkTheme,
         useDynamicColors = useDynamicColors.value
     ) {
-        AlarmRingingScreen(alarmId = alarmId, onFinished = onFinished)
+        AlarmRingingScreen(
+            alarm = alarm,
+            is24h = is24h,
+            onFinished = onFinished
+        )
     }
 }

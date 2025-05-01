@@ -8,15 +8,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 
 @Composable
 fun AlarmRingingScreen(
     viewModel: AlarmRingingViewmodel = hiltViewModel(),
-    alarmId: Long,
+    alarm: Alarm,
+    is24h: Boolean,
     onFinished: () -> Unit,
 ) {
-    LaunchedEffect(alarmId) {
-        viewModel.setupAlarm(alarmId)
+    LaunchedEffect(alarm) {
+        viewModel.setupAlarm(alarm, is24h)
     }
     val alarmRingingState = viewModel.alarmRingingState.collectAsState().value
     val shouldFinish = viewModel.shouldFinish.collectAsState().value

@@ -12,20 +12,24 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.jddev.simplealarm.platform.helper.AlarmIntentProvider
-import com.jddev.simplealarm.platform.helper.AlarmIntentProvider.Companion.EXTRA_ALARM_ID
+import com.jddev.simplealarm.platform.dto.AlarmDto
+import com.jddev.simplealarm.platform.mapper.toDomain
+import com.jddev.simplealarm.platform.mapper.toDto
+import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.presentation.SingleAlarmRingingApp
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 @AndroidEntryPoint
-class RingingActivity : AppCompatActivity() {
+class AlarmRingingActivity : AppCompatActivity() {
 
     private val internalBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == DISMISS_ACTION) {
                 Timber.d("${intent.action}")
-                this@RingingActivity.finish()
+                this@AlarmRingingActivity.finish()
             }
         }
     }
@@ -45,18 +49,21 @@ class RingingActivity : AppCompatActivity() {
             registerReceiver(internalBroadcastReceiver, IntentFilter(DISMISS_ACTION))
         }
 
-        val alarmId = intent.getLongExtra(EXTRA_ALARM_ID, -1)
-        if (alarmId == -1L) {
-            Timber.e("Alarm id not found")
+        val json = intent.getStringExtra(EXTRA_ALARM) ?: run {
+            Timber.e("Alarm is invalid, finish")
             finish()
             return
         }
+        val alarmDto = Json.decodeFromString<AlarmDto>(json)
+        val alarm = alarmDto.toDomain()
+        val is24h = intent.getBooleanExtra(EXTRA_IS_24H, true)
 
         setContent {
             SingleAlarmRingingApp(
-                alarmId = alarmId,
+                alarm = alarm,
+                is24h = is24h,
                 onFinished = {
-                    this@RingingActivity.finish()
+                    this@AlarmRingingActivity.finish()
                 }
             )
         }
@@ -87,19 +94,30 @@ class RingingActivity : AppCompatActivity() {
     }
 
     companion object {
-
+        const val EXTRA_ALARM = "alarm_dto"
+        const val EXTRA_IS_24H = "is_24h"
         private const val DISMISS_ACTION = "com.jddev.simplealarm.ACTION_FINISH_RINGING_ACTIVITY"
 
-        fun startActivity(context: Context, alarmId: Long) {
-            val intent = Intent(context, RingingActivity::class.java).apply {
-                flags =
-                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_USER_ACTION
-                putExtra(AlarmIntentProvider.EXTRA_ALARM_ID, alarmId)
-            }
-            context.startActivity(intent)
+        internal fun startActivity(context: Context, alarm: Alarm, is24h: Boolean) {
+            // for testing only, the activity should be started from Notification
+            context.startActivity(getStartActivityIntent(context, alarm, is24h))
         }
 
-        fun dismissActivity(context: Context) {
+        internal fun getStartActivityIntent(
+            context: Context,
+            alarm: Alarm,
+            is24h: Boolean,
+        ): Intent {
+            val jsonAlarmDto = Json.encodeToString(alarm.toDto())
+            return Intent(context, AlarmRingingActivity::class.java).apply {
+                flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_USER_ACTION
+                putExtra(EXTRA_ALARM, jsonAlarmDto)
+                putExtra(EXTRA_IS_24H, is24h)
+            }
+        }
+
+        internal fun dismissActivity(context: Context) {
             val intent = Intent().apply {
                 action = DISMISS_ACTION
             }
