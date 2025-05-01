@@ -112,7 +112,7 @@ class NotificationHelper @Inject constructor(
             NotificationCompat.Builder(context, chanelId)
                 .setContentTitle(title)
                 .setContentText(contentText)
-                .setSmallIcon(R.drawable.ic_alarm_clock_2)
+                .setSmallIcon(R.drawable.ic_alarm_clock)
                 .setOngoing(true)
                 .setCategory(NotificationCompat.CATEGORY_ALARM) // treated as alarm
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -171,7 +171,7 @@ class NotificationHelper @Inject constructor(
         return NotificationCompat.Builder(context, FIRING_NOTIFICATION_CHANNEL_ID)
             .setContentTitle("Preparing Alarm...")
             .setContentText("Just a moment...")
-            .setSmallIcon(R.drawable.ic_alarm_clock_2)
+            .setSmallIcon(R.drawable.ic_alarm_clock)
             .setOngoing(true)
             .setAutoCancel(false)
             .setPriority(NotificationCompat.PRIORITY_MAX)

@@ -11,7 +11,7 @@ class AlarmRingingControllerImpl @Inject constructor(
     private val context: Context,
 ) : AlarmRingingController {
 
-    override fun startRinging(alarm: Alarm, is24h: Boolean, volumeFadeDuration: Duration) {
+    override fun startFiringAlarm(alarm: Alarm, is24h: Boolean, volumeFadeDuration: Duration) {
         AlarmRingingService.startRinging(
             context,
             alarm,
@@ -20,11 +20,11 @@ class AlarmRingingControllerImpl @Inject constructor(
         )
     }
 
-    override fun dismissRinging(alarm: Alarm) {
+    override fun dismissAlarm(alarm: Alarm) {
         AlarmRingingService.dismissAlarm(context, alarm)
     }
 
-    override fun snoozeRinging(alarm: Alarm) {
+    override fun snoozeAlarm(alarm: Alarm) {
         AlarmRingingService.snoozeAlarm(context, alarm)
     }
 }

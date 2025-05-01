@@ -18,7 +18,7 @@ class SnoozeAlarmUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(alarm: Alarm) {
         // stop ringing
-        alarmRingingController.snoozeRinging(alarm)
+        alarmRingingController.snoozeAlarm(alarm)
 
         // reschedule new snooze alarm
         val snoozeTime = calculateSnoozeTimeFromNow(alarm.snoozeTime)
@@ -53,10 +53,5 @@ class SnoozeAlarmUseCase @Inject constructor(
         val snoozeHour = calendar.get(Calendar.HOUR_OF_DAY)
         val snoozeMinute = calendar.get(Calendar.MINUTE)
         return snoozeHour to snoozeMinute
-    }
-
-    private fun generateUniqueId(): Long {
-        // Generate a unique ID, e.g., using a timestamp or random number
-        return -System.nanoTime().toInt().toLong()
     }
 }

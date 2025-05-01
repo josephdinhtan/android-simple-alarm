@@ -8,11 +8,13 @@ import com.jddev.simpletouch.ui.theme.StUiTheme
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.settings.ThemeMode
 import com.jscoding.simplealarm.presentation.screens.ringing.AlarmRingingScreen
+import com.jscoding.simplealarm.presentation.screens.ringing.AlarmRingingViewmodel
 import com.jscoding.simplealarm.presentation.screens.settings.SettingsViewModel
 
 @Composable
 fun SingleAlarmRingingApp(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
+    alarmRingingViewmodel: AlarmRingingViewmodel,
     alarm: Alarm,
     is24h: Boolean,
     onFinished: () -> Unit,
@@ -29,6 +31,7 @@ fun SingleAlarmRingingApp(
         useDynamicColors = useDynamicColors.value
     ) {
         AlarmRingingScreen(
+            viewModel = alarmRingingViewmodel,
             alarm = alarm,
             is24h = is24h,
             onFinished = onFinished

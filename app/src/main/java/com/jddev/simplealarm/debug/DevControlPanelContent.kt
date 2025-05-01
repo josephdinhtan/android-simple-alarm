@@ -30,5 +30,9 @@ internal fun DevControlPanelContent(
         Button({
             devUtility.startRingingActivity()
         }) { Text("Show test ringing activity") }
+
+        Button({
+            devUtility.scheduleAlarmAndPreNotification()
+        }) { Text("pre-notification 1 min") }
     }
 }

@@ -3,11 +3,12 @@ package com.jddev.simplealarm.platform.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.PowerManager
 import com.jddev.simplealarm.platform.di.CoroutineScopeIO
 import com.jddev.simplealarm.platform.dto.AlarmDto
 import com.jddev.simplealarm.platform.mapper.toDomain
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
-import com.jscoding.simplealarm.domain.usecase.alarm.RingingAlarmUseCase
+import com.jscoding.simplealarm.domain.usecase.alarm.FiringAlarmUseCase
 import com.jscoding.simplealarm.domain.usecase.others.ShowNotificationUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -16,15 +17,17 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
-internal class AlarmRingingReceiver : BroadcastReceiver() {
+internal class AlarmScheduledReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var showNotificationUseCase: ShowNotificationUseCase
 
     @Inject
-    lateinit var ringingAlarmUseCase: RingingAlarmUseCase
+    lateinit var ringingAlarmUseCase: FiringAlarmUseCase
 
     @Inject
     @CoroutineScopeIO
@@ -45,6 +48,7 @@ internal class AlarmRingingReceiver : BroadcastReceiver() {
             }
 
             ACTION_FIRING_PRE_NOTIFICATION -> {
+                wakeUpScreen(context, 3.seconds)
                 coroutineScopeIo.launch(NonCancellable) {
                     showNotificationUseCase(
                         alarm = alarm,
@@ -54,6 +58,15 @@ internal class AlarmRingingReceiver : BroadcastReceiver() {
                 }
             }
         }
+    }
+
+    private fun wakeUpScreen(context: Context, duration: Duration) {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val wakeLock = powerManager.newWakeLock(
+            PowerManager.SCREEN_DIM_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+            "alarm:AlarmWakeLock"
+        )
+        wakeLock.acquire(duration.inWholeMilliseconds)
     }
 
     companion object {

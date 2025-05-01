@@ -9,14 +9,12 @@ import androidx.core.content.ContextCompat
 import com.jddev.simplealarm.platform.dto.AlarmDto
 import com.jddev.simplealarm.platform.helper.AlarmManagerHelper
 import com.jddev.simplealarm.platform.mapper.toDto
-import com.jddev.simplealarm.platform.receiver.AlarmRingingReceiver
-import com.jddev.simplealarm.platform.utils.calculateNextTriggerTime
-import com.jddev.simplealarm.platform.utils.calculateTriggerTime
+import com.jddev.simplealarm.platform.receiver.AlarmScheduledReceiver
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
-import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.domain.platform.AlarmPreNotificationScheduler
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.inject.Inject
@@ -33,10 +31,12 @@ class NotificationSchedulerImpl @Inject constructor(
             alarmDto = alarm.toDto(),
             scheduleId = alarm.id.toScheduleId()
         )
+        Timber.d("Notification scheduled for id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, at: ${triggerAt.toLocalTime()}")
         alarmManagerHelper.schedule(pendingIntent, triggerAtMillis)
     }
 
     override fun cancel(alarm: Alarm) {
+        Timber.d("Cancel Notification alarm id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, time: ${alarm.hour}:${alarm.minute}")
         alarmManagerHelper.cancel(
             provideNotificationIntent(
                 context = context,
@@ -63,9 +63,9 @@ class NotificationSchedulerImpl @Inject constructor(
         scheduleId: Int,
     ): PendingIntent {
         val jsonAlarmDto = Json.encodeToString(alarmDto)
-        val intent = Intent(context, AlarmRingingReceiver::class.java).apply {
-            action = AlarmRingingReceiver.ACTION_FIRING_PRE_NOTIFICATION
-            putExtra(AlarmRingingReceiver.EXTRA_ALARM, jsonAlarmDto)
+        val intent = Intent(context, AlarmScheduledReceiver::class.java).apply {
+            action = AlarmScheduledReceiver.ACTION_FIRING_PRE_NOTIFICATION
+            putExtra(AlarmScheduledReceiver.EXTRA_ALARM, jsonAlarmDto)
         }
         return PendingIntent.getBroadcast(
             context,

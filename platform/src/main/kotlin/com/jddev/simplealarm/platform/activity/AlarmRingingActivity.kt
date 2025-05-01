@@ -11,12 +11,14 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.jddev.simplealarm.platform.dto.AlarmDto
 import com.jddev.simplealarm.platform.mapper.toDomain
 import com.jddev.simplealarm.platform.mapper.toDto
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.presentation.SingleAlarmRingingApp
+import com.jscoding.simplealarm.presentation.screens.ringing.AlarmRingingViewmodel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -25,11 +27,24 @@ import timber.log.Timber
 @AndroidEntryPoint
 class AlarmRingingActivity : AppCompatActivity() {
 
+    private val alarmRingingViewmodel: AlarmRingingViewmodel by viewModels()
+
     private val internalBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == DISMISS_ACTION) {
-                Timber.d("${intent.action}")
-                this@AlarmRingingActivity.finish()
+            when (intent?.action) {
+                DISMISS_ACTION -> {
+                    Timber.d("Dismiss Alarm from UseCase")
+                    alarmRingingViewmodel.requestDismissAlarm()
+                }
+
+                SNOOZED_ACTION -> {
+                    Timber.d("Snooze Alarm from UseCase")
+                    alarmRingingViewmodel.requestSnoozeAlarm()
+                }
+
+                else -> {
+                    Timber.e("Invalid action: ${intent?.action}")
+                }
             }
         }
     }
@@ -39,14 +54,18 @@ class AlarmRingingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val intentFilter = IntentFilter().apply {
+            addAction(DISMISS_ACTION)
+            addAction(SNOOZED_ACTION)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(
                 internalBroadcastReceiver,
-                IntentFilter(DISMISS_ACTION),
+                intentFilter,
                 RECEIVER_EXPORTED
             )
         } else {
-            registerReceiver(internalBroadcastReceiver, IntentFilter(DISMISS_ACTION))
+            registerReceiver(internalBroadcastReceiver, intentFilter)
         }
 
         val json = intent.getStringExtra(EXTRA_ALARM) ?: run {
@@ -58,8 +77,10 @@ class AlarmRingingActivity : AppCompatActivity() {
         val alarm = alarmDto.toDomain()
         val is24h = intent.getBooleanExtra(EXTRA_IS_24H, true)
 
+        Timber.d("Ringing Activity alarm label: ${alarm.label} id: ${alarm.id}")
         setContent {
             SingleAlarmRingingApp(
+                alarmRingingViewmodel = alarmRingingViewmodel,
                 alarm = alarm,
                 is24h = is24h,
                 onFinished = {
@@ -96,7 +117,8 @@ class AlarmRingingActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_ALARM = "alarm_dto"
         const val EXTRA_IS_24H = "is_24h"
-        private const val DISMISS_ACTION = "com.jddev.simplealarm.ACTION_FINISH_RINGING_ACTIVITY"
+        private const val DISMISS_ACTION = "com.jddev.simplealarm.ACTION_DISMISS_RINGING"
+        private const val SNOOZED_ACTION = "com.jddev.simplealarm.ACTION_SNOOZE_RINGING"
 
         internal fun startActivity(context: Context, alarm: Alarm, is24h: Boolean) {
             // for testing only, the activity should be started from Notification
@@ -117,11 +139,18 @@ class AlarmRingingActivity : AppCompatActivity() {
             }
         }
 
-        internal fun dismissActivity(context: Context) {
+        internal fun dismiss(context: Context) {
             val intent = Intent().apply {
                 action = DISMISS_ACTION
             }
             Timber.d("try dismiss Ringing Activity")
+            context.applicationContext.sendBroadcast(intent)
+        }
+
+        internal fun snooze(context: Context) {
+            val intent = Intent().apply {
+                action = SNOOZED_ACTION
+            }
             context.applicationContext.sendBroadcast(intent)
         }
     }

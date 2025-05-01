@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -66,29 +67,36 @@ class AlarmRingingViewmodel @Inject constructor(
         _shouldFinish.value = true
     }
 
-    fun dismissAlarm() {
+    fun requestDismissAlarm() {
+        _alarmRingingState.value = AlarmRingingState.Dismissed
+    }
+
+    fun requestSnoozeAlarm() {
+        val targetAlarm = alarmState.value ?: return
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis()
+        }
+        _alarmRingingState.value = AlarmRingingState.Snoozed(
+            snoozedTimeDisplay = getSnoozedAlarmTimeDisplay(
+                hour = calendar.get(Calendar.HOUR_OF_DAY),
+                minutes = calendar.get(Calendar.MINUTE),
+                snoozeTime = targetAlarm.snoozeTime,
+                is24HourFormat = is24h
+            )
+        )
+    }
+
+    fun onDismissAlarm() {
         val targetAlarm = alarmState.value ?: return
         viewModelScope.launch {
             dismissAlarmUseCase(targetAlarm)
-            _alarmRingingState.value = AlarmRingingState.Dismissed
         }
     }
 
-    fun snoozeAlarm() {
+    fun onSnoozeAlarm() {
         val targetAlarm = alarmState.value ?: return
         viewModelScope.launch(Dispatchers.IO) {
             snoozeAlarmUseCase(targetAlarm)
-            val calendar = Calendar.getInstance().apply {
-                timeInMillis = System.currentTimeMillis()
-            }
-            _alarmRingingState.value = AlarmRingingState.Snoozed(
-                snoozedTimeDisplay = getSnoozedAlarmTimeDisplay(
-                    hour = calendar.get(Calendar.HOUR_OF_DAY),
-                    minutes = calendar.get(Calendar.MINUTE),
-                    snoozeTime = targetAlarm.snoozeTime,
-                    is24HourFormat = is24h
-                )
-            )
         }
     }
 

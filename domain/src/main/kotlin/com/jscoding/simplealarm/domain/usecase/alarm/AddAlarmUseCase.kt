@@ -18,8 +18,7 @@ import kotlin.time.Duration
 class AddAlarmUseCase @Inject constructor(
     private val repository: AlarmRepository,
     private val notificationController: AlarmPreNotificationScheduler,
-    private val alarmScheduler: AlarmScheduler,
-    private val preNotificationScheduler: AlarmPreNotificationScheduler,
+    private val tryScheduleNextAlarmUseCase: TryScheduleNextAlarmUseCase,
 ) {
     suspend operator fun invoke(alarm: Alarm): Result<Unit> {
         if (!notificationController.isScheduleNotificationAllowed()) {
@@ -34,16 +33,7 @@ class AddAlarmUseCase @Inject constructor(
         val result = repository.insertAlarm(alarm)
         val alarmId =
             result.getOrNull() ?: return Result.failure(Exception("Failed to insert alarm"))
-
-        if (alarm.enabled) {
-            val scheduleAlarm = alarm.copy(id = alarmId)
-            val nextAlarmTrigger = scheduleAlarm.getNextTriggerTime(LocalDateTime.now())
-            alarmScheduler.schedule(scheduleAlarm, nextAlarmTrigger)
-
-            scheduleAlarm.getPreAlarmNotificationTime(LocalDateTime.now())?.let {
-                preNotificationScheduler.schedule(scheduleAlarm, it)
-            }
-        }
+        tryScheduleNextAlarmUseCase(alarm.copy(id = alarmId))
         return Result.success(Unit)
     }
 

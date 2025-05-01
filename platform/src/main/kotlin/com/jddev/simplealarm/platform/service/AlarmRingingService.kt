@@ -89,7 +89,11 @@ internal class AlarmRingingService : LifecycleService() {
                     Timber.d("Alarm is not Ringing state, so ignore, finish")
                     stopSelf()
                 } else {
-                    AlarmRingingActivity.dismissActivity(this.applicationContext)
+                    if(action == ACTION_DISMISS_ALARM) {
+                        AlarmRingingActivity.dismiss(this.applicationContext)
+                    } else {
+                        AlarmRingingActivity.snooze(this.applicationContext)
+                    }
                     stopAlarmRingtone()
                     cleanupAndFinishService()
                     isAlarmRinging = false

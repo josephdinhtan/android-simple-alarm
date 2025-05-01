@@ -10,16 +10,14 @@ import javax.inject.Singleton
 @Singleton
 class DeleteAlarmUseCase @Inject constructor(
     private val alarmRepository: AlarmRepository,
-    private val alarmScheduler: AlarmScheduler,
-    private val notificationController: AlarmPreNotificationScheduler,
+    private val cancelScheduleAlarmUseCase: CancelScheduleAlarmUseCase
 ) {
     suspend operator fun invoke(alarm: Alarm): Result<Unit> {
 
+        cancelScheduleAlarmUseCase(alarm)
         alarmRepository.deleteAlarm(alarm)
-        alarmScheduler.cancel(alarm)
-        notificationController.cancel(alarm)
 
-        // TODO hard code success
+        // TODO: hard code success
         return Result.success(Unit)
     }
 }

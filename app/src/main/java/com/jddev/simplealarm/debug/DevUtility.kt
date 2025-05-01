@@ -1,14 +1,18 @@
 package com.jddev.simplealarm.debug
 
 import android.content.Context
+import android.widget.Toast
 import com.jscoding.simplealarm.data.di.CoroutineScopeIO
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
-import com.jscoding.simplealarm.domain.usecase.alarm.RingingAlarmUseCase
+import com.jscoding.simplealarm.domain.usecase.alarm.FiringAlarmUseCase
+import com.jscoding.simplealarm.domain.usecase.alarm.TryScheduleNextAlarmUseCase
 import com.jscoding.simplealarm.domain.usecase.others.ShowNotificationUseCase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +22,8 @@ import kotlin.time.Duration.Companion.minutes
 @Singleton
 class DevUtility @Inject constructor(
     private val showNotificationUseCase: ShowNotificationUseCase,
-    private val ringingAlarmUseCase: RingingAlarmUseCase,
+    private val ringingAlarmUseCase: FiringAlarmUseCase,
+    private val tryScheduleNextAlarmUseCase: TryScheduleNextAlarmUseCase,
     private val context: Context,
     @CoroutineScopeIO private val coroutineScopeIO: CoroutineScope,
 ) {
@@ -53,6 +58,25 @@ class DevUtility @Inject constructor(
             ringingAlarmUseCase(Alarm.defaultTest())
         }
     }
+
+    fun scheduleAlarmAndPreNotification() {
+        coroutineScopeIO.launch {
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = System.currentTimeMillis()
+            }
+            calendar.add(Calendar.MINUTE, 2)
+            val alarm = Alarm.defaultTest().copy(
+                hour = calendar.get(Calendar.HOUR_OF_DAY),
+                minute = calendar.get(Calendar.MINUTE),
+                preAlarmNotificationDuration = 1.minutes,
+                enabled = true
+            )
+            tryScheduleNextAlarmUseCase(alarm)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Alarm scheduled at ${calendar.time}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }
 
 private fun Alarm.Companion.defaultTest(): Alarm {
@@ -60,7 +84,7 @@ private fun Alarm.Companion.defaultTest(): Alarm {
         hour = 12,
         minute = 0,
         id = 1,
-        label = "Test label",
+        label = "From Dev Panel",
         createdAt = 1,
         enabled = true,
         repeatDays = emptyList(),

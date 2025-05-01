@@ -6,11 +6,8 @@ import android.content.Intent
 import com.jddev.simplealarm.platform.dto.AlarmDto
 import com.jddev.simplealarm.platform.helper.AlarmManagerHelper
 import com.jddev.simplealarm.platform.mapper.toDto
-import com.jddev.simplealarm.platform.receiver.AlarmRingingReceiver
-import com.jddev.simplealarm.platform.utils.calculateNextTriggerTime
-import com.jddev.simplealarm.platform.utils.calculateTriggerTime
+import com.jddev.simplealarm.platform.receiver.AlarmScheduledReceiver
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
-import com.jscoding.simplealarm.domain.entity.alarm.DayOfWeek
 import com.jscoding.simplealarm.domain.platform.AlarmScheduler
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -31,7 +28,7 @@ class AlarmSchedulerImpl @Inject constructor(
             alarm.toDto(),
             alarm.id.toScheduleId()
         )
-        Timber.d("Alarm scheduled for id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, time: ${alarm.hour}:${alarm.minute}")
+        Timber.d("Alarm scheduled for id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, at: ${triggerAt.toLocalTime()}")
         alarmManagerHelper.schedule(pendingIntent, triggerAtMillis)
     }
 
@@ -52,9 +49,9 @@ class AlarmSchedulerImpl @Inject constructor(
         scheduleId: Int,
     ): PendingIntent {
         val jsonAlarmDto = Json.encodeToString(alarmDto)
-        val intent = Intent(context, AlarmRingingReceiver::class.java).apply {
-            action = AlarmRingingReceiver.ACTION_FIRING_ALARM
-            putExtra(AlarmRingingReceiver.EXTRA_ALARM, jsonAlarmDto)
+        val intent = Intent(context, AlarmScheduledReceiver::class.java).apply {
+            action = AlarmScheduledReceiver.ACTION_FIRING_ALARM
+            putExtra(AlarmScheduledReceiver.EXTRA_ALARM, jsonAlarmDto)
         }
         return PendingIntent.getBroadcast(
             context,

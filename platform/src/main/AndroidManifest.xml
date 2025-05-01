@@ -20,7 +20,7 @@
             android:permission="android.permission.FOREGROUND_SERVICE" />
 
         <receiver
-            android:name=".receiver.AlarmRingingReceiver"
+            android:name=".receiver.AlarmScheduledReceiver"
             android:exported="false" />
         <receiver
             android:name=".receiver.AlarmActionReceiver"
