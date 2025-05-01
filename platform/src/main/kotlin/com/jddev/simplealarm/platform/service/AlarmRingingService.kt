@@ -110,21 +110,20 @@ internal class AlarmRingingService : LifecycleService() {
                 startRingingAndVibrateAlarm(alarm, volumeFadeDuration.seconds)
 
                 // update notification
-                val notificationTitle = "Alarm"
                 val notificationContent = getAlarmTimeDisplay(
                     hour = alarm.hour,
                     minutes = alarm.minute,
                     is24HourFormat
                 )
                 val notification = notificationHelper.createAlarmNotification(
-                    notificationTitle,
+                    alarm.label.ifEmpty { "Alarm" },
                     notificationContent,
                     alarm,
                     is24HourFormat,
                     NotificationType.ALARM_FIRING,
                     listOf(NotificationAction.SNOOZE, NotificationAction.DISMISS)
                 )
-                Timber.d("ACTION_ALARM_RINGING, show notification alarm label: ${alarm.label} id: ${alarm.id}, title: $notificationTitle, content: $notificationContent")
+                Timber.d("ACTION_ALARM_RINGING, show notification alarm label: ${alarm.label} id: ${alarm.id}, content: $notificationContent")
                 isAlarmRinging = true
                 startForeground(
                     getNotificationId(alarm.id), notification

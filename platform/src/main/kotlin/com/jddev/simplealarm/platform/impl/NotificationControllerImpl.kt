@@ -36,7 +36,7 @@ class NotificationControllerImpl @Inject constructor(
             hour = alarm.hour,
             minutes = alarm.minute,
             is24hFormat,
-        )
+        ) + if(alarm.label.isNotEmpty()) " - ${alarm.label}" else ""
 
         Timber.d("Showed notification alarm: ${alarm.label}, id: ${alarm.id}, title: $title, content: $notificationContent, type: $type")
         val notification = notificationHelper.createAlarmNotification(
