@@ -203,7 +203,7 @@ internal class AlarmRingingService : LifecycleService() {
             Timber.d("If there no action, it'll ringing forever, no limit")
         } else {
             alarmFiringTimeOutJob = lifecycleScope.launch(Dispatchers.IO) {
-                delay(ringingTimeLimit.inWholeMinutes.seconds)
+                delay(ringingTimeLimit)
                 missedAlarm(alarm)
                 delay(100)
                 stopAlarmRingtone()
