@@ -9,5 +9,6 @@ interface AlarmRingingController {
         ringingTimeLimit: Duration,
     )
     fun dismissAlarm(alarm: Alarm)
+    fun missedAlarm(alarm: Alarm)
     fun snoozeAlarm(alarm: Alarm)
 }

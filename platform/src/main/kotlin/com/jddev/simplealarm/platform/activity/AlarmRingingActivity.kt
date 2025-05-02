@@ -42,6 +42,11 @@ class AlarmRingingActivity : AppCompatActivity() {
                     alarmRingingViewmodel.requestSnoozeAlarm()
                 }
 
+                MISSED_ACTION -> {
+                    Timber.d("Missed Alarm from UseCase")
+                    alarmRingingViewmodel.requestMissedAlarm()
+                }
+
                 else -> {
                     Timber.e("Invalid action: ${intent?.action}")
                 }
@@ -56,6 +61,7 @@ class AlarmRingingActivity : AppCompatActivity() {
 
         val intentFilter = IntentFilter().apply {
             addAction(DISMISS_ACTION)
+            addAction(MISSED_ACTION)
             addAction(SNOOZED_ACTION)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -118,6 +124,7 @@ class AlarmRingingActivity : AppCompatActivity() {
         const val EXTRA_ALARM = "alarm_dto"
         const val EXTRA_IS_24H = "is_24h"
         private const val DISMISS_ACTION = "com.jddev.simplealarm.ACTION_DISMISS_RINGING"
+        private const val MISSED_ACTION = "com.jddev.simplealarm.ACTION_MISSED_RINGING"
         private const val SNOOZED_ACTION = "com.jddev.simplealarm.ACTION_SNOOZE_RINGING"
 
         internal fun startActivity(context: Context, alarm: Alarm, is24h: Boolean) {
@@ -139,7 +146,7 @@ class AlarmRingingActivity : AppCompatActivity() {
             }
         }
 
-        internal fun dismiss(context: Context) {
+        internal fun dismissAlarm(context: Context) {
             val intent = Intent().apply {
                 action = DISMISS_ACTION
             }
@@ -147,7 +154,15 @@ class AlarmRingingActivity : AppCompatActivity() {
             context.applicationContext.sendBroadcast(intent)
         }
 
-        internal fun snooze(context: Context) {
+        internal fun missedAlarm(context: Context) {
+            val intent = Intent().apply {
+                action = MISSED_ACTION
+            }
+            Timber.d("send missed to Ringing Activity")
+            context.applicationContext.sendBroadcast(intent)
+        }
+
+        internal fun snoozeAlarm(context: Context) {
             val intent = Intent().apply {
                 action = SNOOZED_ACTION
             }

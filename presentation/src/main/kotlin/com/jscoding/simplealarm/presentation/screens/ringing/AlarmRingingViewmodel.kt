@@ -23,6 +23,7 @@ import kotlin.time.Duration
 sealed interface AlarmRingingState {
     data object None : AlarmRingingState
     data object Dismissed : AlarmRingingState
+    data object Missed : AlarmRingingState
 
     data class Snoozed(
         val snoozedTimeDisplay: String,
@@ -69,6 +70,10 @@ class AlarmRingingViewmodel @Inject constructor(
 
     fun requestDismissAlarm() {
         _alarmRingingState.value = AlarmRingingState.Dismissed
+    }
+
+    fun requestMissedAlarm() {
+        _alarmRingingState.value = AlarmRingingState.Missed
     }
 
     fun requestSnoozeAlarm() {

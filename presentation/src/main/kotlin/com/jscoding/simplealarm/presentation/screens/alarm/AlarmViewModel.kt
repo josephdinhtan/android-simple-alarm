@@ -41,8 +41,8 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
-    fun update(alarm: Alarm) {
-        viewModelScope.launch { updateAlarm(alarm) }
+    fun onEnableUpdate(alarm: Alarm, enable: Boolean) {
+        viewModelScope.launch { updateAlarm(alarm, alarm.copy(enabled = enable)) }
     }
 }
 

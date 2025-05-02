@@ -8,6 +8,9 @@ import com.jscoding.simplealarm.domain.utils.getPreAlarmNotificationTime
 import java.time.LocalDateTime
 import javax.inject.Inject
 
+/**
+ * Try to schedule next alarm
+ */
 class TryScheduleNextAlarmUseCase @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val preNotificationScheduler: AlarmPreNotificationScheduler,

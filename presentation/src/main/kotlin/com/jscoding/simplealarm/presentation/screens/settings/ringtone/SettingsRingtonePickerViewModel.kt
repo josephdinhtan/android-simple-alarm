@@ -5,8 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.jscoding.simplealarm.domain.entity.alarm.Ringtone
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
-import com.jscoding.simplealarm.domain.usecase.alarm.GetAlarmByIdUseCase
-import com.jscoding.simplealarm.domain.usecase.alarm.UpdateAlarmUseCase
 import com.jscoding.simplealarm.domain.usecase.others.StartPlayToneUseCase
 import com.jscoding.simplealarm.domain.usecase.others.StopPlayToneUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,8 +19,6 @@ import javax.inject.Inject
 class SettingsRingtonePickerViewModel @Inject constructor(
     private val systemSettingsManager: SystemSettingsManager,
     private val settingsRepository: SettingsRepository,
-    private val getAlarmByIdUseCase: GetAlarmByIdUseCase,
-    private val updateAlarmUseCase: UpdateAlarmUseCase,
     private val startPlayToneUseCase: StartPlayToneUseCase,
     private val stopPlayToneUseCase: StopPlayToneUseCase,
 ) : ViewModel() {
@@ -83,24 +79,6 @@ class SettingsRingtonePickerViewModel @Inject constructor(
     fun setDefaultRingtone(ringtone: Ringtone) {
         viewModelScope.launch {
             settingsRepository.setDefaultRingtone(ringtone)
-        }
-    }
-
-    fun getAlarmSelectedRingtone(alarmId: Long) {
-        viewModelScope.launch {
-            val alarm = getAlarmByIdUseCase(alarmId)
-            alarm?.let {
-                _selectedRingtone.value = it.ringtone
-            }
-        }
-    }
-
-    fun setAlarmRingtone(ringtone: Ringtone, alarmId: Long) {
-        viewModelScope.launch {
-            val alarm = getAlarmByIdUseCase(alarmId)
-            alarm?.let {
-                updateAlarmUseCase(it.copy(ringtone = ringtone))
-            }
         }
     }
 }

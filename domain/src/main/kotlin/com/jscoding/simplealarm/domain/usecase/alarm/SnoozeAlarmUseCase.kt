@@ -11,6 +11,11 @@ import java.util.Calendar
 import javax.inject.Inject
 import kotlin.time.Duration
 
+/**
+ * Snooze an Alarm
+ *
+ * Triggered when the user click snooze button
+ */
 class SnoozeAlarmUseCase @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val alarmRingingController: AlarmRingingController,

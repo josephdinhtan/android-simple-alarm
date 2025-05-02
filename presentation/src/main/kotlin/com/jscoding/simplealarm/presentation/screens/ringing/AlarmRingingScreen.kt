@@ -50,12 +50,16 @@ fun AlarmRingingScreen(
     AniVisibility(visible = alarmRingingState is AlarmRingingState.Dismissed) {
         DismissScreen(onFinished = { viewModel.finish() })
     }
+
+    AniVisibility(visible = alarmRingingState is AlarmRingingState.Missed) {
+        MissedScreen(onFinished = { viewModel.finish() })
+    }
 }
 
 @Composable
 private fun AniVisibility(
     visible: Boolean,
-    content: @Composable() AnimatedVisibilityScope.() -> Unit,
+    content: @Composable AnimatedVisibilityScope.() -> Unit,
 ) {
     AnimatedVisibility(
         visible = visible, enter = fadeIn(),

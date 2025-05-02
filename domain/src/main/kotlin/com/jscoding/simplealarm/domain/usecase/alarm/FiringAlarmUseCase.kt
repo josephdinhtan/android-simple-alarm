@@ -5,6 +5,9 @@ import com.jscoding.simplealarm.domain.platform.AlarmRingingController
 import com.jscoding.simplealarm.domain.repository.SettingsRepository
 import javax.inject.Inject
 
+/**
+ * Trigger firing an Alarm
+ */
 class FiringAlarmUseCase @Inject constructor(
     private val alarmRingingController: AlarmRingingController,
     private val settingsRepository: SettingsRepository,

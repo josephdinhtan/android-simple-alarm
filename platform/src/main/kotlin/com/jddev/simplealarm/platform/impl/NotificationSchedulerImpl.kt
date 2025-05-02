@@ -31,7 +31,7 @@ class NotificationSchedulerImpl @Inject constructor(
             alarmDto = alarm.toDto(),
             scheduleId = alarm.id.toScheduleId()
         )
-        Timber.d("Notification scheduled for id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, at: ${triggerAt.toLocalTime()}")
+        Timber.d("Notification scheduled for id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, at: ${triggerAt.toLocalTime()} - ${triggerAt.toLocalDate()}")
         alarmManagerHelper.schedule(pendingIntent, triggerAtMillis)
     }
 

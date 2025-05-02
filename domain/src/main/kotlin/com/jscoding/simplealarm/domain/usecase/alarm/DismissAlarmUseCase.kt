@@ -7,6 +7,9 @@ import com.jscoding.simplealarm.domain.repository.AlarmRepository
 import com.jscoding.simplealarm.domain.usecase.others.CancelNotificationUseCase
 import javax.inject.Inject
 
+/**
+ * Dismiss an Alarm
+ */
 class DismissAlarmUseCase @Inject constructor(
     private val alarmRepository: AlarmRepository,
     private val alarmScheduler: AlarmScheduler,

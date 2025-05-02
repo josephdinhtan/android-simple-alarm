@@ -34,8 +34,8 @@ fun AlarmRoute(
     val alarms by viewModel.alarms.collectAsState()
     val is24hFormat by viewModel.is24hFormat.collectAsState()
     AlarmScreenContent(
-        alarms = alarms, scrollBehavior = scrollBehavior, onUpdate = {
-            viewModel.update(it)
+        alarms = alarms, scrollBehavior = scrollBehavior, onEnableUpdate = { alarm, enable ->
+            viewModel.onEnableUpdate(alarm, enable)
         }, is24hFormat = is24hFormat, onEditAlarm = onEditAlarm
     )
 }
@@ -46,7 +46,7 @@ fun AlarmScreenContent(
     alarms: List<Alarm>,
     is24hFormat: Boolean,
     scrollBehavior: TopAppBarScrollBehavior,
-    onUpdate: (Alarm) -> Unit,
+    onEnableUpdate: (alarm: Alarm, enable: Boolean) -> Unit,
     onEditAlarm: (Alarm) -> Unit,
 ) {
     LazyColumn(
@@ -69,7 +69,7 @@ fun AlarmScreenContent(
                 alarm = alarm,
                 is24hFormat = is24hFormat,
                 onToggle = {
-                    onUpdate(alarm.copy(enabled = !alarm.enabled))
+                    onEnableUpdate(alarm, it)
                 }, onClick = {
                     onEditAlarm(alarm)
                 }
@@ -89,6 +89,6 @@ private fun Preview() {
         AlarmScreenContent(alarms = listOf(
             Alarm.default().copy(enabled = true, repeatDays = repeatDayOfWeeK),
             Alarm.default().copy(enabled = false),
-        ), is24hFormat = false, scrollBehavior = stUiLargeTopAppbarScrollBehavior(), {}, {})
+        ), is24hFormat = false, scrollBehavior = stUiLargeTopAppbarScrollBehavior(), {_, _ ->}, {})
     }
 }

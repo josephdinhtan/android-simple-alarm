@@ -9,7 +9,6 @@ import android.os.Vibrator
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import com.jddev.simplealarm.platform.activity.AlarmRingingActivity
 import com.jddev.simplealarm.platform.dto.AlarmDto
 import com.jddev.simplealarm.platform.helper.MediaPlayerHelper
 import com.jddev.simplealarm.platform.helper.NotificationHelper
@@ -19,8 +18,7 @@ import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationAction
 import com.jscoding.simplealarm.domain.entity.alarm.NotificationType
 import com.jscoding.simplealarm.domain.platform.SystemSettingsManager
-import com.jscoding.simplealarm.domain.usecase.others.CancelNotificationUseCase
-import com.jscoding.simplealarm.domain.usecase.others.ShowNotificationUseCase
+import com.jscoding.simplealarm.domain.usecase.alarm.MissedAlarmUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -52,7 +50,7 @@ internal class AlarmRingingService : LifecycleService() {
     lateinit var notificationHelper: NotificationHelper
 
     @Inject
-    lateinit var showNotificationUseCase: ShowNotificationUseCase
+    lateinit var missedAlarmUseCase: MissedAlarmUseCase
 
     @Inject
     @JvmField
@@ -96,16 +94,11 @@ internal class AlarmRingingService : LifecycleService() {
 
     private fun handleRequests(action: String, alarm: Alarm, intent: Intent) =
         when (action) {
-            ACTION_DISMISS_ALARM, ACTION_SNOOZE_ALARM -> {
+            ACTION_DISMISS_ALARM, ACTION_SNOOZE_ALARM, ACTION_MISSED_ALARM -> {
                 if (!isAlarmRinging) {
                     Timber.d("Alarm is not Ringing state, so ignore, finish")
                     stopSelf()
                 } else {
-                    if (action == ACTION_DISMISS_ALARM) {
-                        AlarmRingingActivity.dismiss(this.applicationContext)
-                    } else {
-                        AlarmRingingActivity.snooze(this.applicationContext)
-                    }
                     stopAlarmRingtone()
                     cleanupAndFinishService()
                     isAlarmRinging = false
@@ -163,9 +156,8 @@ internal class AlarmRingingService : LifecycleService() {
 
     private fun missedAlarm(alarm: Alarm) {
         Timber.d("missedAlarm alarm: ${alarm.label}, id: ${alarm.id}")
-        // show missedAlarm notification
         lifecycleScope.launch(Dispatchers.IO) {
-            showNotificationUseCase(alarm, "Missed Alarm", NotificationType.ALARM_MISSED)
+            missedAlarmUseCase(alarm)
         }
     }
 
@@ -211,7 +203,7 @@ internal class AlarmRingingService : LifecycleService() {
             Timber.d("If there no action, it'll ringing forever, no limit")
         } else {
             alarmFiringTimeOutJob = lifecycleScope.launch(Dispatchers.IO) {
-                delay(ringingTimeLimit)
+                delay(ringingTimeLimit.inWholeMinutes.seconds)
                 missedAlarm(alarm)
                 delay(100)
                 stopAlarmRingtone()
@@ -263,6 +255,7 @@ internal class AlarmRingingService : LifecycleService() {
 
         const val ACTION_ALARM_RINGING = "com.jddev.simplealarm.ACTION_ALARM_RINGING"
         const val ACTION_DISMISS_ALARM = "com.jddev.simplealarm.ACTION_DISMISS_ALARM"
+        const val ACTION_MISSED_ALARM = "com.jddev.simplealarm.ACTION_MISSED_ALARM"
         const val ACTION_SNOOZE_ALARM = "com.jddev.simplealarm.ACTION_SNOOZE_ALARM"
 
         internal fun startRinging(
@@ -293,6 +286,15 @@ internal class AlarmRingingService : LifecycleService() {
             val jsonAlarmDto = Json.encodeToString(alarm.toDto())
             val intent = Intent(context, AlarmRingingService::class.java).apply {
                 action = ACTION_DISMISS_ALARM
+                putExtra(EXTRA_ALARM, jsonAlarmDto)
+            }
+            context.startService(intent)
+        }
+
+        internal fun missedAlarm(context: Context, alarm: Alarm) {
+            val jsonAlarmDto = Json.encodeToString(alarm.toDto())
+            val intent = Intent(context, AlarmRingingService::class.java).apply {
+                action = ACTION_MISSED_ALARM
                 putExtra(EXTRA_ALARM, jsonAlarmDto)
             }
             context.startService(intent)

@@ -3,25 +3,21 @@ package com.jscoding.simplealarm.domain.usecase.alarm
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.entity.exceptions.AlarmAlreadyExistsException
 import com.jscoding.simplealarm.domain.entity.exceptions.NotificationNotAllowException
-import com.jscoding.simplealarm.domain.platform.AlarmPreNotificationScheduler
-import com.jscoding.simplealarm.domain.platform.AlarmScheduler
+import com.jscoding.simplealarm.domain.platform.AlarmNotificationController
 import com.jscoding.simplealarm.domain.repository.AlarmRepository
-import com.jscoding.simplealarm.domain.utils.getNextTriggerTime
-import com.jscoding.simplealarm.domain.utils.getPreAlarmNotificationTime
 import kotlinx.coroutines.flow.firstOrNull
-import java.time.LocalDateTime
 import javax.inject.Inject
-import javax.inject.Singleton
-import kotlin.time.Duration
 
-@Singleton
+/**
+ * Add a new Alarm
+ */
 class AddAlarmUseCase @Inject constructor(
     private val repository: AlarmRepository,
-    private val notificationController: AlarmPreNotificationScheduler,
+    private val notificationController: AlarmNotificationController,
     private val tryScheduleNextAlarmUseCase: TryScheduleNextAlarmUseCase,
 ) {
     suspend operator fun invoke(alarm: Alarm): Result<Unit> {
-        if (!notificationController.isScheduleNotificationAllowed()) {
+        if (!notificationController.isNotificationAllowed()) {
             return Result.failure(NotificationNotAllowException())
         }
 
@@ -30,9 +26,12 @@ class AddAlarmUseCase @Inject constructor(
         if (alarms != null && alarms.any { it.isSameAlarm(alarm) }) {
             return Result.failure(AlarmAlreadyExistsException())
         }
+
+        // Add new alarm
         val result = repository.insertAlarm(alarm)
         val alarmId =
             result.getOrNull() ?: return Result.failure(Exception("Failed to insert alarm"))
+
         tryScheduleNextAlarmUseCase(alarm.copy(id = alarmId))
         return Result.success(Unit)
     }

@@ -8,6 +8,9 @@ import com.jscoding.simplealarm.domain.utils.getPreAlarmNotificationTime
 import java.time.LocalDateTime
 import javax.inject.Inject
 
+/**
+ * Cancel current schedule related to this Alarm
+ */
 class CancelScheduleAlarmUseCase @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val preNotificationScheduler: AlarmPreNotificationScheduler,

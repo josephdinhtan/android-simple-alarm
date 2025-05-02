@@ -1,6 +1,7 @@
 package com.jddev.simplealarm.platform.impl
 
 import android.content.Context
+import com.jddev.simplealarm.platform.activity.AlarmRingingActivity
 import com.jddev.simplealarm.platform.service.AlarmRingingService
 import com.jscoding.simplealarm.domain.entity.alarm.Alarm
 import com.jscoding.simplealarm.domain.platform.AlarmRingingController
@@ -24,13 +25,21 @@ class AlarmRingingControllerImpl @Inject constructor(
             volumeFadeDuration,
             ringingTimeLimit
         )
+        // In Ringing case AlarmRingingActivity will be started from Notification.
     }
 
     override fun dismissAlarm(alarm: Alarm) {
         AlarmRingingService.dismissAlarm(context, alarm)
+        AlarmRingingActivity.dismissAlarm(context)
+    }
+
+    override fun missedAlarm(alarm: Alarm) {
+        AlarmRingingService.missedAlarm(context, alarm)
+        AlarmRingingActivity.missedAlarm(context)
     }
 
     override fun snoozeAlarm(alarm: Alarm) {
         AlarmRingingService.snoozeAlarm(context, alarm)
+        AlarmRingingActivity.snoozeAlarm(context)
     }
 }

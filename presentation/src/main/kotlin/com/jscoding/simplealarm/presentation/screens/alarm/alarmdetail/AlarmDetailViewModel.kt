@@ -65,7 +65,8 @@ class AlarmDetailViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     // Internal alarm model
-    private var currentAlarm: Alarm? = null
+    private var upToDateAlarm: Alarm? = null
+    private var originalAlarm: Alarm? = null
 
     // Ringtone screen
     private val _availableRingtones = MutableStateFlow<List<Ringtone>>(emptyList())
@@ -110,23 +111,23 @@ class AlarmDetailViewModel @Inject constructor(
                 preAlarmNotificationDuration = 5.minutes,
                 createdAt = System.currentTimeMillis(),
             )
-            currentAlarm = newAlarm
+            upToDateAlarm = newAlarm
             _uiState.value = UiState.Success(newAlarm, true)
         }
     }
 
     private fun setupEditAlarm(alarmId: Long) {
         viewModelScope.launchIo {
-            currentAlarm = getAlarmByIdUseCase(alarmId) ?: Alarm.default()
-
-            currentAlarm?.let {
+            upToDateAlarm = getAlarmByIdUseCase(alarmId) ?: Alarm.default()
+            originalAlarm = upToDateAlarm?.copy()
+            upToDateAlarm?.let {
                 _uiState.value = UiState.Success(it, false)
             }
         }
     }
 
     fun deleteAlarm() {
-        currentAlarm?.let {
+        upToDateAlarm?.let {
             viewModelScope.launchIo {
                 deleteAlarmUseCase(it)
             }
@@ -135,7 +136,7 @@ class AlarmDetailViewModel @Inject constructor(
 
     fun saveAlarm() {
         val state = uiState.value
-        val alarm = currentAlarm
+        val alarm = upToDateAlarm
 
         if (state !is UiState.Success || alarm == null) return
 
@@ -164,14 +165,18 @@ class AlarmDetailViewModel @Inject constructor(
                     }
                 }
             } else {
-                updateAlarmUseCase(alarm.copy(enabled = true))
-                _eventFlow.emit(AlarmDetailEvent.SaveSuccess)
+                originalAlarm?.let {
+                    updateAlarmUseCase(it, alarm.copy(enabled = true))
+                    _eventFlow.emit(AlarmDetailEvent.SaveSuccess)
+                } ?: run {
+                    _eventFlow.emit(AlarmDetailEvent.Error("No original alarm found", true))
+                }
             }
         }
     }
 
     fun onAlarmValueChange(alarm: Alarm) {
-        currentAlarm = alarm
+        upToDateAlarm = alarm
         _uiState.update { state ->
             if (state is UiState.Success) {
                 state.copy(alarm = alarm)
@@ -189,14 +194,14 @@ class AlarmDetailViewModel @Inject constructor(
             val allRingtones =
                 defaultRingtone?.let { listOf(it) + systemRingtones } ?: systemRingtones
             _availableRingtones.value = allRingtones
-            currentAlarm?.let {
+            upToDateAlarm?.let {
                 _selectedRingtone.value = it.ringtone
             }
         }
     }
 
     fun onRingtoneSave() {
-        currentAlarm?.let {
+        upToDateAlarm?.let {
             onAlarmValueChange(it.copy(ringtone = selectedRingtone.value))
         }
     }
