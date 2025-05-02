@@ -33,7 +33,7 @@ class AlarmSchedulerImpl @Inject constructor(
     }
 
     override fun cancel(alarm: Alarm) {
-        Timber.d("Cancel Alarm id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, time: ${alarm.hour}:${alarm.minute}")
+        Timber.d("Cancel Alarm scheduled for id: ${alarm.id}, scheduleId: ${alarm.id.toScheduleId()}, time: ${alarm.hour}:${alarm.minute}")
         alarmManagerHelper.cancel(
             provideAlarmIntent(
                 context,

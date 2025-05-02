@@ -33,17 +33,17 @@ class AlarmRingingActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 DISMISS_ACTION -> {
-                    Timber.d("Dismiss Alarm from UseCase")
+                    Timber.d("received Dismiss Alarm from UseCase")
                     alarmRingingViewmodel.requestDismissAlarm()
                 }
 
                 SNOOZED_ACTION -> {
-                    Timber.d("Snooze Alarm from UseCase")
+                    Timber.d("received Snooze Alarm from UseCase")
                     alarmRingingViewmodel.requestSnoozeAlarm()
                 }
 
                 MISSED_ACTION -> {
-                    Timber.d("Missed Alarm from UseCase")
+                    Timber.d("received Missed Alarm from UseCase")
                     alarmRingingViewmodel.requestMissedAlarm()
                 }
 

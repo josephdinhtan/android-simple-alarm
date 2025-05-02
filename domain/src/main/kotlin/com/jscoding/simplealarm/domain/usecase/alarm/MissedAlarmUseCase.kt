@@ -18,7 +18,6 @@ class MissedAlarmUseCase @Inject constructor(
     private val alarmRingingController: AlarmRingingController,
     private val cancelNotificationUseCase: CancelNotificationUseCase,
     private val tryScheduleNextAlarmUseCase: TryScheduleNextAlarmUseCase,
-    private val cancelScheduleAlarmUseCase: CancelScheduleAlarmUseCase,
     private val showNotificationUseCase: ShowNotificationUseCase,
 ) {
     suspend operator fun invoke(alarm: Alarm) {
@@ -26,8 +25,6 @@ class MissedAlarmUseCase @Inject constructor(
         alarmRingingController.missedAlarm(alarm)
         // Cancel current notification
         cancelNotificationUseCase(alarm)
-        // Cancel current schedule related to this Alarm
-        cancelScheduleAlarmUseCase(alarm)
         // Re-schedule next alarm
         if(alarm.repeatDays.isEmpty()) {
             alarmRepository.updateAlarm(alarm.copy(enabled = false))
